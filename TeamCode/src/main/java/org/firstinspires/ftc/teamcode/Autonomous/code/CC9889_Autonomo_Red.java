@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.Code;
+package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,7 +20,7 @@ import static com.qualcomm.robotcore.util.Range.clip;
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
 @Autonomous(name="AutoRed", group="Blue")
-public class CC9889_Autonomo_Blue extends LinearOpMode {
+public class CC9889_Autonomo_Red extends LinearOpMode {
 
     //DcMotors
     DcMotor leftDrive;
