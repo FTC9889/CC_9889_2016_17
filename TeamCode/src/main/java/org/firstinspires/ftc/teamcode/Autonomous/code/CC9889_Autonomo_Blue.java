@@ -20,7 +20,7 @@ import static com.qualcomm.robotcore.util.Range.clip;
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
-@Autonomous(name="AutoBlue", group="Red")
+@Autonomous(name="AutoBlue", group="Blue")
 public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     //Motors
@@ -57,12 +57,17 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         setup();
 
-        idle();
+        waitForTick(50);
 
         waitForStart();
 
-        encoderDrive(0.5, true , 18, 18, 100);//Go forward 18 inches
+        encoderDrive(0.5, true, 6.5, 0, 100);
+        FindWhiteTape(0.7, true);
+        BumperControl(false);
+        HitButton(true);
 
+
+        sleep(5000);
         super.stop();
     }
 
@@ -108,8 +113,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servo Movement
-        LeftBumper.setPosition(0.2);
-        RightBumper.setPosition(0.2);
+        BumperControl(true);
         // start calibrating the gyro.
         /**
         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
@@ -180,85 +184,93 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         }
     }
 
-    //Gyro
-    public void gyroTurn(double speed, double degrees){
-        sleep(500);
-        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        Gyro.resetZAxisIntegrator();
-        while (opModeIsActive() && Gyro.getHeading() < degrees){
-                LDrive.setPower(speed/2);
-                RDrive.setPower(-speed/2);
-        }
-        while (opModeIsActive() && Gyro.getHeading() > degrees){
-            LDrive.setPower(-speed/2);
-            RDrive.setPower(speed/2);
-        }
-        while (opModeIsActive() && Gyro.getHeading() < degrees){
-            LDrive.setPower(speed/2.5);
-            RDrive.setPower(-speed/2.5);
-        }
-        LDrive.setPower(0.0);
-        RDrive.setPower(0.0);
-        sleep(500);
-    }
-
-    //Command to find the color of the right side of beacon and press the correct button
-    public void HitBeacon(int color){
-
-        sleep(500);
-        if(1 == color){
-
-            sleep(1000);
-
-            RDrive.setPower(1.0);
-            LDrive.setPower(0.0);
-        }else {
-
-            sleep(1000);
-
-            RDrive.setPower(0.0);
-            LDrive.setPower(1.0);
-        }
-        sleep(800);
-        RDrive.setPower(0.0);
-        LDrive.setPower(0.0);
-        encoderDrive(1.0,false, -5,-5,500);
-    }
-
     //Go to white line
     public void FindWhiteTape(double speed, boolean color){
-        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
+        LDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
             LDrive.setPower(speed);
             RDrive.setPower(speed);
+            waitForTick(10);
         }
-        while (opModeIsActive() && RWhiteLine.getRawLightDetected() > 1.5){
-            LDrive.setPower(speed);
-            RDrive.setPower(speed);
-        }
-        LDrive.setPower(-1.0);
-        RDrive.setPower(-1.0);
-        sleep(100);
         LDrive.setPower(0.0);
         RDrive.setPower(0.0);
 
         sleep(500);
-        encoderDrive(0.5, false, 2, 2, 50);
+
+        encoderDrive(0.5, true, 5, 5, 100);
+
         if (opModeIsActive() && color == true){
-            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(0.2);
-                RDrive.setPower(-0.2);
+            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
+                LDrive.setPower(0.5);
+                RDrive.setPower(-0.5);
+                waitForTick(10);
             }
-        }else if(opModeIsActive() && color == false){
+        }else {
             while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(-0.2);
-                RDrive.setPower(0.2);
+                LDrive.setPower(-0.5);
+                RDrive.setPower(0.5);
+                waitForTick(10);
+            }
+        }
+        if (opModeIsActive() && color == true){
+            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
+                LDrive.setPower(0.5);
+                RDrive.setPower(-0.5);
+                waitForTick(10);
+            }
+        }else {
+            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
+                LDrive.setPower(-0.5);
+                RDrive.setPower(0.5);
+                waitForTick(10);
             }
         }
         LDrive.setPower(0.0);
         RDrive.setPower(0.0);
-        sleep(1000);
+
+        sleep(500);
+
+        LDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    //Follow Line and Press Button
+    public void HitButton(boolean color){
+        encoderDrive(0.1, false, 4, 4, 100);
+        LDrive.setPower(0.0);
+        RDrive.setPower(0.0);
+
+        if(opModeIsActive() && color == true){
+            LDrive.setPower(0.1);
+            RDrive.setPower(0.1);
+
+            sleep(1050);
+
+            if(Color.red() < Color.blue()){
+                LeftBumper.setPosition(0.8);
+            }else {
+                RightBumper.setPosition(0.2);
+            }
+
+            sleep(1000);
+
+            LDrive.setPower(0.0);
+            RDrive.setPower(0.0);
+
+            encoderDrive(0.2, true, -2, -2, 100);
+        }
+    }
+
+    //Controller for all bumper actions
+    public void BumperControl(boolean updown){
+        if(updown == true){
+            LeftBumper.setPosition(0.8);
+            RightBumper.setPosition(0.2);
+        }else if(opModeIsActive() && updown == false){
+            LeftBumper.setPosition(0.15);
+            RightBumper.setPosition(0.85);
+        }
     }
 
     //Flywheel Control
