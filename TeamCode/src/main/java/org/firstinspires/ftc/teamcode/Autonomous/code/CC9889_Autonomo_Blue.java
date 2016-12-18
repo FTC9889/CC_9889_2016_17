@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -22,26 +23,21 @@ import static com.qualcomm.robotcore.util.Range.clip;
 @Autonomous(name="AutoBlue", group="Red")
 public class CC9889_Autonomo_Blue extends LinearOpMode {
 
-    //DcMotors
-    DcMotor leftDrive;
-    DcMotor rightDrive;
-    DcMotor leftShoot;
+    //Motors
     DcMotor rightShoot;
+    DcMotor leftShoot;
+    DcMotor RDrive;
+    DcMotor LDrive;
 
     //Servos
-    CRServo Color;
-    Servo Shoot;
-    Servo touchservo;
+    Servo RightBumper;
+    Servo LeftBumper;
 
     //Sensors
-    ModernRoboticsI2cGyro gyro;
-    ColorSensor colorSensor;
-    ModernRoboticsI2cRangeSensor rangeSensor;
-    OpticalDistanceSensor ods;
-    TouchSensor touchtouch;
-
-    //Core Device Interface
-    DeviceInterfaceModule CDI;
+    OpticalDistanceSensor RWhiteLine;
+    OpticalDistanceSensor LWhiteLine;
+    ColorSensor Color;
+    GyroSensor Gyro;
 
     //DcMotor Encoders
     static final double EncoderCounts=1120;
@@ -54,50 +50,18 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
     double Flywheelnum = 0.0;
 
     private ElapsedTime runtime=new ElapsedTime();
+    private ElapsedTime period  = new ElapsedTime();
 
     @Override
     public void runOpMode () {
 
         setup();
 
-        LED();//LED() is used to show where in the program we are.
-
         idle();
 
         waitForStart();
 
-        Flywheel(1);
-
-        sleep(1000);
-
-        shoot();
-
-        Flywheel(0);
-
-        encoderDrive(0.5, true ,18,18, 100);//Go forward 18 inches
-
-        LED();
-
-        encoderDrive(0.1, true, 7, -7, 100);
-
-        //gyroTurn(TurnSpeed, 49);
-
-        //encoderDrive(TurnSpeed, 9 ,-9,50);//Turn right (45 degrees)
-
-        FindWhiteTape(0.4, true);
-
-        TouchSignal(0.2, true); // ¯\_(ツ)_/¯
-
-        HitBeacon(0);
-
-        leftDrive.setPower(-1.0);
-        rightDrive.setPower(-1.0);
-        sleep(1500);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
-
-
-        encoderDrive(1.0, true, -30, 30, 500);
+        encoderDrive(0.5, true , 18, 18, 100);//Go forward 18 inches
 
         super.stop();
     }
@@ -107,47 +71,45 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
     //Setup
     public void setup(){
         //Drive Motors
-        leftDrive =hardwareMap.dcMotor.get("leftDrive");
-        rightDrive = hardwareMap.dcMotor.get("rightDrive");
+        LDrive =hardwareMap.dcMotor.get("leftdrive");
+        RDrive = hardwareMap.dcMotor.get("rightdrive");
 
         //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("leftShoot");
-        rightShoot = hardwareMap.dcMotor.get("rightShoot");
+        leftShoot = hardwareMap.dcMotor.get("flywheelleft");
+        rightShoot = hardwareMap.dcMotor.get("flywheelright");
 
         //Servos
-        Color = hardwareMap.crservo.get("colorServo"); //This is crservo
-        Shoot = hardwareMap.servo.get("ServoShoot");
-        touchservo = hardwareMap.servo.get("touchservo");
+        RightBumper = hardwareMap.servo.get("r");
+        LeftBumper = hardwareMap.servo.get("l");
 
         //Sensors
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-        colorSensor = hardwareMap.colorSensor.get("color");
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
-        touchtouch = hardwareMap.touchSensor.get("touch");
-        ods = hardwareMap.opticalDistanceSensor.get("ods");
-
-        //Core Device Interface
-        CDI = hardwareMap.deviceInterfaceModule.get("Device Interface Module 1");
+        Gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        Color = hardwareMap.colorSensor.get("colorsensor");
+        RWhiteLine = hardwareMap.opticalDistanceSensor.get("rods");
+        LWhiteLine = hardwareMap.opticalDistanceSensor.get("lods");
 
         //Tweaks to the hardware #Linsanity
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        LDrive.setDirection(DcMotor.Direction.REVERSE);
         rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Drive Mode
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
 
         //Drive Wheels no power
-        leftDrive.setPowerFloat();
-        rightDrive.setPowerFloat();
+        LDrive.setPowerFloat();
+        RDrive.setPowerFloat();
 
         //Flywheel no power
         leftShoot.setPowerFloat();
-        rightDrive.setPowerFloat();
+        rightShoot.setPowerFloat();
+
+        leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servo Movement
-        Shoot.setPosition(0.2);
-        Color.setPower(0.0);
+        LeftBumper.setPosition(0.2);
+        RightBumper.setPosition(0.2);
         // start calibrating the gyro.
         /**
         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
@@ -175,194 +137,128 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftTarget = leftDrive.getCurrentPosition() + (int)(leftInches * CountsPerInch);
-            newRightTarget = rightDrive.getCurrentPosition() + (int)(rightInches * CountsPerInch);
-            leftDrive.setTargetPosition(newLeftTarget);
-            rightDrive.setTargetPosition(newRightTarget);
+            newLeftTarget = LDrive.getCurrentPosition() + (int)(leftInches * CountsPerInch);
+            newRightTarget = RDrive.getCurrentPosition() + (int)(rightInches * CountsPerInch);
+            LDrive.setTargetPosition(newLeftTarget);
+            RDrive.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            LDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
 
-            leftDrive.setPower(Math.abs(speed));
-            rightDrive.setPower(Math.abs(speed));
+            LDrive.setPower(Math.abs(speed));
+            RDrive.setPower(Math.abs(speed));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (leftDrive.isBusy() && rightDrive.isBusy())) {
+            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (LDrive.isBusy() && RDrive.isBusy())) {
 
-                leftDrive.setPower(speed);
-                rightDrive.setPower(speed);
+                LDrive.setPower(speed);
+                RDrive.setPower(speed);
 
                 // Display it for the driver.
                 telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d", leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
+                telemetry.addData("Path2",  "Running at %7d :%7d", LDrive.getCurrentPosition(), RDrive.getCurrentPosition());
                 telemetry.update();
                 idle();
 
             }
             if(quickstop == true){
-                leftDrive.setPower(speed);
-                rightDrive.setPower(speed);
+                LDrive.setPower(speed);
+                RDrive.setPower(speed);
                 sleep(500);
             }
             // Stop all motion;
-            leftDrive.setPower(0);
-            rightDrive.setPower(0);
+            LDrive.setPower(0);
+            RDrive.setPower(0);
 
             sleep(timeoutS);   // optional pause after each move
-            leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-            rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+            LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+            RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
         }
     }
 
     //Gyro
     public void gyroTurn(double speed, double degrees){
         sleep(500);
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        gyro.resetZAxisIntegrator();
-        while (opModeIsActive() && gyro.getHeading() < degrees){
-                leftDrive.setPower(speed/2);
-                rightDrive.setPower(-speed/2);
+        Gyro.resetZAxisIntegrator();
+        while (opModeIsActive() && Gyro.getHeading() < degrees){
+                LDrive.setPower(speed/2);
+                RDrive.setPower(-speed/2);
         }
-        while (opModeIsActive() && gyro.getHeading() > degrees){
-            leftDrive.setPower(-speed/2);
-            rightDrive.setPower(speed/2);
+        while (opModeIsActive() && Gyro.getHeading() > degrees){
+            LDrive.setPower(-speed/2);
+            RDrive.setPower(speed/2);
         }
-        while (opModeIsActive() && gyro.getHeading() < degrees){
-            leftDrive.setPower(speed/2.5);
-            rightDrive.setPower(-speed/2.5);
+        while (opModeIsActive() && Gyro.getHeading() < degrees){
+            LDrive.setPower(speed/2.5);
+            RDrive.setPower(-speed/2.5);
         }
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+        LDrive.setPower(0.0);
+        RDrive.setPower(0.0);
         sleep(500);
-    }
-
-    //Touch
-    public void TouchSignal(double speed, boolean color){
-        Color.setPower(0.0);
-        Shoot.setPosition(0.2);
-        touchservo.setPosition(0.45);
-        runtime.reset();
-        while(opModeIsActive()&& touchtouch.isPressed() == false && runtime.seconds() < 3){
-            leftDrive.setPower(speed);
-            rightDrive.setPower(speed);
-            idle();
-        }
-        while(opModeIsActive() && touchtouch.isPressed() == true){
-            leftDrive.setPower(-speed);
-            rightDrive.setPower(-speed);
-            idle();
-        }
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
-
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
-        touchservo.setPosition(0.0);
-
-        encoderDrive(0.7,true, -0.5,-0.5,50);
-        encoderDrive(0.3, true, -1, 1, 50);
-        sleep(500);
-        encoderDrive(0.5, true, 1.5,1.5, 50);
-
     }
 
     //Command to find the color of the right side of beacon and press the correct button
     public void HitBeacon(int color){
-        Color.setPower(-1.0);
-        sleep(900);
-        Color.setPower(0.0);
+
         sleep(500);
-        if(FindColor() == color){
-            Color.setPower(1.0);
+        if(1 == color){
+
             sleep(1000);
-            Color.setPower(0.0);
-            rightDrive.setPower(1.0);
-            leftDrive.setPower(0.0);
+
+            RDrive.setPower(1.0);
+            LDrive.setPower(0.0);
         }else {
-            Color.setPower(1.0);
+
             sleep(1000);
-            Color.setPower(0.0);
-            rightDrive.setPower(0.0);
-            leftDrive.setPower(1.0);
+
+            RDrive.setPower(0.0);
+            LDrive.setPower(1.0);
         }
         sleep(800);
-        rightDrive.setPower(0.0);
-        leftDrive.setPower(0.0);
+        RDrive.setPower(0.0);
+        LDrive.setPower(0.0);
         encoderDrive(1.0,false, -5,-5,500);
     }
 
     //Go to white line
     public void FindWhiteTape(double speed, boolean color){
-        while (opModeIsActive() && ods.getRawLightDetected() < 1.5){
-            leftDrive.setPower(speed);
-            rightDrive.setPower(speed);
+        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
+            LDrive.setPower(speed);
+            RDrive.setPower(speed);
         }
-        while (opModeIsActive() && ods.getRawLightDetected() > 1.5){
-            leftDrive.setPower(speed);
-            rightDrive.setPower(speed);
+        while (opModeIsActive() && RWhiteLine.getRawLightDetected() > 1.5){
+            LDrive.setPower(speed);
+            RDrive.setPower(speed);
         }
-        leftDrive.setPower(-1.0);
-        rightDrive.setPower(-1.0);
+        LDrive.setPower(-1.0);
+        RDrive.setPower(-1.0);
         sleep(100);
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+        LDrive.setPower(0.0);
+        RDrive.setPower(0.0);
 
         sleep(500);
         encoderDrive(0.5, false, 2, 2, 50);
         if (opModeIsActive() && color == true){
-            while (opModeIsActive() && ods.getRawLightDetected() < 1.5){
-                leftDrive.setPower(0.2);
-                rightDrive.setPower(-0.2);
+            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
+                LDrive.setPower(0.2);
+                RDrive.setPower(-0.2);
             }
         }else if(opModeIsActive() && color == false){
-            while (opModeIsActive() && ods.getRawLightDetected() < 1.5){
-                leftDrive.setPower(-0.2);
-                rightDrive.setPower(0.2);
+            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
+                LDrive.setPower(-0.2);
+                RDrive.setPower(0.2);
             }
         }
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
+        LDrive.setPower(0.0);
+        RDrive.setPower(0.0);
         sleep(1000);
-    }
-
-    //Drive to the white line in front of the beacon
-    public void WhiteTape (boolean color){
-        if (opModeIsActive() && color == false){
-            while (opModeIsActive() && ods.getRawLightDetected() < 2.0){
-                leftDrive.setPower(0.1);
-                rightDrive.setPower(-0.1);
-            }
-        }else if(opModeIsActive() && color == true){
-            while (opModeIsActive() && ods.getRawLightDetected() < 2.0){
-                leftDrive.setPower(-0.1);
-                rightDrive.setPower(0.1);
-            }
-        }
-        if (opModeIsActive() && color == true){
-            while (opModeIsActive() && ods.getRawLightDetected() < 2.0){
-                leftDrive.setPower(0.1);
-                rightDrive.setPower(-0.1);
-            }
-        }else if(opModeIsActive() && color == false){
-            while (opModeIsActive() && ods.getRawLightDetected() < 2.0){
-                leftDrive.setPower(-0.1);
-                rightDrive.setPower(0.1);
-            }
-        }
-
-        leftDrive.setPower(0.0);
-        rightDrive.setPower(0.0);
-        leftDrive.setPowerFloat();
-        rightDrive.setPowerFloat();
-
-
     }
 
     //Flywheel Control
@@ -390,36 +286,20 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         }
     }
 
-    //Popper
-    public void shoot(){
-        Shoot.setPosition(0.6);
-        sleep(1000);
-        Shoot.setPosition(0.2);
-    }
+    public void waitForTick(long periodMs) {
 
-    //Return Color
-    //If output is 0, Red is on left. If output is 1, Red is on right
-    public int FindColor(){
-        colorSensor.enableLed(false);
-        if(colorSensor.blue() > colorSensor.red()){
-            return 0;
-        }else {
-            return 1;
+        long  remaining = periodMs - (long)period.milliseconds();
+
+        // sleep for the remaining portion of the regular cycle period.
+        if (remaining > 0) {
+            try {
+                Thread.sleep(remaining);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
-    }
 
-    //Led Indicators
-    public void LED(){
-        int ledstate = 0;
-
-        if (ledstate == 0){
-            CDI.setLED(1, true);
-            CDI.setLED(0, false);
-            ledstate = 1;
-        }else {
-            CDI.setLED(1, false);
-            CDI.setLED(0, true);
-            ledstate = 0;
-        }
+        // Reset the cycle clock for the next pass.
+        period.reset();
     }
 }
