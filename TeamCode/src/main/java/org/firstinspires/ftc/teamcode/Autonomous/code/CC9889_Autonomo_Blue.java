@@ -117,7 +117,10 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        
+        leftShoot.setMaxSpeed(28);
+        rightShoot.setMaxSpeed(28);
+        
         //Servo Movement
         BumperControl(true);
         // start calibrating the gyro.
