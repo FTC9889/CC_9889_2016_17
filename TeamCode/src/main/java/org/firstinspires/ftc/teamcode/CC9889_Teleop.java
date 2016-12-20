@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
@@ -20,6 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 @TeleOp(name="Teleop", group="Teleop")
 public class CC9889_Teleop extends LinearOpMode {
+
 
     //Motors
     DcMotor rightShoot;
@@ -37,9 +40,19 @@ public class CC9889_Teleop extends LinearOpMode {
     ColorSensor Color;
     GyroSensor Gyro;
 
-
+    //DcMotor Encoders
+    static final double EncoderCounts=1120;
+    static final double WheelDiameter=4.0;
+    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1416);
+    static final double DriveSpeed=0.7;
+    static final double TurnSpeed=0.1;
 
     private ElapsedTime period  = new ElapsedTime();
+
+
+    //Command Loop Breakout
+    boolean breakout = false;
+
     @Override
     public void runOpMode (){
 
@@ -47,17 +60,35 @@ public class CC9889_Teleop extends LinearOpMode {
 
         waitForStart();
 
-        double leftspeed = 0.0;
-        double rightspeed = 0.0;
+        double leftspeed, rightspeed, xvalue, yvalue;
+        int div = 1;
 
-        while (opModeIsActive()){
-            leftspeed = -gamepad1.left_stick_y;
-            rightspeed = -gamepad1.right_stick_y;
+        while(opModeIsActive()){
+            while (opModeIsActive() && breakout == false){
+                xvalue = -gamepad1.right_stick_x/div;
+                yvalue = gamepad1.left_stick_y/div;
 
-            LDrive.setPower(leftspeed);
-            RDrive.setPower(rightspeed);
+                leftspeed =  yvalue - xvalue;
+                rightspeed = yvalue + xvalue;
 
-            waitForTick(10);
+                LDrive.setPower(leftspeed);
+                RDrive.setPower(rightspeed);
+
+                waitForTick(10);
+
+                if (gamepad1.right_bumper == true){
+                    div = 3;
+                }else {
+                    div = 1;
+                }
+
+                if(gamepad2.a){
+                    rightShoot.setPower(0.4);
+                    leftShoot.setPower(-0.4);
+                }else if(gamepad2.x){
+                    
+                }
+            }
         }
     }
 
@@ -65,7 +96,7 @@ public class CC9889_Teleop extends LinearOpMode {
 
     //Setup
     public void setup(){
-               //Drive Motors
+        //Drive Motors
         LDrive =hardwareMap.dcMotor.get("leftdrive");
         RDrive = hardwareMap.dcMotor.get("rightdrive");
 
@@ -102,26 +133,28 @@ public class CC9889_Teleop extends LinearOpMode {
         leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         //Servo Movement
         BumperControl(true);
         // start calibrating the gyro.
         /**
-        telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
-        telemetry.update();
-       gyro.calibrate();
-
-        // make sure the gyro is calibrated.
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-        gyro.resetZAxisIntegrator();
-        //Message About Gyro
-        telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
-        telemetry.update();
+         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
+         telemetry.update();
+         gyro.calibrate();
+         // make sure the gyro is calibrated.
+         while (!isStopRequested() && gyro.isCalibrating())  {
+         sleep(50);
+         idle();
+         }
+         gyro.resetZAxisIntegrator();
+         //Message About Gyro
+         telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
+         telemetry.update();
          **/
     }
-    
+
     //Controller for all bumper actions
     public void BumperControl(boolean updown){
         if(updown == true){
@@ -132,7 +165,7 @@ public class CC9889_Teleop extends LinearOpMode {
             RightBumper.setPosition(0.88);
         }
     }
-    
+
     public void waitForTick(long periodMs) {
 
         long  remaining = periodMs - (long)period.milliseconds();
