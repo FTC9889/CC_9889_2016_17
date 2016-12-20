@@ -21,25 +21,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name="Teleop", group="Teleop")
 public class CC9889_Teleop extends LinearOpMode {
 
-    //DcMotors
-    DcMotor leftDrive;
-    DcMotor rightDrive;
-    DcMotor leftShoot;
+    //Motors
     DcMotor rightShoot;
+    DcMotor leftShoot;
+    DcMotor RDrive;
+    DcMotor LDrive;
 
     //Servos
-    CRServo Color;
-    Servo Shoot;
-    Servo touchservo;
+    Servo RightBumper;
+    Servo LeftBumper;
 
     //Sensors
-    ModernRoboticsI2cGyro gyro;
-    ColorSensor colorSensor;
-    ModernRoboticsI2cRangeSensor rangeSensor;
-    TouchSensor touchtouch;
+    OpticalDistanceSensor RWhiteLine;
+    OpticalDistanceSensor LWhiteLine;
+    ColorSensor Color;
+    GyroSensor Gyro;
 
-    //Core Device Interface
-    DeviceInterfaceModule CDI;
 
 
     private ElapsedTime period  = new ElapsedTime();
@@ -54,15 +51,11 @@ public class CC9889_Teleop extends LinearOpMode {
         double rightspeed = 0.0;
 
         while (opModeIsActive()){
-
-            //Color Servo Stay in
-            Color.setPower(0.05);
-
             leftspeed = -gamepad1.left_stick_y;
             rightspeed = -gamepad1.right_stick_y;
 
-            leftDrive.setPower(leftspeed);
-            rightDrive.setPower(rightspeed);
+            LDrive.setPower(leftspeed);
+            RDrive.setPower(rightspeed);
 
             waitForTick(10);
         }
@@ -72,50 +65,74 @@ public class CC9889_Teleop extends LinearOpMode {
 
     //Setup
     public void setup(){
-        //Drive Motors
-        leftDrive =hardwareMap.dcMotor.get("leftDrive");
-        rightDrive = hardwareMap.dcMotor.get("rightDrive");
+               //Drive Motors
+        LDrive =hardwareMap.dcMotor.get("leftdrive");
+        RDrive = hardwareMap.dcMotor.get("rightdrive");
 
         //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("leftShoot");
-        rightShoot = hardwareMap.dcMotor.get("rightShoot");
+        leftShoot = hardwareMap.dcMotor.get("flywheelleft");
+        rightShoot = hardwareMap.dcMotor.get("flywheelright");
 
         //Servos
-        Color = hardwareMap.crservo.get("colorServo"); //This is crservo
-        Shoot = hardwareMap.servo.get("ServoShoot");
-        touchservo = hardwareMap.servo.get("touchservo");
+        RightBumper = hardwareMap.servo.get("r");
+        LeftBumper = hardwareMap.servo.get("l");
 
         //Sensors
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-        colorSensor = hardwareMap.colorSensor.get("color");
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
-        touchtouch = hardwareMap.touchSensor.get("touch");
-
-        //Core Device Interface
-        CDI = hardwareMap.deviceInterfaceModule.get("Device Interface Module 1");
+        Gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        Color = hardwareMap.colorSensor.get("colorsensor");
+        RWhiteLine = hardwareMap.opticalDistanceSensor.get("rods");
+        LWhiteLine = hardwareMap.opticalDistanceSensor.get("lods");
 
         //Tweaks to the hardware #Linsanity
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftShoot.setDirection(DcMotorSimple.Direction.REVERSE);
+        LDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Drive Mode
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
 
         //Drive Wheels no power
-        leftDrive.setPowerFloat();
-        rightDrive.setPowerFloat();
+        LDrive.setPowerFloat();
+        RDrive.setPowerFloat();
 
         //Flywheel no power
         leftShoot.setPowerFloat();
-        rightDrive.setPowerFloat();
+        rightShoot.setPowerFloat();
+
+        leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servo Movement
-        Shoot.setPosition(0.0);
-        Color.setPower(0.0);
+        BumperControl(true);
+        // start calibrating the gyro.
+        /**
+        telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
+        telemetry.update();
+       gyro.calibrate();
 
-
+        // make sure the gyro is calibrated.
+        while (!isStopRequested() && gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
+        gyro.resetZAxisIntegrator();
+        //Message About Gyro
+        telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
+        telemetry.update();
+         **/
     }
+    
+    //Controller for all bumper actions
+    public void BumperControl(boolean updown){
+        if(updown == true){
+            LeftBumper.setPosition(0.8);
+            RightBumper.setPosition(0.2);
+        }else if(opModeIsActive() && updown == false){
+            LeftBumper.setPosition(0.12);
+            RightBumper.setPosition(0.88);
+        }
+    }
+    
     public void waitForTick(long periodMs) {
 
         long  remaining = periodMs - (long)period.milliseconds();
