@@ -149,6 +149,9 @@ public class CC9889_Teleop extends LinearOpMode {
         leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        leftShoot.setMaxSpeed(28);
+        rightShoot.setMaxSpeed(28);
+        
         //Servo Movement
         BumperControl(true);
         // start calibrating the gyro.
