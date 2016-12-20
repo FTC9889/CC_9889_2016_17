@@ -66,8 +66,14 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         BumperControl(false);
         HitButton(true);
 
+        BumperControl(true);
+        encoderDrive(0.5, true, -12, 12, 100);
 
-        sleep(5000);
+        FindWhiteTape(0.7, true);
+        encoderDrive(0.1, true, -3, -3, 100);
+        BumperControl(false);
+        HitButton(true);
+
         super.stop();
     }
 
@@ -198,21 +204,8 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         sleep(500);
 
-        encoderDrive(0.5, true, 5, 5, 100);
+        encoderDrive(0.2, true, 4, 4, 100);
 
-        if (opModeIsActive() && color == true){
-            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(0.5);
-                RDrive.setPower(-0.5);
-                waitForTick(10);
-            }
-        }else {
-            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(-0.5);
-                RDrive.setPower(0.5);
-                waitForTick(10);
-            }
-        }
         if (opModeIsActive() && color == true){
             while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
                 LDrive.setPower(0.5);
@@ -228,7 +221,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         }
         LDrive.setPower(0.0);
         RDrive.setPower(0.0);
-
         sleep(500);
 
         LDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -237,7 +229,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     //Follow Line and Press Button
     public void HitButton(boolean color){
-        encoderDrive(0.1, false, 4, 4, 100);
+        encoderDrive(0.1, false, 2, 2, 100);
         LDrive.setPower(0.0);
         RDrive.setPower(0.0);
 
@@ -258,7 +250,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             LDrive.setPower(0.0);
             RDrive.setPower(0.0);
 
-            encoderDrive(0.2, true, -2, -2, 100);
+            encoderDrive(0.2, true, -4, -4, 100);
         }
     }
 
@@ -268,8 +260,8 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             LeftBumper.setPosition(0.8);
             RightBumper.setPosition(0.2);
         }else if(opModeIsActive() && updown == false){
-            LeftBumper.setPosition(0.15);
-            RightBumper.setPosition(0.85);
+            LeftBumper.setPosition(0.12);
+            RightBumper.setPosition(0.88);
         }
     }
 
