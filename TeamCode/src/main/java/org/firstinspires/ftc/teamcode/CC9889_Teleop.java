@@ -66,7 +66,7 @@ public class CC9889_Teleop extends LinearOpMode {
         while(opModeIsActive()){
             while (opModeIsActive() && breakout == false){
                 xvalue = -gamepad1.right_stick_x/div;
-                yvalue = gamepad1.left_stick_y/div;
+                yvalue = gamepad1.left_stick_y;
 
                 leftspeed =  yvalue - xvalue;
                 rightspeed = yvalue + xvalue;
@@ -77,16 +77,29 @@ public class CC9889_Teleop extends LinearOpMode {
                 waitForTick(10);
 
                 if (gamepad1.right_bumper == true){
-                    div = 3;
+                    div = 4;
                 }else {
                     div = 1;
                 }
 
                 if(gamepad2.a){
-                    rightShoot.setPower(0.4);
-                    leftShoot.setPower(-0.4);
+                    rightShoot.setPower(-0.5);
+                    leftShoot.setPower(-0.5);
                 }else if(gamepad2.x){
-                    
+                    rightShoot.setPower(-0.6);
+                    leftShoot.setPower(-0.6);
+                }else if(gamepad2.y){
+                    rightShoot.setPower(-0.8);
+                    leftShoot.setPower(-0.8);
+                }else {
+                    rightShoot.setPower(0.0);
+                    leftShoot.setPower(0.0);
+                }
+
+                if(gamepad2.right_bumper){
+                    BumperControl(false);
+                }else {
+                    BumperControl(true);
                 }
             }
         }
@@ -130,8 +143,8 @@ public class CC9889_Teleop extends LinearOpMode {
         leftShoot.setPowerFloat();
         rightShoot.setPowerFloat();
 
-        leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
