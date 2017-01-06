@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.media.SoundPool;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,22 +15,32 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
 /**
  * Created by Joshua H on 10/15/2016
  */
 @TeleOp(name="Teleop", group="Teleop")
 public class CC9889_Teleop extends LinearOpMode {
 
-
-    //Motors
+    //Flywheel Motors
     DcMotor rightShoot;
     DcMotor leftShoot;
-    DcMotor RDrive;
-    DcMotor LDrive;
 
-    //Servos
+    //Drivetrain Motors
+    DcMotor RDrive1;
+    DcMotor RDrive2;
+    DcMotor LDrive1;
+    DcMotor LDrive2;
+
+    //Intake Motor
+    DcMotor Intake;
+
+    //Beacon-pushing Servos
     Servo RightBumper;
     Servo LeftBumper;
+
+    //Intake CRservo
+    CRServo IntakeServo;
 
     //Sensors
     OpticalDistanceSensor RWhiteLine;
@@ -65,14 +73,13 @@ public class CC9889_Teleop extends LinearOpMode {
 
         while(opModeIsActive()){
             while (opModeIsActive() && breakout == false){
-                xvalue = -gamepad1.right_stick_x/div;
+                xvalue = gamepad1.right_stick_x/div;
                 yvalue = gamepad1.left_stick_y;
 
                 leftspeed =  yvalue - xvalue;
                 rightspeed = yvalue + xvalue;
 
-                LDrive.setPower(leftspeed);
-                RDrive.setPower(rightspeed);
+                Drivetrain(-leftspeed, rightspeed);
 
                 waitForTick(10);
 
@@ -82,6 +89,7 @@ public class CC9889_Teleop extends LinearOpMode {
                     div = 1;
                 }
 
+                //Flywheel
                 if(gamepad2.a){
                     rightShoot.setPower(-0.5);
                     leftShoot.setPower(-0.5);
@@ -96,11 +104,26 @@ public class CC9889_Teleop extends LinearOpMode {
                     leftShoot.setPower(0.0);
                 }
 
-                if(gamepad2.right_bumper){
+                //Beacon pressing
+                if(gamepad1.right_bumper){
                     BumperControl(false);
                 }else {
                     BumperControl(true);
                 }
+
+                //Intake ctrl
+                if(Math.abs(gamepad2.right_trigger) > 0.3){
+                    Intake.setPower(0.5);
+                }else if(Math.abs(gamepad2.left_trigger) > 0.3){
+                    Intake.setPower(-1.0);
+                }else if(gamepad2.right_bumper){
+                    IntakeServo.setPower(-1.0);
+                    Intake.setPower(0.2);
+                }else {
+                    IntakeServo.setPower(1.0);
+                    Intake.setPower(0.0);
+                }
+
             }
         }
     }
@@ -110,34 +133,42 @@ public class CC9889_Teleop extends LinearOpMode {
     //Setup
     public void setup(){
         //Drive Motors
-        LDrive =hardwareMap.dcMotor.get("leftdrive");
-        RDrive = hardwareMap.dcMotor.get("rightdrive");
+        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
+        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
+        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
+        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
 
         //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("flywheelleft");
-        rightShoot = hardwareMap.dcMotor.get("flywheelright");
+        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
+        rightShoot = hardwareMap.dcMotor.get("RightShoot");
+
+        //Intake Motor
+        Intake = hardwareMap.dcMotor.get("IntakeMotor");
 
         //Servos
-        RightBumper = hardwareMap.servo.get("r");
-        LeftBumper = hardwareMap.servo.get("l");
+        RightBumper = hardwareMap.servo.get("RBump");
+        LeftBumper = hardwareMap.servo.get("LBump");
+        IntakeServo = hardwareMap.crservo.get("Intake");
 
         //Sensors
-        Gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         Color = hardwareMap.colorSensor.get("colorsensor");
-        RWhiteLine = hardwareMap.opticalDistanceSensor.get("rods");
-        LWhiteLine = hardwareMap.opticalDistanceSensor.get("lods");
+        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
+        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
 
         //Tweaks to the hardware #Linsanity
-        LDrive.setDirection(DcMotor.Direction.REVERSE);
+        LDrive1.setDirection(DcMotor.Direction.REVERSE);
+        RDrive1.setDirection(DcMotor.Direction.REVERSE);
         rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Drive Mode
-        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
 
         //Drive Wheels no power
-        LDrive.setPowerFloat();
-        RDrive.setPowerFloat();
+        LDrive1.setPowerFloat();
+        RDrive1.setPowerFloat();
+        LDrive2.setPowerFloat();
+        RDrive2.setPowerFloat();
 
         //Flywheel no power
         leftShoot.setPowerFloat();
@@ -149,9 +180,9 @@ public class CC9889_Teleop extends LinearOpMode {
         leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        leftShoot.setMaxSpeed(28);
-        rightShoot.setMaxSpeed(28);
-        
+        leftShoot.setMaxSpeed(26);
+        rightShoot.setMaxSpeed(26);
+
         //Servo Movement
         BumperControl(true);
         // start calibrating the gyro.
@@ -174,8 +205,8 @@ public class CC9889_Teleop extends LinearOpMode {
     //Controller for all bumper actions
     public void BumperControl(boolean updown){
         if(updown == true){
-            LeftBumper.setPosition(0.8);
-            RightBumper.setPosition(0.2);
+            LeftBumper.setPosition(0.7);
+            RightBumper.setPosition(0.3);
         }else if(opModeIsActive() && updown == false){
             LeftBumper.setPosition(0.12);
             RightBumper.setPosition(0.88);
@@ -197,6 +228,14 @@ public class CC9889_Teleop extends LinearOpMode {
 
         // Reset the cycle clock for the next pass.
         period.reset();
+    }
+
+    //Drive
+    public void Drivetrain(double left, double right){
+        LDrive1.setPower(left);
+        LDrive2.setPower(left);
+        RDrive1.setPower(right);
+        RDrive2.setPower(right);
     }
 
 }
