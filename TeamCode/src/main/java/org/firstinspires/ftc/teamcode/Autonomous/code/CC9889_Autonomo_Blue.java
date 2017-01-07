@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -20,7 +21,8 @@ import static com.qualcomm.robotcore.util.Range.clip;
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
-@Autonomous(name="AutoBlue", group="Blue")
+ @Autonomous(name="AutoBlue", group="Blue")
+ @Disabled
 public class CC9889_Autonomo_Blue extends LinearOpMode {
 
 

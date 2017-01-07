@@ -10,11 +10,13 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
-@Autonomous(name="AltAutoBlue", group="Blue")
+@Autonomous(name="Auton", group="Blue")
+@Disabled
 public class CC9889_AltAutoBlue extends LinearOpMode {
 
 
@@ -63,8 +65,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         setup();
 
-        waitForTick(50);
-
         waitForStart();
 
         sleep(5000);
@@ -82,7 +82,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         sleep(2000);
         IntakeServo.setPower(0.2);
         sleep(5000);
-
+        rightShoot.setPower(0.0);
+        leftShoot.setPower(0.0);
+        IntakeServo.setPower(0.0);
+        Intake.setPower(0.0);
         Drivetrain(-1.0,-1.0);
         sleep(2000);
         super.stop();
@@ -144,75 +147,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         //Servo Movement
         BumperControl(true);
-        // start calibrating the gyro.
-        /**
-         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
-         telemetry.update();
-         gyro.calibrate();
-         // make sure the gyro is calibrated.
-         while (!isStopRequested() && gyro.isCalibrating())  {
-         sleep(50);
-         idle();
-         }
-         gyro.resetZAxisIntegrator();
-         //Message About Gyro
-         telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
-         telemetry.update();
-         **/
-    }
-
-     //Go to white line
-    public void FindWhiteTape(double speed, boolean color){
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
-            Drivetrain(speed,speed);            waitForTick(10);
-        }
-        Drivetrain(0,0);
-
-        sleep(5000);
-
-        if (opModeIsActive() && color == true){
-            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(0.5,-0.5);
-                waitForTick(10);
-            }
-        }else {
-            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(-0.5,0.5);
-                waitForTick(10);
-            }
-        }
-        Drivetrain(0,0);
-        sleep(500);
-
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
-
-    //Follow Line and Press Button
-    public void HitButton(boolean color){
-        Drivetrain(0,0);
-
-        if(opModeIsActive() && color == true){
-            Drivetrain(0.1,0.1);
-
-            sleep(1050);
-
-            if(Color.red() < Color.blue()){
-                LeftBumper.setPosition(0.8);
-            }else {
-                RightBumper.setPosition(0.2);
-            }
-
-            sleep(1000);
-
-            Drivetrain(0,0);
-        }
+        IntakeServo.setPower(0.0);
     }
 
     //Controller for all bumper actions
@@ -223,31 +158,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         }else if(opModeIsActive() && updown == false){
             LeftBumper.setPosition(0.12);
             RightBumper.setPosition(0.88);
-        }
-    }
-
-    //Flywheel Control
-    public void Flywheel(int Position){
-        if(Position == 0){
-            Flywheelnum = 0.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-        }else {
-            Flywheelnum = 1.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-            sleep(500);
-            if(Position == 1){
-                Flywheelnum = 0.34;
-            }else if(Position == 2){
-                Flywheelnum = 0.60;
-            }else if(Position == 4){
-                Flywheelnum = 0.8;
-            }else {
-                Flywheelnum = 0.0;
-            }
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
         }
     }
 
@@ -282,24 +192,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
     public double getRightEncoder() {
         return RDrive1.getCurrentPosition();
-    }
-
-    public double getLeftEncoderinInches(){
-        return LDrive1.getCurrentPosition()*CountsPerInch;
-    }
-
-    public double getRightEncoderinInches(){
-        return RDrive1.getCurrentPosition()*CountsPerInch;
-    }
-
-    public double getAverageDistance(){
-        return (getLeftEncoder()*getRightEncoder())/2.0;
-    }
-
-    public void driveSpeedTurn(double speed, double turn) {
-        double left = speed + turn;
-        double right = speed - turn;
-        Drivetrain(left, right);
     }
 
     public void resetEncoders(){

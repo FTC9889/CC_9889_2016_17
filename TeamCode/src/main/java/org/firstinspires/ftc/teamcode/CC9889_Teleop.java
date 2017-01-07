@@ -1,18 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -20,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Created by Joshua H on 10/15/2016
  */
 @TeleOp(name="Teleop", group="Teleop")
+@Disabled
 public class CC9889_Teleop extends LinearOpMode {
 
     //Flywheel Motors
@@ -57,6 +55,8 @@ public class CC9889_Teleop extends LinearOpMode {
 
     private ElapsedTime period  = new ElapsedTime();
 
+    double leftspeed, rightspeed, xvalue, yvalue;
+    int div = 1;
 
     //Command Loop Breakout
     boolean breakout = false;
@@ -68,9 +68,6 @@ public class CC9889_Teleop extends LinearOpMode {
 
         waitForStart();
 
-        double leftspeed, rightspeed, xvalue, yvalue;
-        int div = 1;
-
         while(opModeIsActive()){
             while (opModeIsActive() && breakout == false){
                 xvalue = gamepad1.right_stick_x/div;
@@ -81,9 +78,7 @@ public class CC9889_Teleop extends LinearOpMode {
 
                 Drivetrain(-leftspeed, rightspeed);
 
-                waitForTick(10);
-
-                if (gamepad1.right_bumper == true){
+                if (gamepad1.left_trigger > 0.3){
                     div = 4;
                 }else {
                     div = 1;
@@ -123,9 +118,11 @@ public class CC9889_Teleop extends LinearOpMode {
                     IntakeServo.setPower(1.0);
                     Intake.setPower(0.0);
                 }
-
+                waitForTick(25);
             }
+            super.stop();
         }
+        super.stop();
     }
 
     //Functions
