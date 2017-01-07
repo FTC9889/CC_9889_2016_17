@@ -41,6 +41,9 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
     Servo RightBumper;
     Servo LeftBumper;
 
+    //Intake Servo
+    CRServo IntakeServo;
+
     //Sensors
     OpticalDistanceSensor RWhiteLine;
     OpticalDistanceSensor LWhiteLine;
@@ -71,24 +74,80 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         waitForStart();
 
         encoderDrive(0.5, 6.5, 0, 1000);
-        FindWhiteTape(0.7, true);
-        BumperControl(false);
-        HitButton(true);
-
-        BumperControl(true);
-        encoderDrive(0.5, -12, 12, 1000);
-
-        FindWhiteTape(0.7, true);
-        encoderDrive(0.1, -3, -3, 1000);
-        BumperControl(false);
-        HitButton(true);
 
         super.stop();
     }
 
     //Functions
     public void setup(){
+        //Drive Motors
+        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
+        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
+        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
+        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
 
+        //Shooter Motors
+        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
+        rightShoot = hardwareMap.dcMotor.get("RightShoot");
+
+        //Intake Motor
+        Intake = hardwareMap.dcMotor.get("IntakeMotor");
+
+        //Servos
+        RightBumper = hardwareMap.servo.get("RBump");
+        LeftBumper = hardwareMap.servo.get("LBump");
+        IntakeServo = hardwareMap.crservo.get("Intake");
+
+        //Sensors
+        Color = hardwareMap.colorSensor.get("colorsensor");
+        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
+        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
+
+        //Tweaks to the hardware #Linsanity
+        LDrive1.setDirection(DcMotor.Direction.REVERSE);
+        RDrive1.setDirection(DcMotor.Direction.REVERSE);
+        rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //Drive Mode
+        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+
+        //Drive Wheels no power
+        LDrive1.setPowerFloat();
+        RDrive1.setPowerFloat();
+        LDrive2.setPowerFloat();
+        RDrive2.setPowerFloat();
+
+        //Flywheel no power
+        leftShoot.setPowerFloat();
+        rightShoot.setPowerFloat();
+
+        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        leftShoot.setMaxSpeed(26);
+        rightShoot.setMaxSpeed(26);
+
+        //Servo Movement
+        BumperControl(true);
+        // start calibrating the gyro.
+        /**
+         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
+         telemetry.update();
+         gyro.calibrate();
+         // make sure the gyro is calibrated.
+         while (!isStopRequested() && gyro.isCalibrating())  {
+         sleep(50);
+         idle();
+         }
+         gyro.resetZAxisIntegrator();
+         //Message About Gyro
+         telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
+         telemetry.update();
+         **/
     }
 
   //Encoders
@@ -106,8 +165,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
             LDrive1.setTargetPosition(newLeftTarget);
             RDrive1.setTargetPosition(newRightTarget);
-
-
 
             // Turn On RUN_TO_POSITION
             LDrive1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
