@@ -69,11 +69,51 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         setup();
 
-        waitForTick(50);
-
         waitForStart();
 
-        encoderDrive(0.5, 6.5, 0, 1000);
+        //Turn to the right
+        while(getLeftEncoderinInches() < 6){
+            Drivetrain(0.5 , 0.0);
+            waitForTick(25);
+        }
+
+        STOP();
+
+        //Go Straight until white line
+        FindWhiteTape(0.7, true);
+
+        //Hit Beacon
+        HitButton(true);
+
+        resetEncoders();
+
+        //Back up away from wall
+        while (opModeIsActive() && getLeftEncoderinInches() > -3 && getRightEncoderinInches() > -3){
+            Drivetrain(-0.3, -0.3);
+            waitForTick(25);
+        }
+
+        STOP();
+
+        resetEncoders();
+
+        //Turn to the left
+        while (opModeIsActive() && getLeftEncoderinInches() > -4 && getRightEncoderinInches() < 4){
+            Drivetrain(-0.3, 0.3);
+            waitForTick(25);
+        }
+
+        STOP();
+
+        resetEncoders();
+
+        //Go straight until the white line
+        FindWhiteTape(0.7, true);
+
+        //Hit 2nd Beacon
+        HitButton(true);
+
+        sleep(3000);
 
         super.stop();
     }
@@ -133,73 +173,8 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         //Servo Movement
         BumperControl(true);
-        // start calibrating the gyro.
-        /**
-         telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
-         telemetry.update();
-         gyro.calibrate();
-         // make sure the gyro is calibrated.
-         while (!isStopRequested() && gyro.isCalibrating())  {
-         sleep(50);
-         idle();
-         }
-         gyro.resetZAxisIntegrator();
-         //Message About Gyro
-         telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
-         telemetry.update();
-         **/
-    }
 
-  //Encoders
-    public void encoderDrive (double speed, double leftInches, double rightInches, long timeoutS){
-
-        int newLeftTarget;
-        int newRightTarget;
-
-        // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-            // Determine new target position, and pass to motor controller
-
-            newLeftTarget = LDrive1.getCurrentPosition() + (int)(leftInches * CountsPerInch);
-            newRightTarget = RDrive1.getCurrentPosition() + (int)(rightInches * CountsPerInch);
-
-            LDrive1.setTargetPosition(newLeftTarget);
-            RDrive1.setTargetPosition(newRightTarget);
-
-            // Turn On RUN_TO_POSITION
-            LDrive1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RDrive1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // reset the timeout time and start motion.
-            runtime.reset();
-
-            LDrive1.setPower(Math.abs(speed));
-            RDrive1.setPower(Math.abs(speed));
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (LDrive1.isBusy() && RDrive1.isBusy())) {
-                LDrive1.setPower(speed);
-                RDrive1.setPower(speed);
-
-                // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d", LDrive1.getCurrentPosition(), RDrive1.getCurrentPosition());
-                telemetry.update();
-
-                waitForTick(25);
-            }
-
-            // Stop all motion;
-            LDrive1.setPower(0);
-            RDrive1.setPower(0);
-
-            sleep(timeoutS);   // optional pause after each move
-
-            LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-            RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
-        }
-
+        resetEncoders();
     }
 
     //Go to white line
@@ -208,19 +183,28 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
-            Drivetrain(speed,speed);            waitForTick(10);
+            Drivetrain(speed,speed);
+            waitForTick(25);
         }
-        Drivetrain(0,0);
+        STOP();
 
-        sleep(500);
+        resetEncoders();
 
-        encoderDrive(0.2, 4, 4, 100);
+        while (opModeIsActive() && getLeftEncoderinInches() > 4 && getRightEncoder() > 4){
+            Drivetrain(0.2, 0.2);
+            waitForTick(55);
+        }
+
+        STOP();
+
+        resetEncoders();
 
         if (opModeIsActive() && color == true){
             while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
                 Drivetrain(0.5,-0.5);
-                waitForTick(10);
+                waitForTick(25);
             }
         }else {
             while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
@@ -228,19 +212,21 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
                 waitForTick(10);
             }
         }
-        Drivetrain(0,0);
-        sleep(500);
 
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        STOP();
     }
 
     //Follow Line and Press Button
     public void HitButton(boolean color){
-        encoderDrive(0.1, 2, 2, 100);
-        Drivetrain(0,0);
+        STOP();
+        resetEncoders();
+
+        while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
+            Drivetrain(0.1, 0.1);
+            waitForTick(25);
+        }
+
+        STOP();
 
         if(opModeIsActive() && color == true){
             Drivetrain(0.1,0.1);
@@ -256,8 +242,32 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             sleep(1000);
 
             Drivetrain(0,0);
+        }else if(opModeIsActive()){
+            Drivetrain(0.1,0.1);
 
-            encoderDrive(0.2, -4, -4, 100);
+            sleep(1050);
+
+            if(Color.red() > Color.blue()){
+                LeftBumper.setPosition(0.8);
+            }else {
+                RightBumper.setPosition(0.2);
+            }
+
+            sleep(1000);
+
+            Drivetrain(0,0);
+        }
+
+        if(opModeIsActive()){
+            STOP();
+            resetEncoders();
+
+            while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
+                Drivetrain(0.1, 0.1);
+                waitForTick(25);
+            }
+
+            STOP();
         }
     }
 
@@ -320,5 +330,55 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         LDrive2.setPower(left);
         RDrive1.setPower(right);
         RDrive2.setPower(right);
+    }
+
+    public double getLeftEncoder() {
+        return LDrive1.getCurrentPosition();
+    }
+
+    public double getRightEncoder() {
+        return RDrive1.getCurrentPosition();
+    }
+
+    public double getLeftEncoderinInches(){
+        return LDrive1.getCurrentPosition()*CountsPerInch;
+    }
+
+    public double getRightEncoderinInches(){
+        return RDrive1.getCurrentPosition()*CountsPerInch;
+    }
+
+    public double getAverageDistance(){
+        return (getLeftEncoder()*getRightEncoder())/2.0;
+    }
+
+    public void driveSpeedTurn(double speed, double turn) {
+        double left = speed + turn;
+        double right = speed - turn;
+        Drivetrain(left, right);
+    }
+
+    public void resetEncoders(){
+        sleep(100);
+        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void STOP(){
+        sleep(100);
+
+        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Drivetrain(0.0, 0.0);
+
+        sleep(300);
+
+        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }
