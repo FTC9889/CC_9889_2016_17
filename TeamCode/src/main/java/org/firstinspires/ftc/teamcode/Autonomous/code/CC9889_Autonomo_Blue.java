@@ -74,7 +74,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         waitForStart();
 
         //Turn to the right
-        while(getLeftEncoder() < 1500){
+        while(getLeftEncoderinInches() < 6){
             Drivetrain(0.5 , 0.0);
             waitForTick(25);
         }
