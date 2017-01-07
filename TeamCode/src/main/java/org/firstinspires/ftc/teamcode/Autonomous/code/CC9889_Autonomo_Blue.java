@@ -326,8 +326,8 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     //Drive
     public void Drivetrain(double left, double right){
-        LDrive1.setPower(left);
-        LDrive2.setPower(left);
+        LDrive1.setPower(-left);
+        LDrive2.setPower(-left);
         RDrive1.setPower(right);
         RDrive2.setPower(right);
     }
