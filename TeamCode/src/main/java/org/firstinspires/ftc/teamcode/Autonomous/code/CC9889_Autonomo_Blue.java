@@ -23,15 +23,26 @@ import static com.qualcomm.robotcore.util.Range.clip;
 @Autonomous(name="AutoBlue", group="Blue")
 public class CC9889_Autonomo_Blue extends LinearOpMode {
 
-    //Motors
+
+    //Flywheel Motors
     DcMotor rightShoot;
     DcMotor leftShoot;
-    DcMotor RDrive;
-    DcMotor LDrive;
 
-    //Servos
+    //Drivetrain Motors
+    DcMotor RDrive1;
+    DcMotor RDrive2;
+    DcMotor LDrive1;
+    DcMotor LDrive2;
+
+    //Intake Motor
+    DcMotor Intake;
+
+    //Beacon-pushing Servos
     Servo RightBumper;
     Servo LeftBumper;
+
+    //Intake Servo
+    CRServo IntakeServo;
 
     //Sensors
     OpticalDistanceSensor RWhiteLine;
@@ -42,15 +53,16 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
     //DcMotor Encoders
     static final double EncoderCounts=1120;
     static final double WheelDiameter=4.0;
-    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1416);
+    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
     static final double DriveSpeed=0.7;
     static final double TurnSpeed=0.1;
+
+    private ElapsedTime period  = new ElapsedTime();
+    private ElapsedTime runtime=new ElapsedTime();
 
     //Flywheel
     double Flywheelnum = 0.0;
 
-    private ElapsedTime runtime=new ElapsedTime();
-    private ElapsedTime period  = new ElapsedTime();
 
     @Override
     public void runOpMode () {
@@ -61,184 +73,139 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         waitForStart();
 
-        encoderDrive(0.5, true, 6.5, 0, 100);
+        //Turn to the right
+        while(getLeftEncoder() < 1500){
+            Drivetrain(0.5 , 0.0);
+            waitForTick(25);
+        }
+
+        STOP();
+
+        //Go Straight until white line
         FindWhiteTape(0.7, true);
-        BumperControl(false);
+
+        //Hit Beacon
         HitButton(true);
 
-        BumperControl(true);
-        encoderDrive(0.5, true, -12, 12, 100);
+        //Back up away from wall
 
-        FindWhiteTape(0.7, true);
-        encoderDrive(0.1, true, -3, -3, 100);
-        BumperControl(false);
-        HitButton(true);
+
 
         super.stop();
     }
 
     //Functions
-
-    //Setup
     public void setup(){
         //Drive Motors
-        LDrive =hardwareMap.dcMotor.get("leftdrive");
-        RDrive = hardwareMap.dcMotor.get("rightdrive");
+        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
+        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
+        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
+        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
 
         //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("flywheelleft");
-        rightShoot = hardwareMap.dcMotor.get("flywheelright");
+        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
+        rightShoot = hardwareMap.dcMotor.get("RightShoot");
+
+        //Intake Motor
+        Intake = hardwareMap.dcMotor.get("IntakeMotor");
 
         //Servos
-        RightBumper = hardwareMap.servo.get("r");
-        LeftBumper = hardwareMap.servo.get("l");
+        RightBumper = hardwareMap.servo.get("RBump");
+        LeftBumper = hardwareMap.servo.get("LBump");
+        IntakeServo = hardwareMap.crservo.get("Intake");
 
         //Sensors
-        Gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         Color = hardwareMap.colorSensor.get("colorsensor");
-        RWhiteLine = hardwareMap.opticalDistanceSensor.get("rods");
-        LWhiteLine = hardwareMap.opticalDistanceSensor.get("lods");
+        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
+        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
 
         //Tweaks to the hardware #Linsanity
-        LDrive.setDirection(DcMotor.Direction.REVERSE);
+        LDrive1.setDirection(DcMotor.Direction.REVERSE);
+        RDrive1.setDirection(DcMotor.Direction.REVERSE);
         rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Drive Mode
-        LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
 
         //Drive Wheels no power
-        LDrive.setPowerFloat();
-        RDrive.setPowerFloat();
+        LDrive1.setPowerFloat();
+        RDrive1.setPowerFloat();
+        LDrive2.setPowerFloat();
+        RDrive2.setPowerFloat();
 
         //Flywheel no power
         leftShoot.setPowerFloat();
         rightShoot.setPowerFloat();
 
-        leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
-        leftShoot.setMaxSpeed(28);
-        rightShoot.setMaxSpeed(28);
-        
+        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        leftShoot.setMaxSpeed(26);
+        rightShoot.setMaxSpeed(26);
+
         //Servo Movement
         BumperControl(true);
-        // start calibrating the gyro.
-        /**
-        telemetry.addData(">", "Gyro Calibrating. Do Not move! (Please or Josh will keel you.)");
-        telemetry.update();
-       gyro.calibrate();
 
-        // make sure the gyro is calibrated.
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-        gyro.resetZAxisIntegrator();
-        //Message About Gyro
-        telemetry.addData(">", "Gyro Calibrated. Wooooooooooooooo");
-        telemetry.update();
-         **/
-    }
-
-    //Encoders
-    public void encoderDrive (double speed, boolean quickstop, double leftInches, double rightInches, long timeoutS){
-        int newLeftTarget;
-        int newRightTarget;
-
-        // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-
-            // Determine new target position, and pass to motor controller
-            newLeftTarget = LDrive.getCurrentPosition() + (int)(leftInches * CountsPerInch);
-            newRightTarget = RDrive.getCurrentPosition() + (int)(rightInches * CountsPerInch);
-            LDrive.setTargetPosition(newLeftTarget);
-            RDrive.setTargetPosition(newRightTarget);
-
-            // Turn On RUN_TO_POSITION
-            LDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // reset the timeout time and start motion.
-            runtime.reset();
-
-            LDrive.setPower(Math.abs(speed));
-            RDrive.setPower(Math.abs(speed));
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (LDrive.isBusy() && RDrive.isBusy())) {
-
-                LDrive.setPower(speed);
-                RDrive.setPower(speed);
-
-                // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d", LDrive.getCurrentPosition(), RDrive.getCurrentPosition());
-                telemetry.update();
-                idle();
-
-            }
-            if(quickstop == true){
-                LDrive.setPower(speed);
-                RDrive.setPower(speed);
-                sleep(500);
-            }
-            // Stop all motion;
-            LDrive.setPower(0);
-            RDrive.setPower(0);
-
-            sleep(timeoutS);   // optional pause after each move
-            LDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-            RDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        }
+        resetEncoders();
     }
 
     //Go to white line
     public void FindWhiteTape(double speed, boolean color){
-        LDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
-            LDrive.setPower(speed);
-            RDrive.setPower(speed);
-            waitForTick(10);
+            Drivetrain(speed,speed);
+            waitForTick(25);
         }
-        LDrive.setPower(0.0);
-        RDrive.setPower(0.0);
+        STOP();
 
-        sleep(500);
+        resetEncoders();
 
-        encoderDrive(0.2, true, 4, 4, 100);
+        while (opModeIsActive() && getLeftEncoderinInches() > 4 && getRightEncoder() > 4){
+            Drivetrain(0.2, 0.2);
+            waitForTick(55);
+        }
+
+        STOP();
+
+        resetEncoders();
 
         if (opModeIsActive() && color == true){
             while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(0.5);
-                RDrive.setPower(-0.5);
-                waitForTick(10);
+                Drivetrain(0.5,-0.5);
+                waitForTick(25);
             }
         }else {
             while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                LDrive.setPower(-0.5);
-                RDrive.setPower(0.5);
+                Drivetrain(-0.5,0.5);
                 waitForTick(10);
             }
         }
-        LDrive.setPower(0.0);
-        RDrive.setPower(0.0);
-        sleep(500);
 
-        LDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        STOP();
     }
 
     //Follow Line and Press Button
     public void HitButton(boolean color){
-        encoderDrive(0.1, false, 2, 2, 100);
-        LDrive.setPower(0.0);
-        RDrive.setPower(0.0);
+        STOP();
+        resetEncoders();
+
+        while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
+            Drivetrain(0.1, 0.1);
+            waitForTick(25);
+        }
+
+        STOP();
 
         if(opModeIsActive() && color == true){
-            LDrive.setPower(0.1);
-            RDrive.setPower(0.1);
+            Drivetrain(0.1,0.1);
 
             sleep(1050);
 
@@ -250,10 +217,33 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
             sleep(1000);
 
-            LDrive.setPower(0.0);
-            RDrive.setPower(0.0);
+            Drivetrain(0,0);
+        }else if(opModeIsActive()){
+            Drivetrain(0.1,0.1);
 
-            encoderDrive(0.2, true, -4, -4, 100);
+            sleep(1050);
+
+            if(Color.red() > Color.blue()){
+                LeftBumper.setPosition(0.8);
+            }else {
+                RightBumper.setPosition(0.2);
+            }
+
+            sleep(1000);
+
+            Drivetrain(0,0);
+        }
+
+        if(opModeIsActive()){
+            STOP();
+            resetEncoders();
+
+            while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
+                Drivetrain(0.1, 0.1);
+                waitForTick(25);
+            }
+
+            STOP();
         }
     }
 
@@ -308,5 +298,63 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         // Reset the cycle clock for the next pass.
         period.reset();
+    }
+
+    //Drive
+    public void Drivetrain(double left, double right){
+        LDrive1.setPower(left);
+        LDrive2.setPower(left);
+        RDrive1.setPower(right);
+        RDrive2.setPower(right);
+    }
+
+    public double getLeftEncoder() {
+        return LDrive1.getCurrentPosition();
+    }
+
+    public double getRightEncoder() {
+        return RDrive1.getCurrentPosition();
+    }
+
+    public double getLeftEncoderinInches(){
+        return LDrive1.getCurrentPosition()*CountsPerInch;
+    }
+
+    public double getRightEncoderinInches(){
+        return RDrive1.getCurrentPosition()*CountsPerInch;
+    }
+
+    public double getAverageDistance(){
+        return (getLeftEncoder()*getRightEncoder())/2.0;
+    }
+
+    public void driveSpeedTurn(double speed, double turn) {
+        double left = speed + turn;
+        double right = speed - turn;
+        Drivetrain(left, right);
+    }
+
+    public void resetEncoders(){
+        sleep(100);
+        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void STOP(){
+        sleep(100);
+
+        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Drivetrain(0.0, 0.0);
+
+        sleep(300);
+
+        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }
