@@ -75,15 +75,19 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         waitForStart();
 
+<<<<<<< HEAD
         STOP();
 
         resetEncoders();
 
+=======
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
         //Turn to the right
         while(getLeftEncoderinInches() < 6){
             Drivetrain(0.5 , 0.0);
             waitForTick(25);
         }
+<<<<<<< HEAD
 
         STOP();
 
@@ -122,6 +126,20 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         HitButton(true);
 
         sleep(3000);
+=======
+
+        STOP();
+
+        //Go Straight until white line
+        FindWhiteTape(0.7, true);
+
+        //Hit Beacon
+        HitButton(true);
+
+        //Back up away from wall
+
+
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
 
         super.stop();
     }
@@ -197,6 +215,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             waitForTick(25);
         }
         STOP();
+<<<<<<< HEAD
 
         resetEncoders();
 
@@ -205,6 +224,16 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             waitForTick(55);
         }
 
+=======
+
+        resetEncoders();
+
+        while (opModeIsActive() && getLeftEncoderinInches() > 4 && getRightEncoder() > 4){
+            Drivetrain(0.2, 0.2);
+            waitForTick(55);
+        }
+
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
         STOP();
 
         resetEncoders();
@@ -269,12 +298,21 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         if(opModeIsActive()){
             STOP();
             resetEncoders();
+<<<<<<< HEAD
 
             while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
                 Drivetrain(0.1, 0.1);
                 waitForTick(25);
             }
 
+=======
+
+            while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
+                Drivetrain(0.1, 0.1);
+                waitForTick(25);
+            }
+
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
             STOP();
         }
     }
@@ -334,8 +372,13 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     //Drive
     public void Drivetrain(double left, double right){
+<<<<<<< HEAD
         LDrive1.setPower(-left);
         LDrive2.setPower(-left);
+=======
+        LDrive1.setPower(left);
+        LDrive2.setPower(left);
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
         RDrive1.setPower(right);
         RDrive2.setPower(right);
     }
@@ -389,6 +432,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
+<<<<<<< HEAD
 
     public void updateData(){
         telemetry.addData("Right Speed", RDrive1.getPower());
@@ -402,4 +446,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         telemetry.update();
     }
+=======
+>>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
 }
