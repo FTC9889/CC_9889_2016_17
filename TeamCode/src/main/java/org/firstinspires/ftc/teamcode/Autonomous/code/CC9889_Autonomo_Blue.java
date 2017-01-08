@@ -71,7 +71,13 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         setup();
 
+        updateData();
+
         waitForStart();
+
+        STOP();
+
+        resetEncoders();
 
         //Turn to the right
         while(getLeftEncoderinInches() < 6){
@@ -382,5 +388,18 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void updateData(){
+        telemetry.addData("Right Speed", RDrive1.getPower());
+        telemetry.addData("Left Speed", LDrive1.getPower());
+        telemetry.addData("Right Encoder", getRightEncoder());
+        telemetry.addData("Left Encoder", getLeftEncoder());
+        telemetry.addData("Right Encoder in Inches", getRightEncoderinInches());
+        telemetry.addData("Left Encoder in Inches", getLeftEncoderinInches());
+        telemetry.addData("Left ODS", LWhiteLine.getRawLightDetected());
+        telemetry.addData("Right ODS", RWhiteLine.getRawLightDetected());
+
+        telemetry.update();
     }
 }
