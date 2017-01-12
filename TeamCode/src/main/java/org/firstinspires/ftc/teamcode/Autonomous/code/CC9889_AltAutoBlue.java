@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.teamcode.Hardware9889;
+
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
@@ -59,20 +61,21 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
     //Flywheel
     double Flywheelnum = 0.0;
 
+    Hardware9889 robot           = new Hardware9889();              // Use a K9'shardware
 
     @Override
     public void runOpMode () {
 
-        setup();
+        robot.init(hardwareMap);
 
         waitForStart();
 
         sleep(5000);
 
-        Drivetrain(-1.0, -1.0);
+        robot.Drivetrain(-1.0, -1.0);
         sleep(860);
 
-        STOP();
+        robot.STOP();
 
         leftShoot.setPower(-0.8);
         rightShoot.setPower(-0.8);
@@ -86,135 +89,9 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         leftShoot.setPower(0.0);
         IntakeServo.setPower(0.0);
         Intake.setPower(0.0);
-        Drivetrain(-1.0,-1.0);
+        robot.Drivetrain(-1.0,-1.0);
         sleep(2000);
         super.stop();
 
-    }
-
-    //Functions
-    public void setup(){
-        //Drive Motors
-        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
-        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
-        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
-        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
-
-        //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
-        rightShoot = hardwareMap.dcMotor.get("RightShoot");
-
-        //Intake Motor
-        Intake = hardwareMap.dcMotor.get("IntakeMotor");
-
-        //Servos
-        RightBumper = hardwareMap.servo.get("RBump");
-        LeftBumper = hardwareMap.servo.get("LBump");
-        IntakeServo = hardwareMap.crservo.get("Intake");
-
-        //Sensors
-        Color = hardwareMap.colorSensor.get("colorsensor");
-        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
-        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
-
-        //Tweaks to the hardware #Linsanity
-        LDrive1.setDirection(DcMotor.Direction.REVERSE);
-        RDrive1.setDirection(DcMotor.Direction.REVERSE);
-        rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        //Drive Mode
-        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
-        //Drive Wheels no power
-        LDrive1.setPowerFloat();
-        RDrive1.setPowerFloat();
-        LDrive2.setPowerFloat();
-        RDrive2.setPowerFloat();
-
-        //Flywheel no power
-        leftShoot.setPowerFloat();
-        rightShoot.setPowerFloat();
-
-        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        leftShoot.setMaxSpeed(26);
-        rightShoot.setMaxSpeed(26);
-
-        //Servo Movement
-        BumperControl(true);
-        IntakeServo.setPower(0.0);
-    }
-
-    //Controller for all bumper actions
-    public void BumperControl(boolean updown){
-        if(updown == true){
-            LeftBumper.setPosition(0.8);
-            RightBumper.setPosition(0.2);
-        }else if(opModeIsActive() && updown == false){
-            LeftBumper.setPosition(0.12);
-            RightBumper.setPosition(0.88);
-        }
-    }
-
-    public void waitForTick(long periodMs) {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
-                Thread.sleep(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        // Reset the cycle clock for the next pass.
-        period.reset();
-    }
-
-    //Drive
-    public void Drivetrain(double left, double right){
-        LDrive1.setPower(-left);
-        //LDrive2.setPower(-left);
-        RDrive1.setPower(right);
-        //RDrive2.setPower(right);
-    }
-
-    public double getLeftEncoder() {
-        return LDrive1.getCurrentPosition();
-    }
-
-    public double getRightEncoder() {
-        return RDrive1.getCurrentPosition();
-    }
-
-    public void resetEncoders(){
-        sleep(100);
-        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void STOP(){
-        sleep(100);
-
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        Drivetrain(0.0, 0.0);
-
-        sleep(300);
-
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }

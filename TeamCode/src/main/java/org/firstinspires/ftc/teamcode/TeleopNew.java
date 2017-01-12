@@ -98,21 +98,17 @@ public class TeleopNew extends LinearOpMode {
                 div = 1;
             }
 
-            /*//Flywheel
+            //Flywheel
             if(gamepad2.a){
-                robot.rightShoot.setPower(-0.5);
-                robot.leftShoot.setPower(-0.5);
+                robot.flyWheel.setPower(-0.5);
             }else if(gamepad2.x){
-                robot.rightShoot.setPower(-0.6);
-                robot.leftShoot.setPower(-0.6);
+                robot.flyWheel.setPower(-0.6);
             }else if(gamepad2.y){
-                robot.rightShoot.setPower(-0.8);
-                robot.leftShoot.setPower(-0.8);
+                robot.flyWheel.setPower(-0.8);
             }else {
-                robot.rightShoot.setPower(0.0);
-                robot.leftShoot.setPower(0.0);
+                robot.flyWheel.setPower(0.0);
             }
-            */
+            
 
             //Beacon pressing
             if(gamepad1.right_bumper){
@@ -137,8 +133,7 @@ public class TeleopNew extends LinearOpMode {
             robot.waitForTick(40);
         }
 
-        robot.rightShoot.setPower(0.0);
-        robot.leftShoot.setPower(0.0);
+        robot.flyWheel.setPower(0.0);
         robot.IntakeServo.setPower(0.0);
         robot.Intake.setPower(0.0);
         robot.Drivetrain(0.0,0.0);

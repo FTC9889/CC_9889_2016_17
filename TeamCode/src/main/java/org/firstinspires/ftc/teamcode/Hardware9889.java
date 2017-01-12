@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,8 +20,7 @@ public class Hardware9889
 {
 
     //Flywheel Motors
-    DcMotor rightShoot;
-    DcMotor leftShoot;
+    DcMotor flyWheel;
 
     //Drivetrain Motors
     DcMotor RDrive1;
@@ -42,6 +42,7 @@ public class Hardware9889
     OpticalDistanceSensor RWhiteLine;
     OpticalDistanceSensor LWhiteLine;
     ColorSensor Color;
+    LightSensor light;
 
     //DcMotor Encoders
     static final double EncoderCounts=1120;
@@ -69,8 +70,7 @@ public class Hardware9889
         RDrive2 = hwMap.dcMotor.get("RDrive2");
 
         //Shooter Motors
-        leftShoot = hwMap.dcMotor.get("LeftShoot");
-        rightShoot = hwMap.dcMotor.get("RightShoot");
+        flyWheel = hwMap.dcMotor.get("flywheel");
 
         //Intake Motor
         Intake = hwMap.dcMotor.get("IntakeMotor");
@@ -84,24 +84,24 @@ public class Hardware9889
         Color = hwMap.colorSensor.get("colorsensor");
         RWhiteLine = hwMap.opticalDistanceSensor.get("OD1");
         LWhiteLine = hwMap.opticalDistanceSensor.get("OD2");
+        light = hwMap.lightSensor.get("ltbl");
 
         //Tweaks to the hardware #Linsanity
         LDrive1.setDirection(DcMotor.Direction.REVERSE);
         RDrive1.setDirection(DcMotor.Direction.REVERSE);
+        /*
         rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
+         */
 
         //Drive Mode
         LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        leftShoot.setMaxSpeed(26);
-        rightShoot.setMaxSpeed(26);
     }
 
     /***
@@ -162,7 +162,19 @@ public class Hardware9889
     }
 
     public void shot(double speed){
-        leftShoot.setPower(speed);
-        rightShoot.setPower(speed);
+        flyWheel.setPower(speed);
     }
+    public double getLeftEncoder() {
+        return LDrive1.getCurrentPosition();
+    }
+
+    public double getRightEncoder() {
+        return RDrive1.getCurrentPosition();
+    }
+
+    public void resetEncoders(){
+        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
 }
