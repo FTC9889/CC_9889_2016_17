@@ -1,10 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous.code;
 
-
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
@@ -12,12 +14,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * This is NOT an opmode. #YaoMingFTW
+ * This is NOT an opmode.
  *
  * This class can be used to define all the specific hardware for a single robot.
  *
  */
-public class Hardware9889
+public class AutoHardware9889
 {
 
     //Flywheel Motors
@@ -47,8 +49,8 @@ public class Hardware9889
     ModernRoboticsI2cGyro gyro;
 
     //DcMotor Encoders
-    static final double EncoderCounts=1120;
-    static final double WheelDiameter=4.0;
+    static final float EncoderCounts=1120;
+    static final float WheelDiameter=4;
     static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
 
 
@@ -57,7 +59,7 @@ public class Hardware9889
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public Hardware9889() {
+    public AutoHardware9889() {
     }
 
     /* Initialize standard Hardware interfaces */
@@ -87,12 +89,11 @@ public class Hardware9889
         RWhiteLine = hwMap.opticalDistanceSensor.get("OD1");
         LWhiteLine = hwMap.opticalDistanceSensor.get("OD2");
         light = hwMap.lightSensor.get("ltbl");
-        gyro = (ModernRoboticsI2cGyro)hwMap.get("gyro");
-
+        gyro =(ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
 
         //Tweaks to the hardware #Linsanity
-        LDrive1.setDirection(DcMotor.Direction.REVERSE);
-        LDrive2.setDirection(DcMotor.Direction.REVERSE);
+        RDrive1.setDirection(DcMotor.Direction.REVERSE);
+        RDrive2.setDirection(DcMotor.Direction.REVERSE);
 
         //Drive Mode
         LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -102,6 +103,9 @@ public class Hardware9889
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        BumperControl(true);
+
         gyro.calibrate();
 
     }
@@ -144,14 +148,20 @@ public class Hardware9889
 
     //Drive
     public void Drivetrain(double left, double right){
-        LDrive1.setPower(left);
-        LDrive2.setPower(left);
+        LDrive1.setPower(-left);
+        LDrive2.setPower(-left);
         RDrive1.setPower(right);
         RDrive2.setPower(right);
     }
 
-    public void STOP(){
+    public void EncoderDrive(double speed, double left, double right, boolean quickstop) {
 
+
+
+    }
+
+    public void STOP(){
+        Drivetrain(0.0,0.0);
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -165,18 +175,47 @@ public class Hardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-1.0);
+            flyWheel.setPower(1.0);
         }else {
-            flyWheel.setPower(-0.0);
+            flyWheel.setPower(0.5);
         }
 
     }
 
+    public float getLeftEncoder() {
+        return LDrive2.getCurrentPosition();
+    }
 
+    public float getRightEncoder() {
+        return RDrive2.getCurrentPosition();
+    }
+
+    public double getLeftEncoderinInches() {
+        return getLeftEncoder()/CountsPerInch;
+    }
+
+    public double getRightEncoderinInches() {
+        return getRightEncoder()/CountsPerInch;
+    }
+
+    public double getAverageDistance(){
+        return (getLeftEncoder()*getRightEncoder())/2.0;
+    }
+
+    public void driveSpeedTurn(double speed, double turn) {
+        double left = speed + turn;
+        double right = speed - turn;
+        Drivetrain(left, right);
+    }
 
     public void resetEncoders(){
-        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+
+
 
 }

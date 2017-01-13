@@ -84,7 +84,7 @@ public class TeleopNew extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            xvalue = gamepad1.right_stick_x/div;
+            xvalue = -gamepad1.right_stick_x/div;
             yvalue = gamepad1.left_stick_y;
 
             leftspeed =  yvalue - xvalue;
@@ -99,16 +99,7 @@ public class TeleopNew extends LinearOpMode {
             }
 
             //Flywheel
-            if(gamepad2.a){
-                robot.flyWheel.setPower(-0.5);
-            }else if(gamepad2.x){
-                robot.flyWheel.setPower(-0.6);
-            }else if(gamepad2.y){
-                robot.flyWheel.setPower(-0.8);
-            }else {
-                robot.flyWheel.setPower(0.0);
-            }
-            
+                robot.Flywheel(gamepad2.a);
 
             //Beacon pressing
             if(gamepad1.right_bumper){
@@ -124,7 +115,7 @@ public class TeleopNew extends LinearOpMode {
                 robot.Intake.setPower(-1.0);
             }else if(gamepad2.right_bumper){
                 robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.2);
+                robot.Intake.setPower(-1.0);
             }else {
                 robot.IntakeServo.setPower(1.0);
                 robot.Intake.setPower(0.0);

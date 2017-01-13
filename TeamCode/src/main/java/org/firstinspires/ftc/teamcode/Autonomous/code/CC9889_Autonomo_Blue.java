@@ -16,436 +16,323 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.*;
+
 import static com.qualcomm.robotcore.util.Range.clip;
 
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
  @Autonomous(name="AutoBlue", group="Blue")
- @Disabled
 public class CC9889_Autonomo_Blue extends LinearOpMode {
 
 
-    //Flywheel Motors
-    DcMotor rightShoot;
-    DcMotor leftShoot;
-
-    //Drivetrain Motors
-    DcMotor RDrive1;
-    DcMotor RDrive2;
-    DcMotor LDrive1;
-    DcMotor LDrive2;
-
-    //Intake Motor
-    DcMotor Intake;
-
-    //Beacon-pushing Servos
-    Servo RightBumper;
-    Servo LeftBumper;
-
-    //Intake Servo
-    CRServo IntakeServo;
-
-    //Sensors
-    OpticalDistanceSensor RWhiteLine;
-    OpticalDistanceSensor LWhiteLine;
-    ColorSensor Color;
-    GyroSensor Gyro;
-
-    //DcMotor Encoders
-    static final double EncoderCounts=1120;
-    static final double WheelDiameter=4.0;
-    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
-    static final double DriveSpeed=0.7;
-    static final double TurnSpeed=0.1;
-
-    private ElapsedTime period  = new ElapsedTime();
-    private ElapsedTime runtime=new ElapsedTime();
-
-    //Flywheel
-    double Flywheelnum = 0.0;
-
-
+    /* Declare OpMode members. */
+    AutoHardware9889 robot           = new AutoHardware9889();
     @Override
     public void runOpMode () {
+        robot.init(hardwareMap);
 
-        setup();
-
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        telemetry.update();
+        robot.resetEncoders();
+        robot.STOP();
         updateData();
+        while (!isStopRequested() && robot.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
+        telemetry.update();
 
         waitForStart();
 
-<<<<<<< HEAD
-        STOP();
+        robot.STOP();
 
-        resetEncoders();
+        EncoderDrive(0.5,20,20);
 
-=======
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
-        //Turn to the right
-        while(getLeftEncoderinInches() < 6){
-            Drivetrain(0.5 , 0.0);
-            waitForTick(25);
-        }
-<<<<<<< HEAD
-
-        STOP();
-
+        /*
         //Go Straight until white line
         FindWhiteTape(0.7, true);
 
         //Hit Beacon
         HitButton(true);
 
-        resetEncoders();
+        robot.resetEncoders();
 
         //Back up away from wall
-        while (opModeIsActive() && getLeftEncoderinInches() > -3 && getRightEncoderinInches() > -3){
-            Drivetrain(-0.3, -0.3);
-            waitForTick(25);
+        while (opModeIsActive() && robot.getLeftEncoderinInches() > -3 && robot.getRightEncoderinInches() > -3){
+            robot.Drivetrain(-0.3, -0.3);
+            robot.waitForTick(25);
         }
 
-        STOP();
+        robot.STOP();
 
-        resetEncoders();
+        robot.resetEncoders();
 
         //Turn to the left
-        while (opModeIsActive() && getLeftEncoderinInches() > -4 && getRightEncoderinInches() < 4){
-            Drivetrain(-0.3, 0.3);
-            waitForTick(25);
+        while (opModeIsActive() && robot.getLeftEncoderinInches() > -4 && robot.getRightEncoderinInches() < 4){
+            robot.Drivetrain(-0.3, 0.3);
+            robot.waitForTick(25);
         }
 
-        STOP();
+        robot.STOP();
 
-        resetEncoders();
+        robot.resetEncoders();
 
         //Go straight until the white line
         FindWhiteTape(0.7, true);
 
+
         //Hit 2nd Beacon
         HitButton(true);
+        //Go Straight until white line
 
         sleep(3000);
-=======
 
-        STOP();
-
-        //Go Straight until white line
+        robot.STOP();
         FindWhiteTape(0.7, true);
 
         //Hit Beacon
         HitButton(true);
-
+        */
         //Back up away from wall
-
-
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
 
         super.stop();
     }
 
-    //Functions
-    public void setup(){
-        //Drive Motors
-        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
-        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
-        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
-        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
-
-        //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
-        rightShoot = hardwareMap.dcMotor.get("RightShoot");
-
-        //Intake Motor
-        Intake = hardwareMap.dcMotor.get("IntakeMotor");
-
-        //Servos
-        RightBumper = hardwareMap.servo.get("RBump");
-        LeftBumper = hardwareMap.servo.get("LBump");
-        IntakeServo = hardwareMap.crservo.get("Intake");
-
-        //Sensors
-        Color = hardwareMap.colorSensor.get("colorsensor");
-        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
-        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
-
-        //Tweaks to the hardware #Linsanity
-        LDrive1.setDirection(DcMotor.Direction.REVERSE);
-        RDrive1.setDirection(DcMotor.Direction.REVERSE);
-        rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        //Drive Mode
-        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
-        //Drive Wheels no power
-        LDrive1.setPowerFloat();
-        RDrive1.setPowerFloat();
-        LDrive2.setPowerFloat();
-        RDrive2.setPowerFloat();
-
-        //Flywheel no power
-        leftShoot.setPowerFloat();
-        rightShoot.setPowerFloat();
-
-        leftShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightShoot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        leftShoot.setMaxSpeed(26);
-        rightShoot.setMaxSpeed(26);
-
-        //Servo Movement
-        BumperControl(true);
-
-        resetEncoders();
-    }
-
     //Go to white line
+
     public void FindWhiteTape(double speed, boolean color){
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.STOP();
 
-        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
-            Drivetrain(speed,speed);
-            waitForTick(25);
+        while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5 && robot.LWhiteLine.getRawLightDetected() < 1.5){
+            robot.Drivetrain(speed,speed);
+            robot.waitForTick(25);
         }
-        STOP();
-<<<<<<< HEAD
+        robot.STOP();
 
-        resetEncoders();
+        robot.resetEncoders();
 
-        while (opModeIsActive() && getLeftEncoderinInches() > 4 && getRightEncoder() > 4){
-            Drivetrain(0.2, 0.2);
-            waitForTick(55);
+        while (opModeIsActive() && robot.getLeftEncoderinInches() > 4 && robot.getRightEncoder() > 4){
+            robot.Drivetrain(0.2, 0.2);
+            robot.waitForTick(55);
         }
+        robot.resetEncoders();
 
-=======
-
-        resetEncoders();
-
-        while (opModeIsActive() && getLeftEncoderinInches() > 4 && getRightEncoder() > 4){
-            Drivetrain(0.2, 0.2);
-            waitForTick(55);
+        while (opModeIsActive() && robot.getLeftEncoderinInches() > 4 && robot.getRightEncoder() > 4){
+            robot.Drivetrain(0.2, 0.2);
+            robot.waitForTick(55);
         }
 
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
-        STOP();
+        robot.STOP();
 
-        resetEncoders();
+        robot.resetEncoders();
 
         if (opModeIsActive() && color == true){
-            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(0.5,-0.5);
-                waitForTick(25);
+            while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
+                robot.Drivetrain(0.5,-0.5);
+                robot.waitForTick(25);
             }
         }else {
-            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(-0.5,0.5);
-                waitForTick(10);
+            while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
+                robot.Drivetrain(-0.5,0.5);
+                robot.waitForTick(10);
             }
         }
 
-        STOP();
+        robot.STOP();
     }
 
     //Follow Line and Press Button
-    public void HitButton(boolean color){
-        STOP();
-        resetEncoders();
 
-        while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
-            Drivetrain(0.1, 0.1);
-            waitForTick(25);
+    public void HitButton(boolean color){
+
+        robot.STOP();
+
+        robot.resetEncoders();
+
+
+
+        while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
+
+            robot.Drivetrain(0.1, 0.1);
+
+            robot.waitForTick(25);
+
         }
 
-        STOP();
+
+
+        robot.STOP();
+
+
 
         if(opModeIsActive() && color == true){
-            Drivetrain(0.1,0.1);
+
+            robot.Drivetrain(0.1,0.1);
+
+
 
             sleep(1050);
 
-            if(Color.red() < Color.blue()){
-                LeftBumper.setPosition(0.8);
+
+
+            if(robot.Color.red() < robot.Color.blue()){
+
+                robot.LeftBumper.setPosition(0.8);
+
             }else {
-                RightBumper.setPosition(0.2);
+
+                robot.RightBumper.setPosition(0.2);
+
             }
+
+
 
             sleep(1000);
 
-            Drivetrain(0,0);
+
+
+            robot.Drivetrain(0,0);
+
         }else if(opModeIsActive()){
-            Drivetrain(0.1,0.1);
+
+            robot.Drivetrain(0.1,0.1);
+
+
 
             sleep(1050);
 
-            if(Color.red() > Color.blue()){
-                LeftBumper.setPosition(0.8);
+
+
+            if(robot.Color.red() > robot.Color.blue()){
+
+                robot.LeftBumper.setPosition(0.8);
+
             }else {
-                RightBumper.setPosition(0.2);
+
+                robot.RightBumper.setPosition(0.2);
+
             }
+
+
 
             sleep(1000);
 
-            Drivetrain(0,0);
+
+
+            robot.Drivetrain(0,0);
+
         }
+
+
 
         if(opModeIsActive()){
-            STOP();
-            resetEncoders();
-<<<<<<< HEAD
 
-            while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
-                Drivetrain(0.1, 0.1);
-                waitForTick(25);
+            robot.STOP();
+
+            robot.resetEncoders();
+
+
+
+            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
+
+                robot.Drivetrain(0.1, 0.1);
+
+                robot.waitForTick(25);
+
             }
 
-=======
 
-            while (opModeIsActive() && getLeftEncoderinInches() > 2 && getRightEncoder() > 2){
-                Drivetrain(0.1, 0.1);
-                waitForTick(25);
+
+
+
+            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
+
+                robot.Drivetrain(0.1, 0.1);
+
+                robot.waitForTick(25);
+
             }
 
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
-            STOP();
-        }
-    }
 
-    //Controller for all bumper actions
-    public void BumperControl(boolean updown){
-        if(updown == true){
-            LeftBumper.setPosition(0.8);
-            RightBumper.setPosition(0.2);
-        }else if(opModeIsActive() && updown == false){
-            LeftBumper.setPosition(0.12);
-            RightBumper.setPosition(0.88);
-        }
-    }
+            robot.STOP();
 
-    //Flywheel Control
-    public void Flywheel(int Position){
-        if(Position == 0){
-            Flywheelnum = 0.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-        }else {
-            Flywheelnum = 1.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-            sleep(500);
-            if(Position == 1){
-                Flywheelnum = 0.34;
-            }else if(Position == 2){
-                Flywheelnum = 0.60;
-            }else if(Position == 4){
-                Flywheelnum = 0.8;
-            }else {
-                Flywheelnum = 0.0;
-            }
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-        }
-    }
-
-    public void waitForTick(long periodMs) {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
-                Thread.sleep(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
         }
 
-        // Reset the cycle clock for the next pass.
-        period.reset();
     }
 
-    //Drive
-    public void Drivetrain(double left, double right){
-<<<<<<< HEAD
-        LDrive1.setPower(-left);
-        LDrive2.setPower(-left);
-=======
-        LDrive1.setPower(left);
-        LDrive2.setPower(left);
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
-        RDrive1.setPower(right);
-        RDrive2.setPower(right);
-    }
-
-    public double getLeftEncoder() {
-        return LDrive1.getCurrentPosition();
-    }
-
-    public double getRightEncoder() {
-        return RDrive1.getCurrentPosition();
-    }
-
-    public double getLeftEncoderinInches(){
-        return LDrive1.getCurrentPosition()*CountsPerInch;
-    }
-
-    public double getRightEncoderinInches(){
-        return RDrive1.getCurrentPosition()*CountsPerInch;
-    }
-
-    public double getAverageDistance(){
-        return (getLeftEncoder()*getRightEncoder())/2.0;
-    }
-
-    public void driveSpeedTurn(double speed, double turn) {
-        double left = speed + turn;
-        double right = speed - turn;
-        Drivetrain(left, right);
-    }
-
-    public void resetEncoders(){
-        sleep(100);
-        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void STOP(){
-        sleep(100);
-
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        Drivetrain(0.0, 0.0);
-
-        sleep(300);
-
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
-<<<<<<< HEAD
-
-    public void updateData(){
-        telemetry.addData("Right Speed", RDrive1.getPower());
-        telemetry.addData("Left Speed", LDrive1.getPower());
-        telemetry.addData("Right Encoder", getRightEncoder());
-        telemetry.addData("Left Encoder", getLeftEncoder());
-        telemetry.addData("Right Encoder in Inches", getRightEncoderinInches());
-        telemetry.addData("Left Encoder in Inches", getLeftEncoderinInches());
-        telemetry.addData("Left ODS", LWhiteLine.getRawLightDetected());
-        telemetry.addData("Right ODS", RWhiteLine.getRawLightDetected());
+    public void updateData() {
+        telemetry.addData("Right Speed", robot.RDrive1.getPower());
+        telemetry.addData("Left Speed", robot.LDrive1.getPower());
+        telemetry.addData("Right Encoder", robot.getRightEncoder());
+        telemetry.addData("Left Encoder", robot.getLeftEncoder());
+        telemetry.addData("Right Encoder pos", robot.RDrive1.getCurrentPosition());
+        telemetry.addData("Left Encoder pos", robot.LDrive1.getCurrentPosition());
+        telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
+        telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
+        telemetry.addData("Gyro Z-axis", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Left ODS", robot.LWhiteLine.getRawLightDetected());
+        telemetry.addData("Right ODS", robot.RWhiteLine.getRawLightDetected());
 
         telemetry.update();
     }
-=======
->>>>>>> 714ae8e2624447c47be6f77758ec075cbe8cffd7
+
+    public void EncoderDrive(double speed, int left, int right) {
+
+        int newLeftTarget;
+        int newRightTarget;
+
+
+        if (opModeIsActive()) {
+
+            newLeftTarget = robot.LDrive2.getCurrentPosition() + (int)(-left * robot.CountsPerInch);
+            newRightTarget = robot.RDrive2.getCurrentPosition() + (int)(right * robot.CountsPerInch);
+
+            if (newLeftTarget < 0 && newRightTarget < 0) {
+
+                while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
+                    robot.Drivetrain(-Math.abs(speed),-Math.abs(speed));
+                    updateData();
+                    robot.waitForTick(50);
+                }
+
+
+            }else if (newLeftTarget > 0 && newRightTarget <0) {
+
+                while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
+                    robot.Drivetrain(Math.abs(speed),-Math.abs(speed));
+                    updateData();
+                    robot.waitForTick(50);
+                }
+
+
+
+            }else if (newLeftTarget <0 && newRightTarget > 0) {
+
+                while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
+                    robot.Drivetrain(-Math.abs(speed),Math.abs(speed));
+                    updateData();
+                    robot.waitForTick(50);
+                }
+
+
+            }else if (newLeftTarget > 0 && newRightTarget > 0) {
+
+                while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
+                    robot.Drivetrain(Math.abs(speed),Math.abs(speed));
+                    updateData();
+                    robot.waitForTick(50);
+                }
+
+
+            }
+
+            robot.STOP();
+
+        }
+
+    }
+
 }
