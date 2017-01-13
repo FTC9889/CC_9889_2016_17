@@ -35,8 +35,10 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         robot.STOP();
 
+        //Robot drives forward 20 inches
         EncoderDrive(1.0, -20, -20);
 
+        //The robot drives up to the white line.
         robot.Drivetrain(0.3, 0.3);
 
         while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -25){
@@ -46,15 +48,26 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         robot.STOP();
 
-        robot.Drivetrain(0.7, -0.7);
+        robot.Drivetrain(-0.1, -0.1);
 
-        while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < -25){
             robot.waitForTick(50);
             updateData();
         }
 
         robot.STOP();
 
+        //The robot detects the white line with the Lego light sensor.
+        robot.Drivetrain(0.7, -0.7);
+
+        while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+            robot.waitForTick(10);
+            updateData();
+        }
+
+        robot.STOP();
+
+        //The robot lines itself up with the white line.
         robot.Drivetrain(0.0, 0.4);
 
         while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
@@ -64,52 +77,19 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         robot.STOP();
 
-        /*
-        //Go Straight until white line
-        FindWhiteTape(0.7, true);
-
-        //Hit Beacon
-        HitButton(true);
-
-        robot.resetEncoders();
-
-        //Back up away from wall
-        while (opModeIsActive() && robot.getLeftEncoderinInches() > -3 && robot.getRightEncoderinInches() > -3){
-            robot.Drivetrain(-0.3, -0.3);
-            robot.waitForTick(25);
+        //Here the robot decides which beacon button to press.
+        robot.BumperControl(false);
+        robot.Drivetrain(0.5,-0.5);
+        sleep(1000);
+        if (robot.Color.red() > robot.Color.blue()){
+            robot.RightBumper.setPosition(0.8);
+        }else {
+            robot.LeftBumper.setPosition(0.2);
         }
 
-        robot.STOP();
-
-        robot.resetEncoders();
-
-        //Turn to the left
-        while (opModeIsActive() && robot.getLeftEncoderinInches() > -4 && robot.getRightEncoderinInches() < 4){
-            robot.Drivetrain(-0.3, 0.3);
-            robot.waitForTick(25);
-        }
+        sleep(500);
 
         robot.STOP();
-
-        robot.resetEncoders();
-
-        //Go straight until the white line
-        FindWhiteTape(0.7, true);
-
-
-        //Hit 2nd Beacon
-        HitButton(true);
-        //Go Straight until white line
-
-        sleep(3000);
-
-        robot.STOP();
-        FindWhiteTape(0.7, true);
-
-        //Hit Beacon
-        HitButton(true);
-        */
-        //Back up away from wall
 
         super.stop();
     }

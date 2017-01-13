@@ -144,7 +144,7 @@ public class AutoHardware9889
             RightBumper.setPosition(0.3);
         }else if(updown == false){
             LeftBumper.setPosition(0.2);
-            RightBumper.setPosition(0.88);
+            RightBumper.setPosition(0.8);
         }
     }
 
