@@ -104,6 +104,8 @@ public class AutoHardware9889
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        light.enableLed(true);
+
         BumperControl(true);
 
         gyro.calibrate();
@@ -141,7 +143,7 @@ public class AutoHardware9889
             LeftBumper.setPosition(0.7);
             RightBumper.setPosition(0.3);
         }else if(updown == false){
-            LeftBumper.setPosition(0.12);
+            LeftBumper.setPosition(0.2);
             RightBumper.setPosition(0.88);
         }
     }
@@ -154,13 +156,7 @@ public class AutoHardware9889
         RDrive2.setPower(right);
     }
 
-    public void EncoderDrive(double speed, double left, double right, boolean quickstop) {
-
-
-
-    }
-
-    public void STOP(){
+     public void STOP(){
         Drivetrain(0.0,0.0);
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -214,8 +210,4 @@ public class AutoHardware9889
         RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
-
-
-
 }
