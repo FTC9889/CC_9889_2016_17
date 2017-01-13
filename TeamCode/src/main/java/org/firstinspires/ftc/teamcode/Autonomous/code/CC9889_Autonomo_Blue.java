@@ -38,10 +38,54 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         //Robot drives forward 20 inches
         EncoderDrive(1.0, -20, -20);
 
+        robot.Drivetrain(-0.3, -0.3);
+
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 15){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
+
+        robot.Flywheel(true);
+        sleep(1200);
+        robot.IntakeServo.setPower(-1.0);
+        robot.Intake.setPower(1.0);
+        sleep(2500);
+        robot.IntakeServo.setPower(0.0);
+        robot.Intake.setPower(0.0);
+        robot.Flywheel(false);
+
         //The robot drives up to the white line.
         robot.Drivetrain(0.3, 0.3);
 
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -25){
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -30){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
+
+        FindWhiteTape(0.7, false);
+
+        HitButton(true);
+
+        robot.Drivetrain(-0.3,0.3);
+
+        sleep(1000);
+        robot.STOP();
+        robot.Drivetrain(-0.3, -0.3);
+
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
+
+        robot.Drivetrain(0.1, 0.1);
+
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0){
             robot.waitForTick(50);
             updateData();
         }
@@ -50,15 +94,26 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         robot.Drivetrain(-0.1, -0.1);
 
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < -25){
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0){
             robot.waitForTick(50);
             updateData();
         }
 
         robot.STOP();
 
-        //The robot detects the white line with the Lego light sensor.
-        robot.Drivetrain(0.7, -0.7);
+        robot.Drivetrain(0.7,0.7);
+        sleep(1000);
+
+        FindWhiteTape(0.7,false);
+        HitButton(true);
+
+        super.stop();
+    }
+
+    //Go to white line
+
+    public void FindWhiteTape(double speed, boolean color){
+        robot.Drivetrain(Math.abs(speed), -Math.abs(speed));
 
         while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
             robot.waitForTick(10);
@@ -70,132 +125,48 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         //The robot lines itself up with the white line.
         robot.Drivetrain(0.0, 0.4);
 
-        while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
-            robot.waitForTick(50);
-            updateData();
-        }
-
-        robot.STOP();
-
-        //Here the robot decides which beacon button to press.
-        robot.BumperControl(false);
-        robot.Drivetrain(0.5,-0.5);
-        sleep(1000);
-        if (robot.Color.red() > robot.Color.blue()){
-            robot.RightBumper.setPosition(0.8);
-        }else {
-            robot.LeftBumper.setPosition(0.2);
-        }
-
-        sleep(500);
-
-        robot.STOP();
-
-        super.stop();
-    }
-
-    //Go to white line
-
-    public void FindWhiteTape(double speed, boolean color){
-        robot.STOP();
-
-        while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5 && robot.LWhiteLine.getRawLightDetected() < 1.5){
-            robot.Drivetrain(speed,speed);
-            robot.waitForTick(25);
-        }
-        robot.STOP();
-        robot.resetEncoders();
-
-        while (opModeIsActive() && robot.getLeftEncoderinInches() > 4 && robot.getRightEncoder() > 4){
-            robot.Drivetrain(0.2, 0.2);
-            robot.waitForTick(55);
-        }
-        robot.resetEncoders();
-
-        while (opModeIsActive() && robot.getLeftEncoderinInches() > 4 && robot.getRightEncoder() > 4){
-            robot.Drivetrain(0.2, 0.2);
-            robot.waitForTick(55);
-        }
-
-        robot.STOP();
-        robot.resetEncoders();
-
-        if (opModeIsActive() && color == true){
-            while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
-                robot.Drivetrain(0.5,-0.5);
-                robot.waitForTick(25);
-            }
-        }else {
+        if(color == false){
             while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
-                robot.Drivetrain(-0.5,0.5);
-                robot.waitForTick(10);
+                robot.waitForTick(50);
+                updateData();
+            }
+        }else {
+            while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
+                robot.waitForTick(50);
+                updateData();
             }
         }
+
         robot.STOP();
+
     }
 
     //Follow Line and Press Button
 
     public void HitButton(boolean color){
+        //Here the robot decides which beacon button to press.
+        robot.BumperControl(false);
+        robot.Drivetrain(0.3,-0.3);
+        sleep(1000);
+        if(color == true){
+            if (robot.Color.red() > robot.Color.blue()){
+                robot.RightBumper.setPosition(0.1);
+            }else {
+                robot.LeftBumper.setPosition(0.9);
+            }
+        }else {
+            if (robot.Color.red() < robot.Color.blue()){
+                robot.RightBumper.setPosition(0.1);
+            }else {
+                robot.LeftBumper.setPosition(0.9);
+            }
+        }
+       sleep(500);
 
         robot.STOP();
-        robot.resetEncoders();
-     
-        while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-            robot.Drivetrain(0.1, 0.1);
-            robot.waitForTick(25);
-        }
 
-        robot.STOP();
+        robot.BumperControl(true);
 
-        if(opModeIsActive() && color == true){
-
-            robot.Drivetrain(0.1,0.1);
-
-            sleep(1050);
-
-            if(robot.Color.red() < robot.Color.blue()){
-                robot.LeftBumper.setPosition(0.8);
-            }else {
-                robot.RightBumper.setPosition(0.2);
-            }
-            sleep(1000);
-
-            robot.Drivetrain(0,0);
-
-        }else if(opModeIsActive()){
-
-            robot.Drivetrain(0.1,0.1);
-
-            sleep(1050);
-         
-            if(robot.Color.red() > robot.Color.blue()){
-                robot.LeftBumper.setPosition(0.8);
-            }else {
-                robot.RightBumper.setPosition(0.2);
-            }
-
-            sleep(1000);
-
-            robot.Drivetrain(0,0);
-        }
-
-        if(opModeIsActive()){
-            robot.STOP();
-            robot.resetEncoders();
-
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-                robot.Drivetrain(0.1, 0.1);
-                robot.waitForTick(25);
-            }
-
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-                robot.Drivetrain(0.1, 0.1);
-                robot.waitForTick(25);
-
-            }
-            robot.STOP();
-        }
     }
 
     public void updateData() {

@@ -107,6 +107,7 @@ public class AutoHardware9889
         light.enableLed(true);
 
         BumperControl(true);
+        Flywheel(false);
 
         gyro.calibrate();
 
@@ -171,9 +172,9 @@ public class AutoHardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(1.0);
+            flyWheel.setPower(-1.0);
         }else {
-            flyWheel.setPower(0.5);
+            flyWheel.setPower(-0.0);
         }
 
     }
