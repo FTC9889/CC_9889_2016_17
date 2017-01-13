@@ -3,20 +3,6 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.*;
 
 import static com.qualcomm.robotcore.util.Range.clip;
 
@@ -49,7 +35,34 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         robot.STOP();
 
-        EncoderDrive(0.5,20,20);
+        EncoderDrive(1.0, -20, -20);
+
+        robot.Drivetrain(0.3, 0.3);
+
+        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -25){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
+
+        robot.Drivetrain(0.7, -0.7);
+
+        while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
+
+        robot.Drivetrain(0.0, 0.4);
+
+        while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
+            robot.waitForTick(50);
+            updateData();
+        }
+
+        robot.STOP();
 
         /*
         //Go Straight until white line
@@ -111,7 +124,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             robot.waitForTick(25);
         }
         robot.STOP();
-
         robot.resetEncoders();
 
         while (opModeIsActive() && robot.getLeftEncoderinInches() > 4 && robot.getRightEncoder() > 4){
@@ -126,7 +138,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         }
 
         robot.STOP();
-
         robot.resetEncoders();
 
         if (opModeIsActive() && color == true){
@@ -140,7 +151,6 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
                 robot.waitForTick(10);
             }
         }
-
         robot.STOP();
     }
 
@@ -149,50 +159,27 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
     public void HitButton(boolean color){
 
         robot.STOP();
-
         robot.resetEncoders();
-
-
-
+     
         while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-
             robot.Drivetrain(0.1, 0.1);
-
             robot.waitForTick(25);
-
         }
 
-
-
         robot.STOP();
-
-
 
         if(opModeIsActive() && color == true){
 
             robot.Drivetrain(0.1,0.1);
 
-
-
             sleep(1050);
 
-
-
             if(robot.Color.red() < robot.Color.blue()){
-
                 robot.LeftBumper.setPosition(0.8);
-
             }else {
-
                 robot.RightBumper.setPosition(0.2);
-
             }
-
-
-
             sleep(1000);
-
-
 
             robot.Drivetrain(0,0);
 
@@ -200,70 +187,39 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
             robot.Drivetrain(0.1,0.1);
 
-
-
             sleep(1050);
-
-
-
+         
             if(robot.Color.red() > robot.Color.blue()){
-
                 robot.LeftBumper.setPosition(0.8);
-
             }else {
-
                 robot.RightBumper.setPosition(0.2);
-
             }
-
-
 
             sleep(1000);
 
-
-
             robot.Drivetrain(0,0);
-
         }
-
-
 
         if(opModeIsActive()){
-
             robot.STOP();
-
             robot.resetEncoders();
 
-
+            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
+                robot.Drivetrain(0.1, 0.1);
+                robot.waitForTick(25);
+            }
 
             while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-
                 robot.Drivetrain(0.1, 0.1);
-
                 robot.waitForTick(25);
 
             }
-
-
-
-
-
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > 2 && robot.getRightEncoderinInches() > 2){
-
-                robot.Drivetrain(0.1, 0.1);
-
-                robot.waitForTick(25);
-
-            }
-
-
             robot.STOP();
-
         }
-
     }
 
     public void updateData() {
+        telemetry.addData("Lego Light Sensor", robot.light.getRawLightDetected());
         telemetry.addData("Right Speed", robot.RDrive1.getPower());
         telemetry.addData("Left Speed", robot.LDrive1.getPower());
         telemetry.addData("Right Encoder", robot.getRightEncoder());
@@ -284,55 +240,42 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         int newLeftTarget;
         int newRightTarget;
 
-
         if (opModeIsActive()) {
 
             newLeftTarget = robot.LDrive2.getCurrentPosition() + (int)(-left * robot.CountsPerInch);
             newRightTarget = robot.RDrive2.getCurrentPosition() + (int)(right * robot.CountsPerInch);
 
             if (newLeftTarget < 0 && newRightTarget < 0) {
-
+                robot.Drivetrain(-Math.abs(speed),-Math.abs(speed));
                 while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
-                    robot.Drivetrain(-Math.abs(speed),-Math.abs(speed));
                     updateData();
+                    sleep(4);
                     robot.waitForTick(50);
                 }
-
-
             }else if (newLeftTarget > 0 && newRightTarget <0) {
-
+                robot.Drivetrain(Math.abs(speed),-Math.abs(speed));
                 while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
-                    robot.Drivetrain(Math.abs(speed),-Math.abs(speed));
                     updateData();
+                    sleep(4);
                     robot.waitForTick(50);
                 }
-
-
-
             }else if (newLeftTarget <0 && newRightTarget > 0) {
-
+                robot.Drivetrain(-Math.abs(speed),Math.abs(speed));
                 while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
-                    robot.Drivetrain(-Math.abs(speed),Math.abs(speed));
                     updateData();
+                    sleep(4);
                     robot.waitForTick(50);
                 }
-
-
             }else if (newLeftTarget > 0 && newRightTarget > 0) {
-
+                robot.Drivetrain(Math.abs(speed),Math.abs(speed));
                 while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
-                    robot.Drivetrain(Math.abs(speed),Math.abs(speed));
                     updateData();
+                    sleep(4);
                     robot.waitForTick(50);
                 }
-
-
             }
-
             robot.STOP();
-
         }
 
     }
-
 }
