@@ -78,8 +78,8 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
 
             updateData();
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -15) {
-                robot.Drivetrain(0.3, 0.3);
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -5) {
+                robot.Drivetrain(0.2, 0.2);
                 robot.waitForTick(50);
             }
 
@@ -98,7 +98,7 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
 
             robot.Drivetrain(-0.3, -0.3);
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 35) {
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 10) {
                 sleep(4);
                 robot.waitForTick(50);
             }

@@ -60,8 +60,8 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         robot.STOP();
 
         if (randomnumberthatweneedforsomething == 3) {
-            sleep(20000);
-            EncoderDrive(0.7,-35,-35);
+            sleep(15000);
+            EncoderDrive(0.7,-30,-30);
             robot.Flywheel(true);
             robot.resetEncoders();
             sleep(1200);
@@ -71,7 +71,10 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             robot.IntakeServo.setPower(0.0);
             robot.Intake.setPower(0.0);
             robot.Flywheel(false);
-            EncoderDrive(0.7,-20,-20);
+            //EncoderDrive(0.7,-20,-20);
+            robot.Drivetrain(-0.5, 0.5);
+            sleep(2000);
+            robot.STOP();
 
         }else {
 
@@ -80,7 +83,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
             updateData();
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 15) {
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 10) {
                 robot.Drivetrain(-0.3, -0.3);
                 robot.waitForTick(50);
             }
@@ -101,14 +104,33 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
             //The robot drives up to the white line.
             robot.Drivetrain(0.3, 0.3);
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -30) {
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -20) {
                 sleep(4);
                 robot.waitForTick(50);
             }
 
             robot.STOP();
 
-            FindWhiteTape(0.7, false);
+            robot.Drivetrain(0.7, -0.7);
+            sleep(1500);
+
+            while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
+
+            robot.Drivetrain(0.0, 0.1);
+
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -90) {
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
             HitButton(true);
 
             robot.STOP();
@@ -123,7 +145,7 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
                 robot.Drivetrain(0.3, -0.3);
 
-                sleep(1500);
+                sleep(1250);
 
                 robot.STOP();
 

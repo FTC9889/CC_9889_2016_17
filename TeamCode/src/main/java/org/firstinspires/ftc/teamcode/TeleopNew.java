@@ -115,7 +115,7 @@ public class TeleopNew extends LinearOpMode {
                 robot.Intake.setPower(-1.0);
             }else if(gamepad2.right_bumper){
                 robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(-1.0);
+                robot.Intake.setPower(1.0);
             }else {
                 robot.IntakeServo.setPower(1.0);
                 robot.Intake.setPower(0.0);

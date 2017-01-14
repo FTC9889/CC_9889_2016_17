@@ -137,8 +137,8 @@ public class Hardware9889
             LeftBumper.setPosition(0.7);
             RightBumper.setPosition(0.3);
         }else if(updown == false){
-            LeftBumper.setPosition(0.12);
-            RightBumper.setPosition(0.88);
+            LeftBumper.setPosition(0.2);
+            RightBumper.setPosition(0.8);
         }
     }
 
