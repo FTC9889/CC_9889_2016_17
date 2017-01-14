@@ -1,310 +1,313 @@
 package org.firstinspires.ftc.teamcode.Autonomous.code;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import static com.qualcomm.robotcore.util.Range.clip;
 
 /**
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
 @Autonomous(name="AutoRed", group="Red")
-@Disabled
 public class CC9889_Autonomo_Red extends LinearOpMode {
 
-    //Flywheel Motors
-    DcMotor rightShoot;
-    DcMotor leftShoot;
 
-    //Drivetrain Motors
-    DcMotor RDrive1;
-    DcMotor RDrive2;
-    DcMotor LDrive1;
-    DcMotor LDrive2;
+    /* Declare OpMode members. */
+    AutoHardware9889 robot           = new AutoHardware9889();
 
-    //Intake Motor
-    DcMotor Intake;
-
-    //Beacon-pushing Servos
-    Servo RightBumper;
-    Servo LeftBumper;
-
-    //Sensors
-    OpticalDistanceSensor RWhiteLine;
-    OpticalDistanceSensor LWhiteLine;
-    ColorSensor Color;
-    GyroSensor Gyro;
-
-    //DcMotor Encoders
-    static final double EncoderCounts=1120;
-    static final double WheelDiameter=4.0;
-    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1416);
-    static final double DriveSpeed=0.7;
-    static final double TurnSpeed=0.1;
-
-    private ElapsedTime period  = new ElapsedTime();
-    private ElapsedTime runtime=new ElapsedTime();
-
-    //Flywheel
-    double Flywheelnum = 0.0;
-
+    int randomnumberthatweneedforsomething = 0;
+    boolean breakout = false;
     @Override
     public void runOpMode () {
+        robot.init(hardwareMap);
 
-        setup();
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        telemetry.update();
+        robot.resetEncoders();
+        robot.STOP();
+        updateData();
+        while (!isStopRequested() && robot.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
 
-        waitForTick(50);
+        while (breakout == false) {
+            if (gamepad1.dpad_up) {
+                randomnumberthatweneedforsomething = 1;
+            } else if (gamepad1.dpad_right) {
+                randomnumberthatweneedforsomething = 2;
+            } else if (gamepad1.dpad_down) {
+                randomnumberthatweneedforsomething = 3;
+            }else if (gamepad1.dpad_left) {
+                randomnumberthatweneedforsomething = 0;
+            }else if(gamepad1.a) {
+                breakout = true;
+            }
 
+            telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
+            telemetry.addData("Now running Autonomous", randomnumberthatweneedforsomething);
+            telemetry.addData("Autonomous 0", "= 1 Beacon and Park on Ramp");
+            telemetry.addData("Autonomous 1", "= 1 Beacon and Hit Cap Ball");
+            telemetry.addData("Autonomous 2", "= 2 Beacon and Stop");
+            telemetry.update();
+        }
+
+        telemetry.addData("Running Autonomous #", randomnumberthatweneedforsomething);
         waitForStart();
 
-        encoderDrive(0.5, 6.5, 0, 100);
-        FindWhiteTape(0.7, true);
-        BumperControl(false);
-        HitButton(true);
+        robot.STOP();
+        if (randomnumberthatweneedforsomething == 3) {
+            sleep(20000);
+            EncoderDrive(0.7,-35,-35);
+            robot.Flywheel(true);
+            robot.resetEncoders();
+            sleep(1200);
+            robot.IntakeServo.setPower(-1.0);
+            robot.Intake.setPower(1.0);
+            sleep(2100);
+            robot.IntakeServo.setPower(0.0);
+            robot.Intake.setPower(0.0);
+            robot.Flywheel(false);
+            EncoderDrive(0.7,-20,-20);
 
-        BumperControl(true);
-        encoderDrive(0.5, 12, -12, 100);
+        }else {
+            //Robot drives forward 20 inches
+            EncoderDrive(1.0, -20, -20);
 
-        FindWhiteTape(0.7, true);
-        encoderDrive(0.1, -3, -3, 100);
-        BumperControl(false);
-        HitButton(true);
+            updateData();
 
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -15) {
+                robot.Drivetrain(0.3, 0.3);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
+            updateData();
+
+            robot.Flywheel(true);
+            sleep(1200);
+            robot.IntakeServo.setPower(-1.0);
+            robot.Intake.setPower(1.0);
+            sleep(2100);
+            robot.IntakeServo.setPower(0.0);
+            robot.Intake.setPower(0.0);
+            robot.Flywheel(false);
+
+            robot.Drivetrain(-0.3, -0.3);
+
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 35) {
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
+            FindWhiteTape(0.7, true);
+            HitButton(false);
+
+            robot.STOP();
+
+            if (randomnumberthatweneedforsomething == 1) {
+                //1 Beacon and Hit Cap Ball
+                robot.Drivetrain(-0.8, 0.8);
+
+                sleep(1500);
+
+                robot.STOP();
+
+                robot.Drivetrain(0.3, -0.3);
+
+                sleep(1500);
+
+                robot.STOP();
+
+                robot.Drivetrain(-0.3, 0.3);
+                sleep(3000);
+                robot.STOP();
+
+            } else if (randomnumberthatweneedforsomething == 2) {
+                //2 Beacon and Stop
+                robot.Drivetrain(0.1, 0.1);
+
+                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(0.7, -0.7);
+                sleep(1000);
+                robot.STOP();
+                robot.Drivetrain(0.1, 0.1);
+
+                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+                robot.Drivetrain(0.7, -0.7);
+                sleep(600);
+                robot.STOP();
+                while (opModeIsActive() && robot.light.getRawLightDetected() < 2.0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+
+                robot.STOP();
+
+                robot.Drivetrain(0.4, 0.4);
+
+                while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                HitButton(true);
+            } else {
+                //1 Beacon and Park on Ramp
+                robot.Drivetrain(0.1, 0.1);
+
+                while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(-0.8, 0.8);
+                sleep(1000);
+                robot.STOP();
+            }
+        }
         super.stop();
     }
 
-    //Functions
-
-    //Setup
-    public void setup(){
-        //Drive Motors
-        LDrive1 = hardwareMap.dcMotor.get("LDrive1");
-        LDrive2 = hardwareMap.dcMotor.get("LDrive2");
-        RDrive1 = hardwareMap.dcMotor.get("RDrive1");
-        RDrive2 = hardwareMap.dcMotor.get("RDrive2");
-
-        //Shooter Motors
-        leftShoot = hardwareMap.dcMotor.get("LeftShoot");
-        rightShoot = hardwareMap.dcMotor.get("RightShoot");
-
-        //Intake Motor
-        Intake = hardwareMap.dcMotor.get("IntakeMotor");
-
-        //Servos
-        RightBumper = hardwareMap.servo.get("RBump");
-        LeftBumper = hardwareMap.servo.get("LBump");
-
-        //Sensors
-        Color = hardwareMap.colorSensor.get("colorsensor");
-        RWhiteLine = hardwareMap.opticalDistanceSensor.get("OD1");
-        LWhiteLine = hardwareMap.opticalDistanceSensor.get("OD2");
-
-        //Tweaks to the hardware #Linsanity
-        LDrive1.setDirection(DcMotor.Direction.REVERSE);
-        LDrive2.setDirection(DcMotor.Direction.REVERSE);
-        rightShoot.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        //Drive Mode
-        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        //Drive Wheels no power
-        LDrive1.setPowerFloat();
-        RDrive1.setPowerFloat();
-        LDrive2.setPowerFloat();
-        RDrive2.setPowerFloat();
-
-        //Flywheel no power
-        leftShoot.setPowerFloat();
-        rightShoot.setPowerFloat();
-
-        leftShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShoot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        leftShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShoot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        leftShoot.setMaxSpeed(26);
-        rightShoot.setMaxSpeed(26);
-
-        //Servo Movement
-        BumperControl(true);
-    }
-
-    //Encoders
-    public void encoderDrive (double speed, double leftInches, double rightInches, long timeoutS){
-        int newLeftTarget;
-        int newRightTarget;
-
-        // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-
-            // Determine new target position, and pass to motor controller
-            newLeftTarget = LDrive1.getCurrentPosition() + (int)(leftInches * CountsPerInch);
-            newRightTarget = RDrive1.getCurrentPosition() + (int)(rightInches * CountsPerInch);
-            LDrive1.setTargetPosition(newLeftTarget);
-            RDrive1.setTargetPosition(newRightTarget);
-
-            // Turn On RUN_TO_POSITION
-            LDrive1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            RDrive1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // reset the timeout time and start motion.
-            runtime.reset();
-
-            LDrive1.setPower(Math.abs(speed));
-            RDrive1.setPower(Math.abs(speed));
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (LDrive1.isBusy() && RDrive1.isBusy())) {
-                LDrive1.setPower(Math.abs(speed));
-                RDrive1.setPower(Math.abs(speed));
-
-                // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d", LDrive1.getCurrentPosition(), RDrive1.getCurrentPosition());
-                telemetry.update();
-                idle();
-
-            }
-
-            // Stop all motion;
-            LDrive1.setPower(0.0);
-            RDrive1.setPower(0.0);
-
-            sleep(timeoutS);   // optional pause after each move
-            LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-            RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        }
-    }
-
     //Go to white line
+
     public void FindWhiteTape(double speed, boolean color){
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5 && LWhiteLine.getRawLightDetected() < 1.5){
-            Drivetrain(speed,speed);            waitForTick(10);
+        robot.Drivetrain(Math.abs(speed), -Math.abs(speed));
+        sleep(1500);
+
+        while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+            sleep(4);
+            robot.waitForTick(50);
         }
-        Drivetrain(0,0);
 
-        sleep(500);
+        robot.STOP();
 
-        encoderDrive(0.2, 4, 4, 100);
+        //The robot lines itself up with the white line.
+        robot.Drivetrain(-0.4, 0.0);
 
-        if (opModeIsActive() && color == true){
-            while (opModeIsActive() && LWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(0.5,-0.5);
-                waitForTick(10);
+        if(color == false){
+            while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
+                sleep(4);
+                robot.waitForTick(50);
             }
         }else {
-            while (opModeIsActive() && RWhiteLine.getRawLightDetected() < 1.5){
-                Drivetrain(-0.5,0.5);
-                waitForTick(10);
+            while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
+                sleep(4);
+                robot.waitForTick(50);
             }
         }
-        Drivetrain(0,0);
-        sleep(500);
 
-        LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.STOP();
+
     }
 
     //Follow Line and Press Button
+
     public void HitButton(boolean color){
-        encoderDrive(0.1, 2, 2, 100);
-        Drivetrain(0,0);
-
-        if(opModeIsActive() && color == true){
-            Drivetrain(0.1,0.1);
-
-            sleep(1050);
-
-            if(Color.red() < Color.blue()){
-                LeftBumper.setPosition(0.8);
+        //Here the robot decides which beacon button to press.
+        robot.BumperControl(false);
+        robot.Drivetrain(0.3,-0.3);
+        sleep(1000);
+        if(color == true){
+            if (robot.Color.red() > robot.Color.blue()){
+                robot.RightBumper.setPosition(0.1);
             }else {
-                RightBumper.setPosition(0.2);
+                robot.LeftBumper.setPosition(0.9);
             }
-
-            sleep(1000);
-
-            Drivetrain(0,0);
-
-            encoderDrive(0.2, -4, -4, 100);
-        }
-    }
-
-    //Controller for all bumper actions
-    public void BumperControl(boolean updown){
-        if(updown == true){
-            LeftBumper.setPosition(0.89);
-            RightBumper.setPosition(0.2);
-        }else if(opModeIsActive() && updown == false){
-            LeftBumper.setPosition(0.12);
-            RightBumper.setPosition(0.88);
-        }
-    }
-
-    //Flywheel Control
-    public void Flywheel(int Position){
-        if(Position == 0){
-            Flywheelnum = 0.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
         }else {
-            Flywheelnum = 1.0;
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-            sleep(500);
-            if(Position == 1){
-                Flywheelnum = 0.34;
-            }else if(Position == 2){
-                Flywheelnum = 0.60;
-            }else if(Position == 4){
-                Flywheelnum = 0.8;
+            if (robot.Color.red() < robot.Color.blue()){
+                robot.RightBumper.setPosition(0.1);
             }else {
-                Flywheelnum = 0.0;
-            }
-            leftShoot.setPower(Flywheelnum);
-            rightShoot.setPower(Flywheelnum);
-        }
-    }
-
-    public void waitForTick(long periodMs) {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
-                Thread.sleep(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                robot.LeftBumper.setPosition(0.9);
             }
         }
+        sleep(700);
 
-        // Reset the cycle clock for the next pass.
-        period.reset();
+        robot.STOP();
+
+        robot.Drivetrain(-0.3, 0.3);
+        sleep(1000);
+        robot.STOP();
+
+        robot.BumperControl(true);
+
+
     }
 
-    //Drive
-    public void Drivetrain(double left, double right){
-        LDrive1.setPower(left);
-        LDrive2.setPower(left);
-        RDrive1.setPower(right);
-        RDrive2.setPower(right);
+    public void updateData() {
+        telemetry.addData("Lego Light Sensor", robot.light.getRawLightDetected());
+        telemetry.addData("Right Speed", robot.RDrive1.getPower());
+        telemetry.addData("Left Speed", robot.LDrive1.getPower());
+        telemetry.addData("Right Encoder", robot.getRightEncoder());
+        telemetry.addData("Left Encoder", robot.getLeftEncoder());
+        telemetry.addData("Right Encoder pos", robot.RDrive1.getCurrentPosition());
+        telemetry.addData("Left Encoder pos", robot.LDrive1.getCurrentPosition());
+        telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
+        telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
+        telemetry.addData("Gyro Z-axis", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Left ODS", robot.LWhiteLine.getRawLightDetected());
+        telemetry.addData("Right ODS", robot.RWhiteLine.getRawLightDetected());
+
+        telemetry.update();
+    }
+
+    public void EncoderDrive(double speed, int left, int right) {
+
+        int newLeftTarget;
+        int newRightTarget;
+
+        if (opModeIsActive()) {
+
+            newLeftTarget = robot.LDrive2.getCurrentPosition() + (int)(-left * robot.CountsPerInch);
+            newRightTarget = robot.RDrive2.getCurrentPosition() + (int)(right * robot.CountsPerInch);
+
+            if (newLeftTarget < 0 && newRightTarget < 0) {
+                robot.Drivetrain(-Math.abs(speed),-Math.abs(speed));
+                while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
+                    updateData();
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+            }else if (newLeftTarget > 0 && newRightTarget <0) {
+                robot.Drivetrain(Math.abs(speed),-Math.abs(speed));
+                while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget < robot.RDrive2.getCurrentPosition()) {
+                    updateData();
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+            }else if (newLeftTarget <0 && newRightTarget > 0) {
+                robot.Drivetrain(-Math.abs(speed),Math.abs(speed));
+                while (opModeIsActive() && newLeftTarget < robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
+                    updateData();
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+            }else if (newLeftTarget > 0 && newRightTarget > 0) {
+                robot.Drivetrain(Math.abs(speed),Math.abs(speed));
+                while (opModeIsActive() && newLeftTarget > robot.LDrive2.getCurrentPosition() && newRightTarget > robot.RDrive2.getCurrentPosition()) {
+                    updateData();
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+            }
+            robot.STOP();
+        }
+
     }
 }

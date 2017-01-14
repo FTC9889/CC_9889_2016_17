@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Hardware9889;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Hardware9889;
  * Created by Jin on 1/7/2017.
  */
 @Autonomous(name="LSC Auto", group="Teleop")
+@Disabled
 public class CC9889_Auton extends LinearOpMode {
 
     /* Declare OpMode members. */

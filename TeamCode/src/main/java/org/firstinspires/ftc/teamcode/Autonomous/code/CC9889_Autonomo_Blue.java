@@ -15,6 +15,9 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     /* Declare OpMode members. */
     AutoHardware9889 robot           = new AutoHardware9889();
+
+    int randomnumberthatweneedforsomething = 0;
+    boolean breakout = false;
     @Override
     public void runOpMode () {
         robot.init(hardwareMap);
@@ -28,85 +31,151 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
         while (!isStopRequested() && robot.gyro.isCalibrating())  {
             sleep(50);
             idle();
-        }telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
-        telemetry.update();
+        }
 
+        while (breakout == false) {
+            if (gamepad1.dpad_up) {
+                randomnumberthatweneedforsomething = 1;
+            } else if (gamepad1.dpad_right) {
+                randomnumberthatweneedforsomething = 2;
+            } else if (gamepad1.dpad_down) {
+                randomnumberthatweneedforsomething = 3;
+            }else if (gamepad1.dpad_left) {
+                randomnumberthatweneedforsomething = 0;
+            }else if(gamepad1.a) {
+                breakout = true;
+            }
+
+            telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
+            telemetry.addData("Autonomous Number", randomnumberthatweneedforsomething);
+            telemetry.addData("Autonomous 0", "= 1 Beacon and Park on Ramp");
+            telemetry.addData("Autonomous 1", "= 1 Beacon and Hit Cap Ball");
+            telemetry.addData("Autonomous 2", "= 2 Beacon and Stop");
+            telemetry.update();
+        }
+
+        telemetry.addData("Now running Autonomous #", randomnumberthatweneedforsomething);
         waitForStart();
 
         robot.STOP();
 
-        //Robot drives forward 20 inches
-        EncoderDrive(1.0, -20, -20);
+        if (randomnumberthatweneedforsomething == 3) {
+            sleep(20000);
+            EncoderDrive(0.7,-35,-35);
+            robot.Flywheel(true);
+            robot.resetEncoders();
+            sleep(1200);
+            robot.IntakeServo.setPower(-1.0);
+            robot.Intake.setPower(1.0);
+            sleep(2100);
+            robot.IntakeServo.setPower(0.0);
+            robot.Intake.setPower(0.0);
+            robot.Flywheel(false);
+            EncoderDrive(0.7,-20,-20);
 
-        robot.Drivetrain(-0.3, -0.3);
+        }else {
 
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 15){
-            robot.waitForTick(50);
+            //Robot drives forward 20 inches
+            EncoderDrive(1.0, -20, -20);
+
             updateData();
-        }
 
-        robot.STOP();
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 15) {
+                robot.Drivetrain(-0.3, -0.3);
+                robot.waitForTick(50);
+            }
 
-        robot.Flywheel(true);
-        sleep(1200);
-        robot.IntakeServo.setPower(-1.0);
-        robot.Intake.setPower(1.0);
-        sleep(2500);
-        robot.IntakeServo.setPower(0.0);
-        robot.Intake.setPower(0.0);
-        robot.Flywheel(false);
+            robot.STOP();
 
-        //The robot drives up to the white line.
-        robot.Drivetrain(0.3, 0.3);
-
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -30){
-            robot.waitForTick(50);
             updateData();
+
+            robot.Flywheel(true);
+            sleep(1200);
+            robot.IntakeServo.setPower(-1.0);
+            robot.Intake.setPower(1.0);
+            sleep(2100);
+            robot.IntakeServo.setPower(0.0);
+            robot.Intake.setPower(0.0);
+            robot.Flywheel(false);
+
+            //The robot drives up to the white line.
+            robot.Drivetrain(0.3, 0.3);
+
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -30) {
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
+            FindWhiteTape(0.7, false);
+            HitButton(true);
+
+            robot.STOP();
+
+            if (randomnumberthatweneedforsomething == 1) {
+                //1 Beacon and Hit Cap Ball
+                robot.Drivetrain(-0.8, 0.8);
+
+                sleep(1500);
+
+                robot.STOP();
+
+                robot.Drivetrain(0.3, -0.3);
+
+                sleep(1500);
+
+                robot.STOP();
+
+                robot.Drivetrain(-0.3, 0.3);
+                sleep(3000);
+                robot.STOP();
+
+            } else if (randomnumberthatweneedforsomething == 2) {
+                //2 Beacon and Stop
+                robot.Drivetrain(-0.1, -0.1);
+
+                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(0.7, -0.7);
+                sleep(1600);
+                robot.STOP();
+
+                while (opModeIsActive() && robot.light.getRawLightDetected() < 1.) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+
+                robot.STOP();
+
+                robot.Drivetrain(0.4, 0.4);
+
+                while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                HitButton(true);
+            } else {
+                //1 Beacon and Park on Ramp
+                robot.Drivetrain(-0.1, -0.1);
+
+                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
+                    sleep(4);
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(-0.8, 0.8);
+                sleep(1000);
+                robot.STOP();
+            }
         }
-
-        robot.STOP();
-
-        FindWhiteTape(0.7, false);
-
-        HitButton(true);
-
-        robot.Drivetrain(-0.3,0.3);
-
-        sleep(1000);
-        robot.STOP();
-        robot.Drivetrain(-0.3, -0.3);
-
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0){
-            robot.waitForTick(50);
-            updateData();
-        }
-
-        robot.STOP();
-
-        robot.Drivetrain(0.1, 0.1);
-
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0){
-            robot.waitForTick(50);
-            updateData();
-        }
-
-        robot.STOP();
-
-        robot.Drivetrain(-0.1, -0.1);
-
-        while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0){
-            robot.waitForTick(50);
-            updateData();
-        }
-
-        robot.STOP();
-
-        robot.Drivetrain(0.7,0.7);
-        sleep(1000);
-
-        FindWhiteTape(0.7,false);
-        HitButton(true);
-
         super.stop();
     }
 
@@ -114,10 +183,11 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
     public void FindWhiteTape(double speed, boolean color){
         robot.Drivetrain(Math.abs(speed), -Math.abs(speed));
+        sleep(1500);
 
         while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
-            robot.waitForTick(10);
-            updateData();
+            sleep(4);
+            robot.waitForTick(50);
         }
 
         robot.STOP();
@@ -127,13 +197,13 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
 
         if(color == false){
             while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
+                sleep(4);
                 robot.waitForTick(50);
-                updateData();
             }
         }else {
             while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
+                sleep(4);
                 robot.waitForTick(50);
-                updateData();
             }
         }
 
@@ -161,11 +231,16 @@ public class CC9889_Autonomo_Blue extends LinearOpMode {
                 robot.LeftBumper.setPosition(0.9);
             }
         }
-       sleep(500);
+       sleep(700);
 
         robot.STOP();
 
+        robot.Drivetrain(-0.3, 0.3);
+        sleep(1000);
+        robot.STOP();
+
         robot.BumperControl(true);
+
 
     }
 

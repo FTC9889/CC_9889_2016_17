@@ -96,10 +96,10 @@ public class AutoHardware9889
         RDrive2.setDirection(DcMotor.Direction.REVERSE);
 
         //Drive Mode
-        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -141,11 +141,11 @@ public class AutoHardware9889
     //Controller for all bumper actions
     public void BumperControl(boolean updown){
         if(updown == true){
-            LeftBumper.setPosition(0.7);
-            RightBumper.setPosition(0.3);
+            LeftBumper.setPosition(1.0);
+            RightBumper.setPosition(0.0);
         }else if(updown == false){
-            LeftBumper.setPosition(0.2);
-            RightBumper.setPosition(0.8);
+            LeftBumper.setPosition(0.0);
+            RightBumper.setPosition(1.0);
         }
     }
 
