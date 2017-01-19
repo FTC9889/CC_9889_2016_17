@@ -44,13 +44,16 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
                 randomnumberthatweneedforsomething = 0;
             }else if(gamepad1.a) {
                 breakout = true;
+            }else if(gamepad1.b) {
+                breakout = false;
             }
 
             telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
-            telemetry.addData("Now running Autonomous", randomnumberthatweneedforsomething);
-            telemetry.addData("Autonomous 0", "= 1 Beacon and Park on Ramp");
-            telemetry.addData("Autonomous 1", "= 1 Beacon and Hit Cap Ball");
-            telemetry.addData("Autonomous 2", "= 2 Beacon and Stop");
+            telemetry.addData("Autonomous selected", randomnumberthatweneedforsomething);
+            telemetry.addData("DPAD_L - Autonomous 0", "= 1 Beacon and Park on Ramp");
+            telemetry.addData("DPAD_U - Autonomous 1", "= 1 Beacon and Hit Cap Ball");
+            telemetry.addData("DPAD_R - Autonomous 2", "= 2 Beacon and Stop");
+            telemetry.addData("Press A to select;", "Press B to deselect");
             telemetry.update();
         }
 
