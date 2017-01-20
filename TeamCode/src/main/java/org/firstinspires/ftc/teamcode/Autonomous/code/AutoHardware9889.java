@@ -51,7 +51,7 @@ public class AutoHardware9889
     //DcMotor Encoders
     static final float EncoderCounts=1120;
     static final float WheelDiameter=4;
-    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
+    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415);
 
 
     /* Local OpMode members. */
