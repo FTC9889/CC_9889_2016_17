@@ -104,7 +104,7 @@ public class CC9889_AltAutoRed extends LinearOpMode {
         }else {///////////////////////Base One Beacon///////////////////////
 
             //Drive Straight For 22 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -20 && robot.getRightEncoderinInches() > -20){
+            while (opModeIsActive() && robot.getLeftEncoderinInches() > -18 && robot.getRightEncoderinInches() > -18){
                 robot.Drivetrain(-0.6, -0.6);
                 updateData();
                 robot.waitForTick(50);
@@ -126,19 +126,19 @@ public class CC9889_AltAutoRed extends LinearOpMode {
             if(opModeIsActive()){
                 sleep(200);
                 robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.8);
+                robot.Intake.setPower(0.7);
                 sleep(3000);
                 robot.IntakeServo.setPower(0.0);
                 robot.Intake.setPower(0.0);
                 robot.Flywheel(false);
             }
 
-            while (opModeIsActive() && robot.getGyro() < 7){
+            /*while (opModeIsActive() && robot.getGyro() < 7){
                 robot.Drivetrain(-0.2, 0.2);
                 updateData();
                 robot.waitForTick(25);
-            }
-            while (opModeIsActive() && robot.getGyro() < 42){
+            }*/
+            while (opModeIsActive() && robot.getGyro() < 40){
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(25);
@@ -294,6 +294,18 @@ public class CC9889_AltAutoRed extends LinearOpMode {
                 //Drive Backward
                 while (opModeIsActive() && robot.getLeftEncoderinInches() < 30 && robot.getRightEncoderinInches() < 30){
                     robot.Drivetrain(0.4, 0.4);
+                    updateData();
+                    robot.waitForTick(50);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(0.4, -0.4);
+                sleep(1000);
+                robot.STOP();
+                sleep(1000);
+
+                while (opModeIsActive() && robot.getLeftEncoderinInches() > -10 && robot.getRightEncoderinInches() > -10){
+                    robot.Drivetrain(-0.4, -0.4);
                     updateData();
                     robot.waitForTick(50);
                 }

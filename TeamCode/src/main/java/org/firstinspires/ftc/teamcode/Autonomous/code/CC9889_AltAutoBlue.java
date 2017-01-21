@@ -25,12 +25,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         robot.resetEncoders();
 
-        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-        */
-
         while (breakout == false) {
             telemetry.clearAll();
             if (gamepad1.dpad_up) {
@@ -126,7 +120,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             if(opModeIsActive()){
                 sleep(200);
                 robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.8);
+                robot.Intake.setPower(0.7);
                 sleep(3000);
                 robot.IntakeServo.setPower(0.0);
                 robot.Intake.setPower(0.0);
