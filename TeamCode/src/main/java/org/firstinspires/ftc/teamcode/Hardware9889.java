@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
@@ -12,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * This is NOT an opmode. #YaoMingFTW
+ * This is NOT an opmode.
  *
  * This class can be used to define all the specific hardware for a single robot.
  *
@@ -39,16 +41,17 @@ public class Hardware9889
     //Intake CRservo
     CRServo IntakeServo;
 
+    CRServo lift;
+
     //Sensors
-    OpticalDistanceSensor RWhiteLine;
-    OpticalDistanceSensor LWhiteLine;
+    OpticalDistanceSensor BackODS;
+    OpticalDistanceSensor FrontODS;
     ColorSensor Color;
-    LightSensor light;
     ModernRoboticsI2cGyro gyro;
 
     //DcMotor Encoders
-    static final double EncoderCounts=1120;
-    static final double WheelDiameter=4.0;
+    static final float EncoderCounts=1120;
+    static final float WheelDiameter=4;
     static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
 
 
@@ -81,12 +84,12 @@ public class Hardware9889
         RightBumper = hwMap.servo.get("RBump");
         LeftBumper = hwMap.servo.get("LBump");
         IntakeServo = hwMap.crservo.get("Intake");
+        lift = hwMap.crservo.get("lift");
 
         //Sensors
         Color = hwMap.colorSensor.get("colorsensor");
-        RWhiteLine = hwMap.opticalDistanceSensor.get("OD1");
-        LWhiteLine = hwMap.opticalDistanceSensor.get("OD2");
-        light = hwMap.lightSensor.get("ltbl");
+        BackODS = hwMap.opticalDistanceSensor.get("OD1");
+        FrontODS = hwMap.opticalDistanceSensor.get("OD2");
         gyro = (ModernRoboticsI2cGyro)hwMap.get("gyro");
 
 
@@ -95,15 +98,16 @@ public class Hardware9889
         LDrive2.setDirection(DcMotor.Direction.REVERSE);
 
         //Drive Mode
-        LDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RDrive1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        gyro.calibrate();
+        lift.setPower(0.0);
 
+        resetEncoders();
     }
 
     /***
@@ -134,8 +138,8 @@ public class Hardware9889
     //Controller for all bumper actions
     public void BumperControl(boolean updown){
         if(updown == true){
-            LeftBumper.setPosition(0.7);
-            RightBumper.setPosition(0.3);
+            LeftBumper.setPosition(8.0);
+            RightBumper.setPosition(0.2);
         }else if(updown == false){
             LeftBumper.setPosition(0.2);
             RightBumper.setPosition(0.8);
@@ -151,7 +155,7 @@ public class Hardware9889
     }
 
     public void STOP(){
-
+        Drivetrain(0.0,0.0);
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -165,18 +169,43 @@ public class Hardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-1.0);
+            flyWheel.setPower(-0.9);
         }else {
-            flyWheel.setPower(-0.0);
+            flyWheel.setPower(0.0);
         }
 
     }
 
-
-
-    public void resetEncoders(){
-        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public float getLeftEncoder() {
+        return LDrive2.getCurrentPosition();
     }
 
+    public float getRightEncoder() {
+        return RDrive2.getCurrentPosition();
+    }
+
+    public double getLeftEncoderinInches() {
+        return getLeftEncoder()/CountsPerInch;
+    }
+
+    public double getRightEncoderinInches() {
+        return getRightEncoder()/CountsPerInch;
+    }
+
+    public double getAverageDistance(){
+        return (getLeftEncoder()*getRightEncoder())/2.0;
+    }
+
+    public void driveSpeedTurn(double speed, double turn) {
+        double left = speed + turn;
+        double right = speed - turn;
+        Drivetrain(left, right);
+    }
+
+    public void resetEncoders(){
+        RDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 }

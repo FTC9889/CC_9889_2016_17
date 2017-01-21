@@ -10,8 +10,8 @@ import static com.qualcomm.robotcore.util.Range.clip;
  * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
  */
 @Autonomous(name="AutoRed", group="Red")
+@Disabled
 public class CC9889_Autonomo_Red extends LinearOpMode {
-
 
     /* Declare OpMode members. */
     AutoHardware9889 robot           = new AutoHardware9889();
@@ -26,44 +26,62 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
         telemetry.addData(">", "Gyro Calibrating. Do Not move!");
         telemetry.update();
         robot.resetEncoders();
-        robot.STOP();
-        updateData();
         while (!isStopRequested() && robot.gyro.isCalibrating())  {
             sleep(50);
             idle();
         }
 
+
         while (breakout == false) {
             if (gamepad1.dpad_up) {
-                randomnumberthatweneedforsomething = 1;
+                randomnumberthatweneedforsomething++;
+                sleep(1000);
             } else if (gamepad1.dpad_right) {
-                randomnumberthatweneedforsomething = 2;
-            } else if (gamepad1.dpad_down) {
-                randomnumberthatweneedforsomething = 3;
-            }else if (gamepad1.dpad_left) {
-                randomnumberthatweneedforsomething = 0;
+                ++randomnumberthatweneedforsomething;
+                sleep(1000);
             }else if(gamepad1.a) {
                 breakout = true;
-            }else if(gamepad1.b) {
-                breakout = false;
             }
 
+            switch(randomnumberthatweneedforsomething){
+                case 1:
+                    telemetry.clear();
+                    telemetry.addData("Autonomous 1", "= Shoots and parks center");
+                    break;
+
+                case 2:
+                    telemetry.clear();
+                    telemetry.addData("Autonomous 2", "= 1 Beacon and Park on Ramp");
+                    break;
+
+                case 3:
+                    telemetry.clear();
+                    telemetry.addData("Autonomous 3","= Hits two beacons and stops");
+                    break;
+
+                case 4:
+                    telemetry.clear();
+                    telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
+                    break;
+            }
             telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
-            telemetry.addData("Autonomous selected", randomnumberthatweneedforsomething);
-            telemetry.addData("DPAD_L - Autonomous 0", "= 1 Beacon and Park on Ramp");
-            telemetry.addData("DPAD_U - Autonomous 1", "= 1 Beacon and Hit Cap Ball");
-            telemetry.addData("DPAD_R - Autonomous 2", "= 2 Beacon and Stop");
-            telemetry.addData("Press A to select;", "Press B to deselect");
             telemetry.update();
         }
 
-        telemetry.addData("Running Autonomous #", randomnumberthatweneedforsomething);
+        telemetry.addData("Now running Autonomous #", randomnumberthatweneedforsomething);
+        telemetry.update();
+
         waitForStart();
 
+        while(opModeIsActive()){
+            updateData();
+        }
+
         robot.STOP();
-        if (randomnumberthatweneedforsomething == 3) {
-            sleep(20000);
-            EncoderDrive(0.7,-35,-35);
+
+        if (randomnumberthatweneedforsomething == 1){
+            sleep(15000);
+            EncoderDrive(0.7,-30,-30);
             robot.Flywheel(true);
             robot.resetEncoders();
             sleep(1200);
@@ -73,7 +91,10 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
             robot.IntakeServo.setPower(0.0);
             robot.Intake.setPower(0.0);
             robot.Flywheel(false);
-            EncoderDrive(0.7,-20,-20);
+            //EncoderDrive(0.7,-20,-20);
+            robot.Drivetrain(-0.5, 0.5);
+            sleep(2000);
+            robot.STOP();
 
         }else {
             //Robot drives forward 20 inches
@@ -81,8 +102,8 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
 
             updateData();
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -5) {
-                robot.Drivetrain(0.2, 0.2);
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() > -10) {
+                robot.Drivetrain(0.3, 0.3);
                 robot.waitForTick(50);
             }
 
@@ -99,92 +120,111 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
             robot.Intake.setPower(0.0);
             robot.Flywheel(false);
 
-            robot.Drivetrain(-0.3, -0.3);
 
-            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 10) {
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 20) {
+                robot.Drivetrain(-0.2, -0.2);
                 sleep(4);
                 robot.waitForTick(50);
             }
 
             robot.STOP();
 
-            FindWhiteTape(0.7, true);
+            robot.Drivetrain(0.7, -0.7);
+            sleep(1500);
+
+            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 1.5){
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
+
+            robot.Drivetrain(-0.1, 0.0);
+
+            while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 90) {
+                sleep(4);
+                robot.waitForTick(50);
+            }
+
+            robot.STOP();
+
             HitButton(false);
 
             robot.STOP();
 
-            if (randomnumberthatweneedforsomething == 1) {
-                //1 Beacon and Hit Cap Ball
-                robot.Drivetrain(-0.8, 0.8);
+            switch (randomnumberthatweneedforsomething) {
+                case 2:
+                    //1 Beacon and Park on Ramp
+                    robot.Drivetrain(0.1, 0.1);
 
-                sleep(1500);
+                    while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0) {
+                        sleep(4);
+                        robot.waitForTick(50);
+                    }
+                    robot.STOP();
 
-                robot.STOP();
+                    robot.Drivetrain(-0.8, 0.8);
+                    sleep(1000);
+                    robot.STOP();
 
-                robot.Drivetrain(0.3, -0.3);
+                    break;
 
-                sleep(1500);
+                case 3:
+                    //2 Beacon and Stop
+                    robot.Drivetrain(0.1, 0.1);
 
-                robot.STOP();
+                    while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0) {
+                        sleep(4);
+                        robot.waitForTick(50);
+                    }
+                    robot.STOP();
 
-                robot.Drivetrain(-0.3, 0.3);
-                sleep(3000);
-                robot.STOP();
+                    robot.Drivetrain(0.7, -0.7);
+                    sleep(1600);
+                    robot.STOP();
 
-            } else if (randomnumberthatweneedforsomething == 2) {
-                //2 Beacon and Stop
-                robot.Drivetrain(0.1, 0.1);
+                    while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 1.5) {
+                        sleep(4);
+                        robot.waitForTick(50);
+                    }
 
-                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
-                    sleep(4);
-                    robot.waitForTick(50);
-                }
-                robot.STOP();
+                    robot.STOP();
 
-                robot.Drivetrain(0.7, -0.7);
-                sleep(1000);
-                robot.STOP();
-                robot.Drivetrain(0.1, 0.1);
+                    robot.Drivetrain(-0.4, -0.4);
 
-                while (opModeIsActive() && robot.gyro.getIntegratedZValue() < 0) {
-                    sleep(4);
-                    robot.waitForTick(50);
-                }
-                robot.STOP();
-                robot.Drivetrain(0.7, -0.7);
-                sleep(600);
-                robot.STOP();
-                while (opModeIsActive() && robot.light.getRawLightDetected() < 2.0) {
-                    sleep(4);
-                    robot.waitForTick(50);
-                }
+                    while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.5) {
+                        sleep(4);
+                        robot.waitForTick(50);
+                    }
+                    robot.STOP();
 
-                robot.STOP();
+                    HitButton(true);
 
-                robot.Drivetrain(0.4, 0.4);
+                    break;
 
-                while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5) {
-                    sleep(4);
-                    robot.waitForTick(50);
-                }
-                robot.STOP();
+                case 4:
+                    //1 Beacon and Hit Cap Ball
+                    robot.Drivetrain(-0.8, 0.8);
 
-                HitButton(true);
-            } else {
-                //1 Beacon and Park on Ramp
-                robot.Drivetrain(0.1, 0.1);
+                    sleep(1500);
 
-                while (opModeIsActive() && robot.gyro.getIntegratedZValue() > 0) {
-                    sleep(4);
-                    robot.waitForTick(50);
-                }
-                robot.STOP();
+                    robot.STOP();
 
-                robot.Drivetrain(-0.8, 0.8);
-                sleep(1000);
-                robot.STOP();
+                    robot.Drivetrain(0.3, -0.3);
+
+                    sleep(1250);
+
+                    robot.STOP();
+
+                    robot.Drivetrain(-0.3, 0.3);
+                    sleep(3000);
+                    robot.STOP();
+
+                    break;
             }
         }
+
         super.stop();
     }
 
@@ -194,7 +234,7 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
         robot.Drivetrain(Math.abs(speed), -Math.abs(speed));
         sleep(1500);
 
-        while (opModeIsActive() && robot.light.getRawLightDetected() < 1.8){
+        while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 1.8){
             sleep(4);
             robot.waitForTick(50);
         }
@@ -202,18 +242,10 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
         robot.STOP();
 
         //The robot lines itself up with the white line.
-        robot.Drivetrain(-0.4, 0.0);
-
-        if(color == false){
-            while (opModeIsActive() && robot.RWhiteLine.getRawLightDetected() < 1.5){
-                sleep(4);
-                robot.waitForTick(50);
-            }
-        }else {
-            while (opModeIsActive() && robot.LWhiteLine.getRawLightDetected() < 1.5){
-                sleep(4);
-                robot.waitForTick(50);
-            }
+        robot.Drivetrain(0.0, 0.4);
+        while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.5){
+            sleep(4);
+            robot.waitForTick(50);
         }
 
         robot.STOP();
@@ -254,7 +286,6 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
     }
 
     public void updateData() {
-        telemetry.addData("Lego Light Sensor", robot.light.getRawLightDetected());
         telemetry.addData("Right Speed", robot.RDrive1.getPower());
         telemetry.addData("Left Speed", robot.LDrive1.getPower());
         telemetry.addData("Right Encoder", robot.getRightEncoder());
@@ -264,8 +295,8 @@ public class CC9889_Autonomo_Red extends LinearOpMode {
         telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
         telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
         telemetry.addData("Gyro Z-axis", robot.gyro.getIntegratedZValue());
-        telemetry.addData("Left ODS", robot.LWhiteLine.getRawLightDetected());
-        telemetry.addData("Right ODS", robot.RWhiteLine.getRawLightDetected());
+        telemetry.addData("Back ODS", robot.BackODS.getRawLightDetected());
+        telemetry.addData("Front ODS", robot.FrontODS.getRawLightDetected());
 
         telemetry.update();
     }

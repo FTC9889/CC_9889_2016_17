@@ -33,7 +33,7 @@ public class CC9889_Auton extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        robot.Drivetrain(-1.0, -1.0);
+        robot.Drivetrain(1.0, 1.0);
         sleep(1500);;
         robot.Drivetrain(0.0,0.0);
         robot.STOP();

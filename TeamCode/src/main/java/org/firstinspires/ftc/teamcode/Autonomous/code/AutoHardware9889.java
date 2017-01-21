@@ -41,17 +41,18 @@ public class AutoHardware9889
     //Intake CRservo
     CRServo IntakeServo;
 
+    CRServo lift;
+
     //Sensors
-    OpticalDistanceSensor RWhiteLine;
-    OpticalDistanceSensor LWhiteLine;
+    OpticalDistanceSensor BackODS;
+    OpticalDistanceSensor FrontODS;
     ColorSensor Color;
-    LightSensor light;
     ModernRoboticsI2cGyro gyro;
 
     //DcMotor Encoders
     static final float EncoderCounts=1120;
     static final float WheelDiameter=4;
-    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415);
+    static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
 
 
     /* Local OpMode members. */
@@ -83,34 +84,30 @@ public class AutoHardware9889
         RightBumper = hwMap.servo.get("RBump");
         LeftBumper = hwMap.servo.get("LBump");
         IntakeServo = hwMap.crservo.get("Intake");
+        lift = hwMap.crservo.get("lift");
 
         //Sensors
         Color = hwMap.colorSensor.get("colorsensor");
-        RWhiteLine = hwMap.opticalDistanceSensor.get("OD1");
-        LWhiteLine = hwMap.opticalDistanceSensor.get("OD2");
-        light = hwMap.lightSensor.get("ltbl");
-        gyro =(ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        BackODS = hwMap.opticalDistanceSensor.get("OD1");
+        FrontODS = hwMap.opticalDistanceSensor.get("OD2");
+        gyro = (ModernRoboticsI2cGyro)hwMap.get("gyro");
+
 
         //Tweaks to the hardware #Linsanity
-        RDrive1.setDirection(DcMotor.Direction.REVERSE);
-        RDrive2.setDirection(DcMotor.Direction.REVERSE);
+        LDrive1.setDirection(DcMotor.Direction.REVERSE);
+        LDrive2.setDirection(DcMotor.Direction.REVERSE);
 
         //Drive Mode
         LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lift.setPower(0.0);
 
-        light.enableLed(true);
-
-        BumperControl(true);
-        Flywheel(false);
-
-        gyro.calibrate();
-
+        BumperControl(false);
     }
 
     /***
@@ -139,25 +136,25 @@ public class AutoHardware9889
     }
 
     //Controller for all bumper actions
-    public void BumperControl(boolean updown){
-        if(updown == true){
+    public void BumperControl(boolean up){
+        if(up == false){
             LeftBumper.setPosition(1.0);
             RightBumper.setPosition(0.0);
-        }else if(updown == false){
-            LeftBumper.setPosition(0.0);
-            RightBumper.setPosition(1.0);
+        }else if(up == true){
+            LeftBumper.setPosition(0.1);
+            RightBumper.setPosition(0.9);
         }
     }
 
     //Drive
     public void Drivetrain(double left, double right){
-        LDrive1.setPower(-left);
-        LDrive2.setPower(-left);
+        LDrive1.setPower(left);
+        LDrive2.setPower(left);
         RDrive1.setPower(right);
         RDrive2.setPower(right);
     }
 
-     public void STOP(){
+    public void STOP(){
         Drivetrain(0.0,0.0);
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -172,18 +169,18 @@ public class AutoHardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-1.0);
+            flyWheel.setPower(-0.9);
         }else {
-            flyWheel.setPower(-0.0);
+            flyWheel.setPower(0.0);
         }
 
     }
 
-    public float getLeftEncoder() {
+    public int getLeftEncoder() {
         return LDrive2.getCurrentPosition();
     }
 
-    public float getRightEncoder() {
+    public int getRightEncoder() {
         return RDrive2.getCurrentPosition();
     }
 
@@ -193,6 +190,10 @@ public class AutoHardware9889
 
     public double getRightEncoderinInches() {
         return getRightEncoder()/CountsPerInch;
+    }
+
+    public int getGyro(){
+        return gyro.getIntegratedZValue();
     }
 
     public double getAverageDistance(){
@@ -206,9 +207,15 @@ public class AutoHardware9889
     }
 
     public void resetEncoders(){
+        STOP();
+        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }
