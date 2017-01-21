@@ -138,11 +138,11 @@ public class Hardware9889
     //Controller for all bumper actions
     public void BumperControl(boolean updown){
         if(updown == true){
-            LeftBumper.setPosition(8.0);
-            RightBumper.setPosition(0.2);
+            LeftBumper.setPosition(1.0);
+            RightBumper.setPosition(0.0);
         }else if(updown == false){
-            LeftBumper.setPosition(0.2);
-            RightBumper.setPosition(0.8);
+            LeftBumper.setPosition(0.0);
+            RightBumper.setPosition(1.0);
         }
     }
 

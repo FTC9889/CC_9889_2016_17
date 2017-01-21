@@ -7,9 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import static com.qualcomm.robotcore.util.Range.clip;
 
 /**
- * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
+ * Created by Jin on 9/30/2016. #ObieDidHarambe
  */
-@Autonomous(name="AltAutoBlue", group="Blue")
+@Autonomous(name="Blue", group="Blue")
 public class CC9889_AltAutoBlue extends LinearOpMode {
 
 
@@ -28,7 +28,8 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
             sleep(50);
             idle();
-        }*/
+        }
+        */
 
         while (breakout == false) {
             telemetry.clearAll();
@@ -55,21 +56,15 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         telemetry.addData("Auton", " Selected");
         updateData();
 
+        robot.resetEncoders();
+        robot.gyro.resetZAxisIntegrator();
+
         waitForStart();
 
         telemetry.addData("Runnig Auton", " ");
-
-        robot.resetEncoders();
-        robot.gyro.resetZAxisIntegrator();
-        updateData();
-
-        sleep(100);
-
-
-
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
             //Wait for partner to hit beacon
-            sleep(15000);
+            sleep(20000);
 
             if (opModeIsActive()){
             //Start Flywheel
@@ -77,7 +72,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
 
             //Drive Straight For 35 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -35 && robot.getRightEncoderinInches() > -35){
+            while (opModeIsActive() && robot.getLeftEncoderinInches() > -34 && robot.getRightEncoderinInches() > -34){
                 robot.Drivetrain(-0.6, -0.6);
                 updateData();
                 robot.waitForTick(50);
@@ -88,10 +83,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             //Shoot particles
             if(opModeIsActive()){
-                sleep(500);
+                sleep(100);
                 robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.8);
-                sleep(3000);
+                robot.Intake.setPower(0.5);
+                sleep(5000);
                 robot.IntakeServo.setPower(0.0);
                 robot.Intake.setPower(0.0);
                 robot.Flywheel(false);
@@ -116,9 +111,11 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
             robot.STOP();
 
+            robot.Flywheel(true);
+
             //Turn to the goal
             while (opModeIsActive() && robot.getGyro() < 20){
-                robot.Drivetrain(-0.1, 0.1);
+                robot.Drivetrain(-0.15, 0.15);
                 updateData();
                 robot.waitForTick(25);
             }
@@ -127,8 +124,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             //Shoot particles
             if(opModeIsActive()){
-                robot.Flywheel(true);
-                sleep(1200);
+                sleep(200);
                 robot.IntakeServo.setPower(-1.0);
                 robot.Intake.setPower(0.8);
                 sleep(3000);
@@ -137,8 +133,12 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 robot.Flywheel(false);
             }
 
-
-            while (opModeIsActive() && robot.getGyro() > -47){
+            while (opModeIsActive() && robot.getGyro() > -7){
+                robot.Drivetrain(0.2, -0.2);
+                updateData();
+                robot.waitForTick(25);
+            }
+            while (opModeIsActive() && robot.getGyro() > -42){
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(25);
@@ -146,8 +146,9 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             robot.STOP();
 
+            //Go Straight till line
             while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.6){
-                robot.Drivetrain(-0.9, -0.9);
+                robot.Drivetrain(-0.8, -0.8);
                 updateData();
                 robot.waitForTick(50);
             }
@@ -162,7 +163,17 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             robot.STOP();
 
             while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
-                robot.Drivetrain(0.15, -0.15);
+                robot.Drivetrain(0.1, -0.1);
+                updateData();
+                robot.waitForTick(50);
+            }
+            while (opModeIsActive() && robot.FrontODS.getRawLightDetected() > 1.0){
+                robot.Drivetrain(-0.1, 0.1);
+                updateData();
+                robot.waitForTick(50);
+            }
+            while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
+                robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(50);
             }
@@ -172,8 +183,8 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             robot.BumperControl(true);
 
             //Drive to the beacon
-            robot.Drivetrain(-0.2, -0.2);
-            sleep(200);
+            robot.Drivetrain(-0.1, -0.1);
+            sleep(600);
             HitButton(true);
 
             robot.resetEncoders();
@@ -194,7 +205,12 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             if (randomnumberthatweneedforsomething == 2){
                 //2 BEACON AUTONOMOUS
                 //Turn to the Beacon
-                while (opModeIsActive() && robot.getGyro() < 0){
+                while (opModeIsActive() && robot.getGyro() < -70){
+                    robot.Drivetrain(-0.2, 0.2);
+                    updateData();
+                    robot.waitForTick(25);
+                }
+                while (opModeIsActive() && robot.getGyro() < -6){
                     robot.Drivetrain(-0.1, 0.1);
                     updateData();
                     robot.waitForTick(25);
@@ -202,14 +218,14 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
                 robot.STOP();
 
-                robot.Drivetrain(-1.0, -1.0);
-                sleep(1000);
+                robot.Drivetrain(-0.9, -0.9);
+                sleep(1300);
 
                 while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 1.0){
                     if(robot.getGyro() < -1){
-                        robot.Drivetrain(0.6, 0.7);
+                        robot.Drivetrain(-0.3, -0.5);
                     }else if(robot.getGyro() > 1){
-                        robot.Drivetrain(0.7, 0.6);
+                        robot.Drivetrain(-0.5, -0.3);
                     }else if (robot.getGyro() == 0){
                         robot.Drivetrain(-0.7, -0.7);
                     }
@@ -234,22 +250,46 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
                 robot.STOP();
 
-                robot.BumperControl(false);
-            }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
-                //Turn the ramp
-                while (opModeIsActive() && robot.getGyro() < 0){
+                while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 0.6){
                     robot.Drivetrain(-0.1, 0.1);
                     updateData();
-                    robot.waitForTick(25);
+                    robot.waitForTick(50);
                 }
 
                 robot.STOP();
 
-                robot.Drivetrain(0.5, 0.5);
-                sleep(2000);
+                robot.BumperControl(true);
 
+                //Drive to the beacon
+                robot.Drivetrain(-0.2, -0.2);
+                sleep(800);
+                HitButton(true);
+
+                robot.resetEncoders();
+
+                while (opModeIsActive() && robot.getLeftEncoderinInches() < 5 && robot.getRightEncoderinInches() < 5){
+                    robot.Drivetrain(0.4, 0.4);
+                    updateData();
+                    robot.waitForTick(50);
+                }
                 robot.STOP();
 
+                robot.BumperControl(false);
+                sleep(1000);
+
+            }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
+                //Turn the ramp
+                while (opModeIsActive() && robot.getGyro() < -10){
+                    robot.Drivetrain(-0.1, 0.1);
+                    updateData();
+                    robot.waitForTick(25);
+                }
+                robot.STOP();
+
+                robot.Drivetrain(0.5, 0.5);
+                sleep(1000);
+
+                robot.STOP();
 
             }else if (randomnumberthatweneedforsomething == 4){//Cap Ball Park
 
@@ -258,7 +298,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
                 //Drive Backward
                 while (opModeIsActive() && robot.getLeftEncoderinInches() < 30 && robot.getRightEncoderinInches() < 30){
-                    robot.Drivetrain(-0.4, -0.4);
+                    robot.Drivetrain(0.4, 0.4);
                     updateData();
                     robot.waitForTick(50);
                 }
@@ -275,32 +315,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         super.stop();
     }
 
-    //Go to white line
-
-    public void FindWhiteTape(double speed, boolean color){
-        robot.Drivetrain(Math.abs(speed), -Math.abs(speed));
-        sleep(1500);
-
-        while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 1.8){
-            sleep(4);
-            robot.waitForTick(50);
-        }
-
-        robot.STOP();
-
-        //The robot lines itself up with the white line.
-        robot.Drivetrain(0.0, 0.4);
-        while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.5){
-            sleep(4);
-            robot.waitForTick(50);
-        }
-
-        robot.STOP();
-
-    }
-
     //Follow Line and Press Button
-
     public void HitButton(boolean color){
         //Here the robot decides which beacon button to press.
         if(color == true){//Go for red
