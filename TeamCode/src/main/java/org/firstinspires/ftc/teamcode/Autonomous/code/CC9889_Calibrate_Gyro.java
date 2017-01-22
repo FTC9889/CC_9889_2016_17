@@ -39,5 +39,7 @@ public class CC9889_Calibrate_Gyro extends LinearOpMode{
 
         telemetry.addData(">", "Gyro Calibrated.  Press Start.");
         telemetry.update();
+
+        super.stop();
     }
 }

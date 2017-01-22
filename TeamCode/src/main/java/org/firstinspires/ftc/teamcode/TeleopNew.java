@@ -53,7 +53,7 @@ public class TeleopNew extends LinearOpMode {
         while (opModeIsActive()) {
 
             xvalue = -gamepad1.right_stick_x/div;
-            yvalue = gamepad1.left_stick_y;
+            yvalue = gamepad1.left_stick_y/div;
 
             leftspeed =  yvalue - xvalue;
             rightspeed = yvalue + xvalue;
@@ -90,13 +90,13 @@ public class TeleopNew extends LinearOpMode {
             }
 
             //lift Servo
-            if(Math.abs(gamepad1.right_trigger) > 0.3){
+            /*if(Math.abs(gamepad1.right_trigger) > 0.3){
                 robot.lift.setPower(1.0);
             }else if (Math.abs(gamepad1.left_trigger) > 0.3){
                 robot.lift.setPower(-0.6);
             }else {
                 robot.lift.setPower(0.0);
-            }
+            }*/
 
             updateData();
 

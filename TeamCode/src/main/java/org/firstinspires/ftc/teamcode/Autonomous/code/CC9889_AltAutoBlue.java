@@ -4,14 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import static com.qualcomm.robotcore.util.Range.clip;
-
 /**
  * Created by Jin on 9/30/2016. #ObieDidHarambe
  */
+
 @Autonomous(name="Blue", group="Blue")
 public class CC9889_AltAutoBlue extends LinearOpMode {
-
 
     /* Declare OpMode members. */
     AutoHardware9889 robot           = new AutoHardware9889();
@@ -107,9 +105,15 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             robot.Flywheel(true);
 
+
             //Turn to the goal
+            while (opModeIsActive() && robot.getGyro() < 5){
+                robot.Drivetrain(-0.2, 0.2);
+                updateData();
+                robot.waitForTick(25);
+            }
             while (opModeIsActive() && robot.getGyro() < 20){
-                robot.Drivetrain(-0.15, 0.15);
+                robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(25);
             }
@@ -141,7 +145,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             robot.STOP();
 
             //Go Straight till line
-            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.6){
+            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.5){
                 robot.Drivetrain(-0.8, -0.8);
                 updateData();
                 robot.waitForTick(50);
@@ -149,7 +153,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             robot.STOP();
 
-            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.6){
+            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.5){
                 robot.Drivetrain(0.1, 0.1);
                 updateData();
                 robot.waitForTick(50);
@@ -157,7 +161,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             robot.STOP();
 
             while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
-                robot.Drivetrain(0.1, -0.1);
+                robot.Drivetrain(0.15, -0.15);
                 updateData();
                 robot.waitForTick(50);
             }
@@ -174,11 +178,11 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             robot.STOP();
 
-            robot.BumperControl(true);
+            robot.BumperControl(false);
 
             //Drive to the beacon
             robot.Drivetrain(-0.1, -0.1);
-            sleep(600);
+            sleep(900);
             HitButton(true);
 
             robot.resetEncoders();
@@ -190,7 +194,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
             robot.STOP();
 
-            robot.BumperControl(false);
+            robot.BumperControl(true);
 
             ////////////////////////////////////////////////////////
             /////       Auton Picker                        ////////
@@ -281,7 +285,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 robot.STOP();
 
                 robot.Drivetrain(0.5, 0.5);
-                sleep(1000);
+                sleep(1500);
 
                 robot.STOP();
 
@@ -314,13 +318,13 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         //Here the robot decides which beacon button to press.
         if(color == true){//Go for red
             if (robot.Color.red() > robot.Color.blue()){
-                robot.RightBumper.setPosition(0.0);
+                robot.RightBumper.setPosition(0.4);
             }else {
                 robot.LeftBumper.setPosition(1.0);
             }
         }else {//Go for blue
             if (robot.Color.red() < robot.Color.blue()){
-                robot.RightBumper.setPosition(0.0);
+                robot.RightBumper.setPosition(0.4);
             }else {
                 robot.LeftBumper.setPosition(1.0);
             }

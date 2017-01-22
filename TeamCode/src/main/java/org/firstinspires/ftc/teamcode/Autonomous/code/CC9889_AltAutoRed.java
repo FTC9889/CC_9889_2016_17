@@ -1,26 +1,24 @@
 package org.firstinspires.ftc.teamcode.Autonomous.code;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import static com.qualcomm.robotcore.util.Range.clip;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 /**
- * Created by Jin on 9/30/2016. #WeGonRideWeGonWin #ObieDidHarambe
+ * Created by Joshua H on 1/21/2017.
  */
+
 @Autonomous(name="Red", group="Red")
-public class CC9889_AltAutoRed extends LinearOpMode {
+public class CC9889_AltAutoRed extends LinearOpMode{
 
-
-    /* Declare OpMode members. */
-    AutoHardware9889 robot           = new AutoHardware9889();
-
-    int randomnumberthatweneedforsomething = 1;
+    //OpMode Members
+    AutoHardware9889 robot          = new AutoHardware9889();
     boolean breakout = false;
 
     @Override
-    public void runOpMode () {
+    public void runOpMode(){
+
+        int randomnumberthatweneedforsomething = 1;
+
         robot.init(hardwareMap);
 
         robot.resetEncoders();
@@ -114,7 +112,12 @@ public class CC9889_AltAutoRed extends LinearOpMode {
             robot.Flywheel(true);
 
             //Turn to the goal
-            while (opModeIsActive() && robot.getGyro() > -20){
+            while (opModeIsActive() && robot.getGyro() > -6){
+                robot.Drivetrain(0.2, -0.2);
+                updateData();
+                robot.waitForTick(25);
+            }
+            while (opModeIsActive() && robot.getGyro() > -15){
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(25);
@@ -133,12 +136,12 @@ public class CC9889_AltAutoRed extends LinearOpMode {
                 robot.Flywheel(false);
             }
 
-            /*while (opModeIsActive() && robot.getGyro() < 7){
+            while (opModeIsActive() && robot.getGyro() < 5)
                 robot.Drivetrain(-0.2, 0.2);
                 updateData();
                 robot.waitForTick(25);
-            }*/
-            while (opModeIsActive() && robot.getGyro() < 40){
+            }
+            while (opModeIsActive() && robot.getGyro() < 30){
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(25);
@@ -147,7 +150,7 @@ public class CC9889_AltAutoRed extends LinearOpMode {
             robot.STOP();
 
             //Go Straight till line
-            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.6){
+            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.5){
                 robot.Drivetrain(-0.9, -0.9);
                 updateData();
                 robot.waitForTick(50);
@@ -155,8 +158,8 @@ public class CC9889_AltAutoRed extends LinearOpMode {
 
             robot.STOP();
 
-            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.6){
-                robot.Drivetrain(0.1, 0.1);
+            while (opModeIsActive() && robot.BackODS.getRawLightDetected() < 0.5){
+                robot.Drivetrain(0.15, 0.15);
                 updateData();
                 robot.waitForTick(50);
             }
@@ -172,7 +175,7 @@ public class CC9889_AltAutoRed extends LinearOpMode {
                 updateData();
                 robot.waitForTick(50);
             }
-            while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
+            /*while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(50);
@@ -181,11 +184,11 @@ public class CC9889_AltAutoRed extends LinearOpMode {
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(50);
-            }
+            }*/
 
             robot.STOP();
 
-            robot.BumperControl(true);
+            robot.BumperControl(false);
 
             //Drive to the beacon
             robot.Drivetrain(-0.1, -0.1);
@@ -201,7 +204,7 @@ public class CC9889_AltAutoRed extends LinearOpMode {
             }
             robot.STOP();
 
-            robot.BumperControl(false);
+            robot.BumperControl(true);
 
             ////////////////////////////////////////////////////////
             /////       Auton Picker                        ////////
@@ -263,7 +266,7 @@ public class CC9889_AltAutoRed extends LinearOpMode {
 
                 robot.STOP();
 
-                robot.BumperControl(true);
+                robot.BumperControl(false);
 
                 //Drive to the beacon
                 robot.Drivetrain(-0.2, -0.2);
@@ -274,6 +277,11 @@ public class CC9889_AltAutoRed extends LinearOpMode {
 
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
                 //Turn the ramp
+                while (opModeIsActive() && robot.getGyro() > 80){
+                    robot.Drivetrain(0.2, -0.2);
+                    updateData();
+                    robot.waitForTick(25);
+                }
                 while (opModeIsActive() && robot.getGyro() > 10){
                     robot.Drivetrain(0.1, -0.1);
                     updateData();
@@ -317,8 +325,6 @@ public class CC9889_AltAutoRed extends LinearOpMode {
                 telemetry.update();
                 sleep(15000);
             }
-        }
-
         super.stop();
     }
 
@@ -328,13 +334,13 @@ public class CC9889_AltAutoRed extends LinearOpMode {
         //Here the robot decides which beacon button to press.
         if(color == true){//Go for red
             if (robot.Color.red() > robot.Color.blue()){
-                robot.RightBumper.setPosition(0.0);
+                robot.RightBumper.setPosition(0.4);
             }else {
                 robot.LeftBumper.setPosition(1.0);
             }
         }else {//Go for blue
             if (robot.Color.red() < robot.Color.blue()){
-                robot.RightBumper.setPosition(0.0);
+                robot.RightBumper.setPosition(0.4);
             }else {
                 robot.LeftBumper.setPosition(1.0);
             }

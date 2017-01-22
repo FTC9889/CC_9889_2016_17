@@ -107,7 +107,7 @@ public class AutoHardware9889
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lift.setPower(0.0);
 
-        BumperControl(false);
+        BumperControl(true);
     }
 
     /***
@@ -136,12 +136,12 @@ public class AutoHardware9889
     }
 
     //Controller for all bumper actions
-    public void BumperControl(boolean up){
-        if(up == false){
+    public void BumperControl(boolean updown){
+        if(updown == true){
             LeftBumper.setPosition(1.0);
-            RightBumper.setPosition(0.0);
-        }else if(up == true){
-            LeftBumper.setPosition(0.1);
+            RightBumper.setPosition(0.4);
+        }else if(updown == false){
+            LeftBumper.setPosition(0.15);
             RightBumper.setPosition(0.9);
         }
     }
@@ -169,7 +169,7 @@ public class AutoHardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-0.9);
+            flyWheel.setPower(-0.6);
         }else {
             flyWheel.setPower(0.0);
         }
