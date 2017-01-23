@@ -21,39 +21,45 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
     public void runOpMode () {
         robot.init(hardwareMap);
 
-        robot.resetEncoders();
-
-        while (breakout == false) {
-            telemetry.clearAll();
+        while (breakout == false) {//Used to determine the Autonomous Mode to run
             if (gamepad1.dpad_up) {
+                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
                 telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
             } else if(gamepad1.dpad_right){
+                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 2;
                 telemetry.addData("Autonomous 2", "= 2 Beacon");
             }else if (gamepad1.dpad_down) {
+                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 3;
                 telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
             }else if(gamepad1.dpad_left) {
+                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
             }else if (gamepad1.a){
                 breakout = true;
             }
             telemetry.addData("Please Select an ", "Autonomous Mode");
-            //telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
             telemetry.update();
         }
+
+        //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         updateData();
 
-        robot.resetEncoders();
-        robot.gyro.resetZAxisIntegrator();
-
         waitForStart();
 
+        //Reset all the things
+        robot.resetEncoders();
+        robot.gyro.resetZAxisIntegrator();
+        sleep(100);
+
         telemetry.addData("Runnig Auton", " ");
+        telemetry.update();
+
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
             //Wait for partner to hit beacon
             sleep(20000);
@@ -76,11 +82,9 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             //Shoot particles
             if(opModeIsActive()){
                 sleep(100);
-                robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.5);
+                robot.IntakeControl(1);
                 sleep(5000);
-                robot.IntakeServo.setPower(0.0);
-                robot.Intake.setPower(0.0);
+                robot.IntakeControl(0);
                 robot.Flywheel(false);
             }
 

@@ -8,9 +8,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LegacyModule;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -43,11 +45,17 @@ public class AutoHardware9889
 
     CRServo lift;
 
-    //Sensors
+    //MR Sensors
     OpticalDistanceSensor BackODS;
     OpticalDistanceSensor FrontODS;
     ColorSensor Color;
     ModernRoboticsI2cGyro gyro;
+
+    //Legacy Sensors
+    UltrasonicSensor ultrasonic;
+
+    //Legacy Module
+    LegacyModule legacyModule;
 
     //DcMotor Encoders
     static final float EncoderCounts=1120;
@@ -86,12 +94,17 @@ public class AutoHardware9889
         IntakeServo = hwMap.crservo.get("Intake");
         lift = hwMap.crservo.get("lift");
 
-        //Sensors
+        //MR Sensors
         Color = hwMap.colorSensor.get("colorsensor");
         BackODS = hwMap.opticalDistanceSensor.get("OD1");
         FrontODS = hwMap.opticalDistanceSensor.get("OD2");
         gyro = (ModernRoboticsI2cGyro)hwMap.get("gyro");
 
+        //Legacy Sensors
+        ultrasonic = hwMap.ultrasonicSensor.get("ultra");
+
+        //Legacy Module
+        legacyModule = hwMap.legacyModule.get("Legacy Module");
 
         //Tweaks to the hardware #Linsanity
         LDrive1.setDirection(DcMotor.Direction.REVERSE);
@@ -105,7 +118,9 @@ public class AutoHardware9889
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        lift.setPower(0.0);
+        flyWheel.setMaxSpeed(44);
+
+        IntakeControl(0);
 
         BumperControl(true);
     }
@@ -169,11 +184,21 @@ public class AutoHardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-0.6);
+            flyWheel.setPower(-0.3);
         }else {
             flyWheel.setPower(0.0);
         }
 
+    }
+
+    public void IntakeControl(int mode){
+        if (mode == 0){//Mode 0 == Stop all motors
+            IntakeServo.setPower(0.0);
+            Intake.setPower(0.0);
+        }else if(mode == 1){//Mode 1 == Shoot
+            IntakeServo.setPower(-1.0);
+            Intake.setPower(0.5);
+        }
     }
 
     public int getLeftEncoder() {
@@ -196,14 +221,11 @@ public class AutoHardware9889
         return gyro.getIntegratedZValue();
     }
 
-    public double getAverageDistance(){
-        return (getLeftEncoder()*getRightEncoder())/2.0;
-    }
-
-    public void driveSpeedTurn(double speed, double turn) {
-        double left = speed + turn;
-        double right = speed - turn;
-        Drivetrain(left, right);
+    public int getUltrasonic(boolean foward){
+        while (ultrasonic.getUltrasonicLevel() ==255){
+            waitForTick(50);
+        }
+        return (int)(ultrasonic.getUltrasonicLevel());
     }
 
     public void resetEncoders(){

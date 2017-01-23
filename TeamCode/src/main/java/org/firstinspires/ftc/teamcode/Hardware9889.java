@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * This is NOT an opmode.
@@ -53,6 +54,8 @@ public class Hardware9889
     static final float EncoderCounts=1120;
     static final float WheelDiameter=4;
     static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
+
+    private double FlywheelSpeed;
 
 
     /* Local OpMode members. */
@@ -105,7 +108,7 @@ public class Hardware9889
 
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        lift.setPower(0.0);
+        //flyWheel.setMaxSpeed(44);
 
         resetEncoders();
     }
@@ -169,11 +172,10 @@ public class Hardware9889
 
     public void Flywheel(boolean on){
         if (on == true){
-            flyWheel.setPower(-0.9);
+            flyWheel.setPower(-0.3);
         }else {
             flyWheel.setPower(0.0);
         }
-
     }
 
     public float getLeftEncoder() {
@@ -190,16 +192,6 @@ public class Hardware9889
 
     public double getRightEncoderinInches() {
         return getRightEncoder()/CountsPerInch;
-    }
-
-    public double getAverageDistance(){
-        return (getLeftEncoder()*getRightEncoder())/2.0;
-    }
-
-    public void driveSpeedTurn(double speed, double turn) {
-        double left = speed + turn;
-        double right = speed - turn;
-        Drivetrain(left, right);
     }
 
     public void resetEncoders(){
