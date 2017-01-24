@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.teamcode.Hardware9889;
 
 /**
  * Created by Joshua H on 1/21/2017.
@@ -11,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class CC9889_Calibrate_Gyro extends LinearOpMode{
 
     //OpMode Members
-    AutoHardware9889 robot          = new AutoHardware9889();
+    Hardware9889 robot          = new Hardware9889();
     boolean breakout = false;
 
     @Override
@@ -36,6 +37,8 @@ public class CC9889_Calibrate_Gyro extends LinearOpMode{
             sleep(50);
             idle();
         }
+
+        robot.resetGyro();
 
         telemetry.addData(">", "Gyro Calibrated.  Press Start.");
         telemetry.update();

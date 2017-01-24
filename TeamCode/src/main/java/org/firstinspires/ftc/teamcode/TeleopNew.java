@@ -1,30 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.webkit.JavascriptInterface;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.teamcode.Hardware9889;
-
-/**
- * This OpMode uses the common HardwareK9bot class to define the devices on the robot.
- * All device access is managed through the HardwareK9bot class. (See this class for device names)
- * The code is structured as a LinearOpMode
- *
- * This particular OpMode executes a basic Tank Drive Teleop for the K9 bot
- * It raises and lowers the arm using the Gampad Y and A buttons respectively.
- * It also opens and closes the claw slowly using the X and B buttons.
- *
- * Note: the configuration of the servos is such that
- * as the arm servo approaches 0, the arm position moves up (away from the floor).
- * Also, as the claw servo approaches 0, the claw opens up (drops the game element).
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
 @TeleOp(name="Teleop", group="Teleop")
 public class TeleopNew extends LinearOpMode {
@@ -55,10 +33,12 @@ public class TeleopNew extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        //Reset the time to allow for timer to stop automatically
         runtime.reset();
 
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
+        //Run until the timer reaches 120 seconds or the STOP button is pressed
+        while (opModeIsActive() && runtime.seconds() < 120) {
+            //Turning control for Driver 2, so he can adjust the shot on the fly. Disables Driver 1's control
             if(gamepad2.dpad_left){
                 leftspeed = -0.2;
                 rightspeed = 0.2;
@@ -75,6 +55,7 @@ public class TeleopNew extends LinearOpMode {
 
             robot.Drivetrain(leftspeed, rightspeed);
 
+            //Lower the max speed of the robot
             if (gamepad1.left_trigger > 0.3){
                 div = 4;
             }else {
@@ -106,14 +87,6 @@ public class TeleopNew extends LinearOpMode {
 
             updateData();
 
-            if(runtime.seconds() > 120){
-                robot.flyWheel.setPower(0.0);
-                robot.IntakeServo.setPower(0.0);
-                robot.Intake.setPower(0.0);
-                robot.Drivetrain(0.0,0.0);
-                super.stop();
-            }
-
             // Pause for metronome tick.  40 mS each cycle = update 25 times a second.
             robot.waitForTick(40);
         }
@@ -122,6 +95,7 @@ public class TeleopNew extends LinearOpMode {
         robot.IntakeServo.setPower(0.0);
         robot.Intake.setPower(0.0);
         robot.Drivetrain(0.0,0.0);
+        super.stop();
     }
 
     public void updateData(){
@@ -133,9 +107,9 @@ public class TeleopNew extends LinearOpMode {
         telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
         telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
         telemetry.addData("Gyro Z-axis", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Ultrasonic Sensor Raw Value", robot.getUltrasonic());
         telemetry.addData("Left ODS", robot.BackODS.getRawLightDetected());
         telemetry.addData("Right ODS", robot.FrontODS.getRawLightDetected());
-
         telemetry.update();
     }
 }

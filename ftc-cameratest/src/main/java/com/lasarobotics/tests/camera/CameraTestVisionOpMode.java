@@ -33,7 +33,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
 
         /**
          * Set the maximum frame size
@@ -54,7 +54,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * Set the beacon analysis method
          * Try them all and see what works!
          */
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.FAST);
+        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
 
         /**
          * Set color tolerances

@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode.Autonomous.code;
+package org.firstinspires.ftc.teamcode.Vision.Processing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.Hardware9889;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.lasarobotics.vision.android.Cameras;
@@ -25,8 +28,11 @@ import org.opencv.core.Size;
 
 
 @Autonomous(name= "Linear Vision Sample", group= "Vision")
-//@Disabled
+@Disabled
 public class LinearVisionSample extends LinearVisionOpMode {
+
+    //OpMode Members
+    Hardware9889 robot          = new Hardware9889();
 
     //Frame counter
     int frameCount = 0;
@@ -34,6 +40,7 @@ public class LinearVisionSample extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
         //Wait for vision to initialize - this should be the first thing you do
         waitForVisionStart();
 
@@ -42,7 +49,7 @@ public class LinearVisionSample extends LinearVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
 
         /**
          * Set the frame size
@@ -96,7 +103,6 @@ public class LinearVisionSample extends LinearVisionOpMode {
          * calling either setActivityOrientationAutoRotate() or setActivityOrientationFixed(). If
          * you don't, the camera reader may have problems reading the current orientation.
          */
-        beacon.enableDebug();
         rotation.setIsUsingSecondaryCamera(false);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE);
@@ -109,6 +115,8 @@ public class LinearVisionSample extends LinearVisionOpMode {
          */
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.K6500_DAYLIGHT);
         cameraControl.setAutoExposureCompensation();
+
+        robot.init(hardwareMap);
 
         //Wait for the match to begin
         waitForStart();
@@ -144,24 +152,7 @@ public class LinearVisionSample extends LinearVisionOpMode {
                 frameCount++;
             }
 
-            waitForTick(50);
+            robot.waitForTick(50);
         }
-    }
-
-    public void waitForTick(long periodMs) {
-
-        long  remaining = periodMs - (long)period.milliseconds();
-
-        // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
-                Thread.sleep(remaining);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        // Reset the cycle clock for the next pass.
-        period.reset();
     }
 }
