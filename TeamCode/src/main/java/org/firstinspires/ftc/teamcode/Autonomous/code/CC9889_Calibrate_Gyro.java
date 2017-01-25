@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.teamcode.Hardware9889;
+import org.firstinspires.ftc.teamcode.Subsystems.Drivebase;
 
 /**
  * Created by Joshua H on 1/21/2017.
@@ -12,15 +12,15 @@ import org.firstinspires.ftc.teamcode.Hardware9889;
 public class CC9889_Calibrate_Gyro extends LinearOpMode{
 
     //OpMode Members
-    Hardware9889 robot          = new Hardware9889();
+    Drivebase Drivebase = null;
     boolean breakout = false;
 
     @Override
     public void runOpMode(){
-        robot.init(hardwareMap);
+        Drivebase.init(hardwareMap);
 
-        robot.STOP();
-        robot.resetEncoders();
+        Drivebase.STOP();
+        Drivebase.resetEncoders();
 
         telemetry.addData("Press Play to Calibrate", "");
         telemetry.update();
@@ -30,15 +30,15 @@ public class CC9889_Calibrate_Gyro extends LinearOpMode{
         telemetry.clearAll();
         telemetry.addData(">", "Gyro Calibrating. Do Not move!");
         telemetry.update();
-        robot.gyro.calibrate();
+        Drivebase.resetGyro();
 
         // make sure the gyro is calibrated.
-        while (!isStopRequested() && robot.gyro.isCalibrating())  {
+        while (!isStopRequested() && Drivebase.GyroisCalibrating())  {
             sleep(50);
             idle();
         }
 
-        robot.resetGyro();
+        Drivebase.resetGyro();
 
         telemetry.addData(">", "Gyro Calibrated.  Press Start.");
         telemetry.update();

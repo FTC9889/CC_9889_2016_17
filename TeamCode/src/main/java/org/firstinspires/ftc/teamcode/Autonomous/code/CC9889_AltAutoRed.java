@@ -2,17 +2,20 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.teamcode.Hardware9889;
+import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 /**
  * Created by Joshua H on 1/21/2017.
  */
 
 @Autonomous(name="Red", group="Red")
+
 public class CC9889_AltAutoRed extends LinearOpMode{
 
-    //OpMode Members
-    Hardware9889 robot          = new Hardware9889();
+    Flywheel_Intake Flywheel_Intake   = new Flywheel_Intake();
+    Drivebase Drivetrain              = new Drivebase();
+    Beacon Beacon                     = new Beacon();
+    waitForTick waitForTick           = new waitForTick();
     boolean breakout = false;
 
     @Override
@@ -20,15 +23,21 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
         int randomnumberthatweneedforsomething = 1;
 
-        robot.init(hardwareMap);
+        //Init the robot
+        Flywheel_Intake.init(hardwareMap);
+        Drivetrain.init(hardwareMap);
+        Beacon.init(hardwareMap);
+        waitForTick.init();
 
-        robot.resetEncoders();
+        Drivetrain.resetEncoders();
+
 
         /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
             sleep(50);
             idle();
         }
         */
+
 
         while (breakout == false) {
             if (gamepad1.dpad_up) {
@@ -56,17 +65,17 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
-        updateData();
 
         waitForStart();
 
-        //Reset all the things
-        robot.resetEncoders();
-        robot.resetGyro();
-        sleep(100);
-
+        telemetry.clearAll();
         telemetry.addData("Runnig Auton", " ");
         telemetry.update();
+
+        //Reset all the things
+        Drivetrain.resetEncoders();
+        Drivetrain.resetGyro();
+        sleep(100);
 
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
 
@@ -75,51 +84,34 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             if (opModeIsActive()){
                 //Start Flywheel
-                robot.Flywheel(true);
+                Flywheel_Intake.setFlywheel(true);
             }
 
             //Drive Straight For 35 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -35 && robot.getRightEncoderinInches() > -35){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
-            }
-            robot.STOP();
-
-            robot.resetEncoders();
+            Drivetrain.DriveForwardtoDistance(0.6, 35);
 
             //Shoot particles
             if(opModeIsActive()){
                 sleep(500);
-                robot.IntakeControl(1);
+                Flywheel_Intake.setIntake(1);
                 sleep(2000);
-                robot.IntakeControl(0);
-                robot.Flywheel(false);
+                Flywheel_Intake.setIntake(0);
+                Flywheel_Intake.setFlywheel(false);
             }
 
             //Park
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -35 && robot.getRightEncoderinInches() > -35){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
-            }
-            robot.STOP();
+            Drivetrain.DriveForwardtoDistance(0.6, 35);
 
 
         }else {///////////////////////Base One Beacon///////////////////////
 
             //Drive Straight For 22 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -18 && robot.getRightEncoderinInches() > -18){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
-            }
-            robot.STOP();
+            Drivetrain.DriveForwardtoDistance(0.6, 22);
 
-            robot.Flywheel(true);
+            Flywheel_Intake.setFlywheel(true);
 
             //Turn to the goal
-            while (opModeIsActive() && robot.getGyro() > -6){
+            /*while (opModeIsActive() && robot.getGyro() > -6){
                 robot.Drivetrain(0.2, -0.2);
                 updateData();
                 robot.waitForTick(25);
@@ -128,20 +120,20 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(25);
-            }
+            }*/
 
-            robot.STOP();
+            Drivetrain.STOP();
 
             //Shoot particles
             if(opModeIsActive()){
                 sleep(500);
-                robot.IntakeControl(1);
+                Flywheel_Intake.setIntake(1);
                 sleep(2000);
-                robot.IntakeControl(0);
-                robot.Flywheel(false);
+                Flywheel_Intake.setIntake(0);
+                Flywheel_Intake.setFlywheel(false);
             }
 
-            while (opModeIsActive() && robot.getGyro() < 5)
+            /*while (opModeIsActive() && robot.getGyro() < 5)
                 robot.Drivetrain(-0.2, 0.2);
                 updateData();
                 robot.waitForTick(25);
@@ -150,26 +142,16 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(25);
-            }
+            }*/
 
-            robot.STOP();
+            Drivetrain.STOP();
 
             //Go Straight till line
-            while (opModeIsActive() && robot.getBackODS() < 0.5){
-                robot.Drivetrain(-0.9, -0.9);
-                updateData();
-                robot.waitForTick(50);
-            }
+            Drivetrain.DriveStraighttoWhiteLine(0.7, 2500);
 
-            robot.STOP();
+            Drivetrain.CenterOnWhiteLine(0.1, true);
 
-            while (opModeIsActive() && robot.getBackODS() < 0.5){
-                robot.Drivetrain(0.15, 0.15);
-                updateData();
-                robot.waitForTick(50);
-            }
-            robot.STOP();
-
+            /*
             while (opModeIsActive() && robot.getFrontODS() < 1.0){
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
@@ -180,41 +162,34 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 updateData();
                 robot.waitForTick(50);
             }
-            /*while (opModeIsActive() && robot.FrontODS.getRawLightDetected() < 1.0){
-                robot.Drivetrain(-0.1, 0.1);
-                updateData();
-                robot.waitForTick(50);
-            }
-            while (opModeIsActive() && robot.FrontODS.getRawLightDetected() > 1.0){
-                robot.Drivetrain(0.1, -0.1);
-                updateData();
-                robot.waitForTick(50);
-            }*/
+            */
 
-            robot.STOP();
+            Drivetrain.STOP();
 
-            robot.BumperControl(false);
+            Beacon.BumperSynchronised(false);
 
             //Drive to the beacon
-            robot.Drivetrain(-0.1, -0.1);
-            sleep(600);
-            HitButton(false);
+            Drivetrain.DriveforTime(-0.1, -0.1, 600);
 
-            robot.resetEncoders();
+            Beacon.HitButton(false);
 
-            while (opModeIsActive() && robot.getLeftEncoderinInches() < 5 && robot.getRightEncoderinInches() < 5){
-                robot.Drivetrain(0.4, 0.4);
-                updateData();
-                robot.waitForTick(50);
+            sleep(700);
+
+            Drivetrain.resetEncoders();
+
+            while (opModeIsActive() && Drivetrain.AreWeThereYet(5)){
+                Drivetrain.DriveBackwardstoDistance(0.4, 5);
+                waitForTick.function(50);
             }
-            robot.STOP();
 
-            robot.BumperControl(true);
+            Drivetrain.STOP();
+
+            Beacon.BumperSynchronised(true);
 
             ////////////////////////////////////////////////////////
             /////       Auton Picker                        ////////
             ////////////////////////////////////////////////////////
-
+/*
             if (randomnumberthatweneedforsomething == 2){
                 //2 BEACON AUTONOMOUS
                 //Turn to the Beacon
@@ -301,8 +276,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             }else if (randomnumberthatweneedforsomething == 4){//Cap Ball Park
 
-                robot.STOP();
-                robot.resetEncoders();
+                robot.Drivetrain.STOP();
+                robot.Drivetrain.resetEncoders();
 
                 //Drive Backward
                 while (opModeIsActive() && robot.getLeftEncoderinInches() < 30 && robot.getRightEncoderinInches() < 30){
@@ -329,42 +304,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 telemetry.addData("Invald", " Autonomous Mode");
                 telemetry.update();
                 sleep(15000);
-            }
+            }*/
         super.stop();
-    }
-
-    //Follow Line and Press Button
-    public void HitButton(boolean color){
-        //Here the robot decides which beacon button to press.
-        if(color == true){//Go for red
-            if (robot.getColor()){
-                robot.BumperBeacon(true);
-            }else {
-                robot.BumperBeacon(false);
-            }
-        }else {//Go for blue
-            if (robot.getColor() == false){
-                robot.BumperBeacon(true);
-            }else {
-                robot.BumperBeacon(false);
-            }
         }
-        sleep(700);
-
-        robot.STOP();
-    }
-
-    public void updateData(){
-        telemetry.addData("Right Speed", robot.getRightPower());
-        telemetry.addData("Left Speed", robot.getRightPower());
-        telemetry.addData("Right Encoder", robot.getRightEncoder());
-        telemetry.addData("Left Encoder", robot.getLeftEncoder());
-        telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
-        telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
-        telemetry.addData("Ultrasonic Sensor", robot.getUltrasonic());
-        telemetry.addData("Gyro Z-axis", robot.getGyro());
-        telemetry.addData("Back ODS", robot.getBackODS());
-        telemetry.addData("Front ODS", robot.getFrontODS());
-        telemetry.update();
     }
 }

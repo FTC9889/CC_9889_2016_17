@@ -3,13 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 @TeleOp(name="Teleop", group="Teleop")
 public class TeleopNew extends LinearOpMode {
 
     /* Declare OpMode members. */
-    Hardware9889   robot           = new Hardware9889();              // Use a K9'shardware
-    private ElapsedTime runtime = new ElapsedTime();
+    Flywheel_Intake Flywheel_Intake   = new Flywheel_Intake();
+    Drivebase Drivetrain              = new Drivebase();
+    Beacon Beacon                     = new Beacon();
+    waitForTick waitForTick           = new waitForTick();
+    ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
@@ -18,7 +22,10 @@ public class TeleopNew extends LinearOpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        Flywheel_Intake.init(hardwareMap);
+        Drivetrain.init(hardwareMap);
+        Beacon.init(hardwareMap);
+        waitForTick.init();
 
         double leftspeed, rightspeed, xvalue, yvalue;
         int div = 1;
@@ -28,7 +35,7 @@ public class TeleopNew extends LinearOpMode {
         telemetry.update();
 
         //Servo Movement
-        robot.BumperControl(true);
+        Beacon.BumperSynchronised(true);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -53,7 +60,7 @@ public class TeleopNew extends LinearOpMode {
                 rightspeed = yvalue + xvalue;
             }
 
-            robot.Drivetrain(leftspeed, rightspeed);
+            Drivetrain.setLeftRightPower(leftspeed, rightspeed);
 
             //Lower the max speed of the robot
             if (gamepad1.left_trigger > 0.3){
@@ -63,53 +70,51 @@ public class TeleopNew extends LinearOpMode {
             }
 
             //Flywheel
-            robot.Flywheel(gamepad2.a);
+            Flywheel_Intake.setFlywheel(gamepad2.a);
 
             //Beacon pressing
-            if(gamepad1.right_bumper){
-                robot.BumperControl(false);
+            if(Drivetrain.getUltrasonic() < 35 && !gamepad1.right_bumper){
+                Beacon.BumperSynchronised(false);
             }else {
-                robot.BumperControl(true);
+                Beacon.BumperSynchronised(true);
             }
 
             //Intake ctrl
             if(Math.abs(gamepad2.right_trigger) > 0.3){
-                robot.Intake.setPower(0.3);
+                Flywheel_Intake.setIntake(2);
             }else if(Math.abs(gamepad2.left_trigger) > 0.3){
-                robot.Intake.setPower(-1.0);
+                Flywheel_Intake.setIntake(3);
             }else if(gamepad2.right_bumper){
-                robot.IntakeServo.setPower(-1.0);
-                robot.Intake.setPower(0.25);
+                Flywheel_Intake.setIntake(1);
             }else {
-                robot.IntakeServo.setPower(1.0);
-                robot.Intake.setPower(0.0);
+                Flywheel_Intake.setIntake(4);
+
             }
 
             updateData();
 
             // Pause for metronome tick.  40 mS each cycle = update 25 times a second.
-            robot.waitForTick(40);
+            waitForTick.function(40);
         }
 
-        robot.flyWheel.setPower(0.0);
-        robot.IntakeServo.setPower(0.0);
-        robot.Intake.setPower(0.0);
-        robot.Drivetrain(0.0,0.0);
+        Flywheel_Intake.setFlywheel(false);
+        Flywheel_Intake.setIntake(0);
+        Drivetrain.STOP();
         super.stop();
     }
 
     public void updateData(){
         telemetry.addData("Time Left", 120-runtime.seconds());
-        telemetry.addData("Right Speed", robot.RDrive1.getPower());
-        telemetry.addData("Left Speed", robot.LDrive1.getPower());
-        telemetry.addData("Right Encoder", robot.getRightEncoder());
-        telemetry.addData("Left Encoder", robot.getLeftEncoder());
-        telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
-        telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
-        telemetry.addData("Gyro Z-axis", robot.gyro.getIntegratedZValue());
-        telemetry.addData("Ultrasonic Sensor Raw Value", robot.getUltrasonic());
-        telemetry.addData("Left ODS", robot.BackODS.getRawLightDetected());
-        telemetry.addData("Right ODS", robot.FrontODS.getRawLightDetected());
+        telemetry.addData("Right Speed", Drivetrain.getRightPower());
+        telemetry.addData("Left Speed", Drivetrain.getLeftPower());
+        telemetry.addData("Right Encoder", Drivetrain.getRightEncoder());
+        telemetry.addData("Left Encoder", Drivetrain.getLeftEncoder());
+        telemetry.addData("Right Encoder in Inches", Drivetrain.getRightEncoderinInches());
+        telemetry.addData("Left Encoder in Inches", Drivetrain.getLeftEncoderinInches());
+        telemetry.addData("Gyro Z-axis", Drivetrain.getGyro());
+        telemetry.addData("Ultrasonic Sensor Raw Value", Drivetrain.getUltrasonic());
+        telemetry.addData("Back ODS", Drivetrain.getBackODS());
+        telemetry.addData("Front ODS", Drivetrain.getFrontODS());
         telemetry.update();
     }
 }
