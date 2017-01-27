@@ -16,13 +16,12 @@ public class waitForTick {
 
     }
 
-    public void init(){
+    public void init(HardwareMap hardwareMap){
 
     }
 
     //Built-in function by FIRST. Put in all loops
     public void function(long periodMs) {
-
         long  remaining = periodMs - (long)period.milliseconds();
 
         // sleep for the remaining portion of the regular cycle period.

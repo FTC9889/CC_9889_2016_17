@@ -9,29 +9,33 @@ import org.firstinspires.ftc.teamcode.Subsystems.*;
 public class TeleopNew extends LinearOpMode {
 
     /* Declare OpMode members. */
-    Flywheel_Intake Flywheel_Intake   = new Flywheel_Intake();
+    Flywheel Flywheel_Intake          = new Flywheel();
     Drivebase Drivetrain              = new Drivebase();
     Beacon Beacon                     = new Beacon();
     waitForTick waitForTick           = new waitForTick();
     ElapsedTime runtime = new ElapsedTime();
 
+    boolean SmartShot = false;
+
     @Override
     public void runOpMode() {
-
 
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
         Flywheel_Intake.init(hardwareMap);
+        sleep(1000);
         Drivetrain.init(hardwareMap);
+        sleep(1000);
         Beacon.init(hardwareMap);
-        waitForTick.init();
+        sleep(1000);
+        waitForTick.init(hardwareMap);
 
         double leftspeed, rightspeed, xvalue, yvalue;
         int div = 1;
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
+        telemetry.addData("Robot", " Running");    //
         telemetry.update();
 
         //Servo Movement
@@ -69,8 +73,7 @@ public class TeleopNew extends LinearOpMode {
                 div = 1;
             }
 
-            //Flywheel
-            Flywheel_Intake.setFlywheel(gamepad2.a);
+
 
             //Beacon pressing
             if(Drivetrain.getUltrasonic() < 35 && !gamepad1.right_bumper){
@@ -79,17 +82,32 @@ public class TeleopNew extends LinearOpMode {
                 Beacon.BumperSynchronised(true);
             }
 
-            //Intake ctrl
-            if(Math.abs(gamepad2.right_trigger) > 0.3){
-                Flywheel_Intake.setIntake(2);
-            }else if(Math.abs(gamepad2.left_trigger) > 0.3){
-                Flywheel_Intake.setIntake(3);
-            }else if(gamepad2.right_bumper){
-                Flywheel_Intake.setIntake(1);
-            }else {
-                Flywheel_Intake.setIntake(4);
 
+            if(gamepad2.y){//Auto Shoot
+                Flywheel_Intake.AutoShoot(true);
+                SmartShot = false;
+            }else {//Manual Control
+                if (!SmartShot){
+                    Flywheel_Intake.AutoShoot(false);
+                    SmartShot = true;
+                }
+
+                //Flywheel
+                Flywheel_Intake.setFlywheel(gamepad2.a);
+
+                //Intake ctrl
+                if(Math.abs(gamepad2.right_trigger) > 0.3){
+                    Flywheel_Intake.setIntakeMode(2);
+                }else if(Math.abs(gamepad2.left_trigger) > 0.3){
+                    Flywheel_Intake.setIntakeMode(3);
+                }else if(gamepad2.right_bumper){
+                    Flywheel_Intake.setIntakeMode(1);
+                }else {
+                    Flywheel_Intake.setIntakeMode(4);
+                }
             }
+
+
 
             updateData();
 
@@ -98,7 +116,7 @@ public class TeleopNew extends LinearOpMode {
         }
 
         Flywheel_Intake.setFlywheel(false);
-        Flywheel_Intake.setIntake(0);
+        Flywheel_Intake.setIntakeMode(0);
         Drivetrain.STOP();
         super.stop();
     }

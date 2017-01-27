@@ -10,7 +10,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 public class Basic_Linear_OpMode extends LinearOpMode{
 
-    Flywheel_Intake Flywheel_Intake   = new Flywheel_Intake();
+    Flywheel Flywheel   = new Flywheel();
+    Intake Intake       = new Intake();
     Drivebase Drivetrain             = new Drivebase();
     Beacon Beacon                     = new Beacon();
     waitForTick waitForTick           = new waitForTick();
@@ -20,10 +21,11 @@ public class Basic_Linear_OpMode extends LinearOpMode{
     @Override
     public void runOpMode(){
         //Init the robot
-        Flywheel_Intake.init(hardwareMap);
+        Flywheel.init(hardwareMap);
+        Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
         Beacon.init(hardwareMap);
-        waitForTick.init();
+        waitForTick.init(hardwareMap);
 
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();

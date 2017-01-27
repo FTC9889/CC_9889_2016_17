@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.Hardware9889;
+import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 /**
  * Created by Jin on 9/30/2016. #ObieDidHarambe
@@ -11,17 +11,34 @@ import org.firstinspires.ftc.teamcode.Hardware9889;
 @Autonomous(name="Blue", group="Blue")
 public class CC9889_AltAutoBlue extends LinearOpMode {
 
-    /* Declare OpMode members. */
-    Hardware9889 robot           = new Hardware9889();
-
-    int randomnumberthatweneedforsomething = 1;
+    Flywheel Flywheel_Intake                 = new Flywheel();
+    Drivebase Drivetrain              = new Drivebase();
+    org.firstinspires.ftc.teamcode.Subsystems.Beacon Beacon                     = new Beacon();
+    org.firstinspires.ftc.teamcode.Subsystems.waitForTick waitForTick           = new waitForTick();
     boolean breakout = false;
 
     @Override
-    public void runOpMode () {
-        robot.init(hardwareMap);
+    public void runOpMode(){
 
-        while (breakout == false) {//Used to determine the Autonomous Mode to run
+        int randomnumberthatweneedforsomething = 1;
+
+        //Init the robot
+        Flywheel_Intake.init(hardwareMap);
+        Drivetrain.init(hardwareMap);
+        Beacon.init(hardwareMap);
+        waitForTick.init(hardwareMap);
+
+        Drivetrain.resetEncoders();
+
+
+        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
+        */
+
+
+        while (!breakout) {
             if (gamepad1.dpad_up) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
@@ -41,162 +58,170 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }else if (gamepad1.a){
                 breakout = true;
             }
-            telemetry.addData("Please Select an ", "Autonomous Mode");
+            telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             telemetry.update();
         }
-
         //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
-        updateData();
 
         waitForStart();
 
-        //Reset all the things
-        robot.resetEncoders();
-        robot.resetGyro();
-        sleep(100);
-
-        telemetry.addData("Runnig Auton", " ");
+        telemetry.clearAll();
+        telemetry.addData("Running Auton", " ");
         telemetry.update();
 
+        //Reset all the things
+        Drivetrain.resetEncoders();
+        Drivetrain.resetGyro();
+        sleep(100);
+
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
+
             //Wait for partner to hit beacon
             sleep(20000);
 
             if (opModeIsActive()){
-            //Start Flywheel
-            robot.Flywheel(true);
+                //Start Flywheel
+                Flywheel_Intake.setFlywheel(true);
             }
 
             //Drive Straight For 35 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -34 && robot.getRightEncoderinInches() > -34){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
+                Drivetrain.DriveForwardtoDistance(0.6, 35);
             }
-            robot.STOP();
 
-            robot.resetEncoders();
+            Drivetrain.STOP();
+
+            sleep(500);
 
             //Shoot particles
             if(opModeIsActive()){
-                sleep(100);
-                robot.IntakeControl(1);
-                sleep(5000);
-                robot.IntakeControl(0);
-                robot.Flywheel(false);
+                Drivetrain.resetEncoders();
+                Flywheel_Intake.setIntakeMode(1);
+                sleep(2000);
+                Flywheel_Intake.setIntakeMode(0);
+                Flywheel_Intake.setFlywheel(false);
             }
 
             //Park
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -35 && robot.getRightEncoderinInches() > -35){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
+                Drivetrain.DriveForwardtoDistance(0.6, 35);
             }
-            robot.STOP();
 
+            Drivetrain.STOP();
 
         }else {///////////////////////Base One Beacon///////////////////////
 
             //Drive Straight For 22 inches
-            while (opModeIsActive() && robot.getLeftEncoderinInches() > -20 && robot.getRightEncoderinInches() > -20){
-                robot.Drivetrain(-0.6, -0.6);
-                updateData();
-                robot.waitForTick(50);
-            }
-            robot.STOP();
+            Drivetrain.DriveForwardtoDistance(0.6, 22);
 
-            robot.Flywheel(true);
-
+            Flywheel_Intake.setFlywheel(true);
 
             //Turn to the goal
-            while (opModeIsActive() && robot.getGyro() < 5){
-                robot.Drivetrain(-0.2, 0.2);
-                updateData();
-                robot.waitForTick(25);
-            }
-            while (opModeIsActive() && robot.getGyro() < 20){
-                robot.Drivetrain(-0.1, 0.1);
-                updateData();
-                robot.waitForTick(25);
+            while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
+                Drivetrain.turnAbsolute(-6, 500,  0.2);
             }
 
-            robot.STOP();
-
-            //Shoot particles
-            if(opModeIsActive()){
-                sleep(200);
-                robot.IntakeControl(1);
-                sleep(3000);
-                robot.IntakeControl(0);
-                robot.Flywheel(false);
+            while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(15)){
+                Drivetrain.turnAbsolute(-15, 1500, 0.1);
             }
 
-            while (opModeIsActive() && robot.getGyro() > -7){
+            Drivetrain.STOP();
+
+            /*while (opModeIsActive() && robot.getGyro() > -6){
                 robot.Drivetrain(0.2, -0.2);
                 updateData();
                 robot.waitForTick(25);
             }
-            while (opModeIsActive() && robot.getGyro() > -42){
+            while (opModeIsActive() && robot.getGyro() > -15){
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(25);
+            }*/
+
+            //Shoot particles
+            if(opModeIsActive()){
+                sleep(500);
+                Flywheel_Intake.setIntakeMode(1);
+                sleep(2000);
+                Flywheel_Intake.setIntakeMode(0);
+                Flywheel_Intake.setFlywheel(false);
             }
 
-            robot.STOP();
+            while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(-30)){
+                Drivetrain.turnAbsolute(-30, 2000, 0.2);
+            }
+
+            Drivetrain.STOP();
+
+            /*while (opModeIsActive() && robot.getGyro() < 5)
+                robot.Drivetrain(-0.2, 0.2);
+                updateData();
+                robot.waitForTick(25);
+            }
+            while (opModeIsActive() && robot.getGyro() < 30){
+                robot.Drivetrain(-0.1, 0.1);
+                updateData();
+                robot.waitForTick(25);
+            }*/
 
             //Go Straight till line
-            while (opModeIsActive() && robot.getBackODS() < 0.5){
-                robot.Drivetrain(-0.8, -0.8);
-                updateData();
-                robot.waitForTick(50);
+            while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                Drivetrain.DriveStraighttoWhiteLine(0.7, true);
             }
 
-            robot.STOP();
-
-            while (opModeIsActive() && robot.getBackODS() < 0.5){
-                robot.Drivetrain(0.1, 0.1);
-                updateData();
-                robot.waitForTick(50);
+            while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                Drivetrain.DriveStraighttoWhiteLine(0.1, false);
             }
-            robot.STOP();
 
+            Drivetrain.STOP();
+
+
+            while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
+                Drivetrain.CenterOnWhiteLine(0.1, false);
+            }
+
+            while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
+                Drivetrain.CenterOnWhiteLine(0.1, true);
+            }
+
+            Drivetrain.STOP();
+
+            /*
             while (opModeIsActive() && robot.getFrontODS() < 1.0){
-                robot.Drivetrain(0.15, -0.15);
-                updateData();
-                robot.waitForTick(50);
-            }
-            while (opModeIsActive() && robot.getFrontODS() > 1.0){
                 robot.Drivetrain(-0.1, 0.1);
                 updateData();
                 robot.waitForTick(50);
             }
-            while (opModeIsActive() && robot.getFrontODS() < 1.0){
+            while (opModeIsActive() && robot.getFrontODS() > 1.0){
                 robot.Drivetrain(0.1, -0.1);
                 updateData();
                 robot.waitForTick(50);
             }
+            */
 
-            robot.STOP();
-
-            robot.BumperControl(false);
+            Beacon.BumperSynchronised(false);
 
             //Drive to the beacon
-            robot.Drivetrain(-0.1, -0.1);
-            sleep(900);
-            HitButton(true);
-
-            robot.resetEncoders();
-
-            while (opModeIsActive() && robot.getLeftEncoderinInches() < 5 && robot.getRightEncoderinInches() < 5){
-                robot.Drivetrain(0.4, 0.4);
-                updateData();
-                robot.waitForTick(50);
+            while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(600)){
+                Drivetrain.DriveforTime(-0.1, -0.1, 600);
             }
-            robot.STOP();
 
-            robot.BumperControl(true);
+            Beacon.HitButton(false);
+
+            sleep(700);
+
+            Drivetrain.resetEncoders();
+
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
+                Drivetrain.DriveBackwardstoDistance(0.4, 5);
+                waitForTick.function(50);
+            }
+
+            Drivetrain.STOP();
+
+            Beacon.BumperSynchronised(true);
 
             ////////////////////////////////////////////////////////
             /////       Auton Picker                        ////////
@@ -205,105 +230,142 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             if (randomnumberthatweneedforsomething == 2){
                 //2 BEACON AUTONOMOUS
                 //Turn to the Beacon
-                while (opModeIsActive() && robot.getGyro() < -70){
-                    robot.Drivetrain(-0.2, 0.2);
-                    updateData();
-                    robot.waitForTick(25);
-                }
-                while (opModeIsActive() && robot.getGyro() < -6){
-                    robot.Drivetrain(-0.1, 0.1);
-                    updateData();
-                    robot.waitForTick(25);
+
+                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(-70)){
+                    Drivetrain.turnAbsolute(-70, 1000, 0.2);
                 }
 
-                robot.STOP();
-
-                robot.Drivetrain(-0.9, -0.9);
-                sleep(1300);
-
-                while (opModeIsActive() && robot.getBackODS() < 1.0){
-                    if(robot.getGyro() < -1){
-                        robot.Drivetrain(-0.3, -0.5);
-                    }else if(robot.getGyro() > 1){
-                        robot.Drivetrain(-0.5, -0.3);
-                    }else if (robot.getGyro() == 0){
-                        robot.Drivetrain(-0.7, -0.7);
-                    }
-                    updateData();
-                    robot.waitForTick(50);
+                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
+                    Drivetrain.turnAbsolute(6, 1000, 0.1);
                 }
 
-                robot.STOP();
+                Drivetrain.STOP();
 
-                while (opModeIsActive() && robot.getBackODS() < 1.0){
-                    robot.Drivetrain(0.1, 0.1);
-                    updateData();
-                    robot.waitForTick(50);
-                }
-                robot.STOP();
-
-                while (opModeIsActive() && robot.getFrontODS() < 0.6){
-                    robot.Drivetrain(0.2, -0.2);
-                    updateData();
-                    robot.waitForTick(50);
+                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
+                    Drivetrain.DriveforTime(-0.7, -0.7, 1000);
                 }
 
-                robot.STOP();
-
-                while (opModeIsActive() && robot.getFrontODS() < 0.6){
-                    robot.Drivetrain(-0.1, 0.1);
-                    updateData();
-                    robot.waitForTick(50);
+                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                    Drivetrain.DriveStraighttoWhiteLine(0.4, true);
+                }
+                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                    Drivetrain.DriveStraighttoWhiteLine(0.1, false);
                 }
 
-                robot.STOP();
+                Drivetrain.STOP();
 
-                robot.BumperControl(true);
-
-                //Drive to the beacon
-                robot.Drivetrain(-0.2, -0.2);
-                sleep(800);
-                HitButton(true);
-
-                robot.resetEncoders();
-
-                while (opModeIsActive() && robot.getLeftEncoderinInches() < 5 && robot.getRightEncoderinInches() < 5){
-                    robot.Drivetrain(0.4, 0.4);
-                    updateData();
-                    robot.waitForTick(50);
+                while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
+                    Drivetrain.CenterOnWhiteLine(0.2, true);
                 }
-                robot.STOP();
+                while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
+                    Drivetrain.CenterOnWhiteLine(0.2, false);
+                }
 
-                robot.BumperControl(false);
-                sleep(1000);
+                Drivetrain.STOP();
+
+                Beacon.BumperSynchronised(false);
+
+                while (opModeIsActive() && Drivetrain.getUltrasonic() > 20){
+                    Drivetrain.DriveToUltrasonicDistance(0.1, 20);
+                }
+
+                Beacon.HitButton(true);
+
+                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(500)){
+                    Drivetrain.DriveforTime(-0.1, -0.1, 500);
+                }
+
+                Drivetrain.resetEncoders();
+
+
+                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(8)){
+                    Drivetrain.DriveBackwardstoDistance(0.1, 8);
+                }
+
+                Drivetrain.STOP();
+
+                super.stop();
 
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
-                //Turn the ramp
-                while (opModeIsActive() && robot.getGyro() < -10){
-                    robot.Drivetrain(-0.1, 0.1);
-                    updateData();
-                    robot.waitForTick(25);
+
+                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(-6)){
+                    Drivetrain.turnAbsolute(-6, 2000, 0.1);
                 }
-                robot.STOP();
 
-                robot.Drivetrain(0.5, 0.5);
-                sleep(1500);
+                Drivetrain.STOP();
 
-                robot.STOP();
+                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
+                    Drivetrain.DriveforTime(-0.1, -0.1, 1000);
+                }
+
+                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                    Drivetrain.DriveStraighttoWhiteLine(0.6, true);
+                }
+
+                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                    Drivetrain.DriveStraighttoWhiteLine(0.1, false);
+                }
+
+                Drivetrain.STOP();
+
+                while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
+                    Drivetrain.CenterOnWhiteLine(0.1, true);
+                }
+
+                while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
+                    Drivetrain.CenterOnWhiteLine(0.1, false);
+                }
+
+                Drivetrain.STOP();
+
+                Beacon.BumperSynchronised(true);
+
+                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(600)){
+                    Drivetrain.DriveforTime(-0.1, -0.1, 600);
+                }
+
+                Beacon.HitButton(true);
+
+                Drivetrain.STOP();
+                Drivetrain.resetEncoders();
+
+                while(opModeIsActive() && Drivetrain.InchesAreWeThereYet(3)){
+                    Drivetrain.DriveBackwardstoDistance(0.2, 3);
+                }
+
+                while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(10)){
+                    Drivetrain.turnAbsolute(10, 2000, 0.2);
+                }
+
+                Drivetrain.STOP();
+
+                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
+                    Drivetrain.DriveforTime(0.7, 0.7, 1000);
+                }
+
+                Drivetrain.STOP();
 
             }else if (randomnumberthatweneedforsomething == 4){//Cap Ball Park
 
-                robot.STOP();
-                robot.resetEncoders();
+                Drivetrain.STOP();
+                Drivetrain.resetEncoders();
 
                 //Drive Backward
-                while (opModeIsActive() && robot.getLeftEncoderinInches() < 30 && robot.getRightEncoderinInches() < 30){
-                    robot.Drivetrain(0.4, 0.4);
-                    updateData();
-                    robot.waitForTick(50);
+                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(30)){
+                    Drivetrain.DriveBackwardstoDistance(0.3, 30);
                 }
-                robot.STOP();
+                Drivetrain.STOP();
 
+                Drivetrain.setLeftRightPower(0.4, -0.4);
+                sleep(1000);
+                Drivetrain.STOP();
+                Drivetrain.resetEncoders();
+                sleep(1000);
+
+                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(10)){
+                    Drivetrain.DriveForwardtoDistance(0.4, 10);
+                }
+                Drivetrain.STOP();
 
             }else {
                 telemetry.addData("Invald", " Autonomous Mode");
@@ -311,41 +373,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 sleep(15000);
             }
         }
-
         super.stop();
-    }
-
-    //Follow Line and Press Button
-    public void HitButton(boolean color){
-        //Here the robot decides which beacon button to press.
-        if(color == true){//Go for red
-            if (robot.getColor()){
-                robot.BumperBeacon(true);
-            }else {
-                robot.BumperBeacon(false);
-            }
-        }else {//Go for blue
-            if (robot.getColor() == false){
-                robot.BumperBeacon(true);
-            }else {
-                robot.BumperBeacon(false);
-            }
-        }
-        sleep(700);
-
-        robot.STOP();
-    }
-
-    public void updateData(){
-        telemetry.addData("Right Speed", robot.getRightPower());
-        telemetry.addData("Left Speed", robot.getLeftPower());
-        telemetry.addData("Right Encoder", robot.getRightEncoder());
-        telemetry.addData("Left Encoder", robot.getLeftEncoder());
-        telemetry.addData("Right Encoder in Inches", robot.getRightEncoderinInches());
-        telemetry.addData("Left Encoder in Inches", robot.getLeftEncoderinInches());
-        telemetry.addData("Gyro Z-axis", robot.getGyro());
-        telemetry.addData("Back ODS", robot.getBackODS());
-        telemetry.addData("Front ODS", robot.getFrontODS());
-        telemetry.update();
     }
 }

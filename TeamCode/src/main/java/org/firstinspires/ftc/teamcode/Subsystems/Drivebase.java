@@ -31,9 +31,13 @@ public class Drivebase{
     VoltageSensor voltage;
 
     HardwareMap drivetrain = null;
-
     waitForTick waitForTick = new waitForTick();
+
     private ElapsedTime period  = new ElapsedTime();
+    private ElapsedTime turnTimer = new ElapsedTime();
+    private ElapsedTime timer   = new ElapsedTime();
+    private boolean turnTimerLogic = true;
+    private boolean timerlogic = true;
 
     //DcMotor Encoders
     static final float EncoderCounts=1120;
@@ -50,7 +54,7 @@ public class Drivebase{
     }
 
     public void init(HardwareMap drivetrain){
-        waitForTick.init();
+        waitForTick.init(drivetrain);
 
         //Drive Motors and Sensors
         LDrive1 = drivetrain.dcMotor.get("LDrive1");
@@ -71,6 +75,10 @@ public class Drivebase{
         LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        STOP();
+        resetEncoders();
+        resetGyro();
     }
 
     public void setLeftRightPower(double left, double right){
@@ -156,28 +164,21 @@ public class Drivebase{
     }
 
     //Drive Striaght till white line FIX SAFETY
-    public void DriveStraighttoWhiteLine(double speed, int timeout){
-        period.reset();
-        boolean timeoutstop = true;
-
-        //Go Straight till line
-        while (getBackODS() < 0.5 && timeoutstop){
-            setLeftRightPower(-0.9, -0.9);
-
-            if(period.milliseconds() > timeout){
-                timeoutstop = false;
+    public void DriveStraighttoWhiteLine(double speed, boolean forward){
+        if(forward){
+            if (!getBackODS_Detect_White_Line()){
+                setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
+            }else {
+                STOP();
             }
-
-            waitForTick.function(50);
+        }else {
+            if(!getBackODS_Detect_White_Line()){
+                setLeftRightPower(Math.abs(speed), Math.abs(speed));
+            }else {
+                STOP();
+            }
         }
-
-        STOP();
-
-        while (getBackODS() < 0.5 && timeoutstop){
-            setLeftRightPower(0.15, 0.15);
-            waitForTick.function(50);
-        }
-        STOP();
+        waitForTick.function(50);
     }
 
     //Get the Z-axis value of the gyro
@@ -223,14 +224,21 @@ public class Drivebase{
         Range.clip(left, -1, 1);
         Range.clip(right, -1, 1);
 
-        period.reset();
-
         setLeftRightPower(left, right);
+    }
 
-        while (period.milliseconds() < TimeinMiliseconds){
-            waitForTick.function(50);
+    public boolean TimeAreWeThereYet(int TimeinMilliseconds){
+        if(period.milliseconds() > TimeinMilliseconds){
+            timer.reset();
+            return false;
+        }else {
+            if (timerlogic){
+                timer.reset();
+            }
+            return true;
         }
     }
+
 
     //Drive Straight Forward for a distance in inches
     public void DriveForwardtoDistance(double speed, double inches){
@@ -245,7 +253,7 @@ public class Drivebase{
 
     }
 
-    public boolean AreWeThereYet(double inches){
+    public boolean InchesAreWeThereYet(double inches){
         if(Math.abs(getRightEncoderinInches()) > Math.abs(inches)){
             return true;
         }else {
@@ -266,7 +274,7 @@ public class Drivebase{
     }
 
     //Drive Straight till Ultrasonic sensor value
-    public void DriveToDistance(double speed, int distance){
+    public void DriveToUltrasonicDistance(double speed, int distance){
         if(getUltrasonic() > distance){
             setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
         }else {
@@ -288,25 +296,38 @@ public class Drivebase{
                 setLeftRightPower(Math.abs(speed), -Math.abs(speed));
             }
         }
+        waitForTick.function(50);
     }
 
-    public void turnAbsolute(int target, double turnSpeed) {
-        int zAccumulated;  //Total rotation left/right
-        zAccumulated = getGyro();  //Set variables to gyro readings
-
-        while (Math.abs(zAccumulated - target) > 3) {  //Continue while the robot direction is further than three degrees from the target
-            if (zAccumulated > target) {  //if gyro is positive, we will turn right
-                setLeftRightPower(turnSpeed, -turnSpeed);
-            }
-
-            if (zAccumulated < target) {  //if gyro is positive, we will turn left
-                setLeftRightPower(-turnSpeed, turnSpeed);
-            }
-
-            zAccumulated = getGyro();  //Set variables to gyro readings
-
+    public void turnAbsolute(int target, int target_Time, double turnSpeed) {
+        if(turnTimerLogic){
+            turnTimer.reset();
+            turnTimerLogic = false;
         }
 
-        STOP();
+        if(target_Time > turnTimer.milliseconds()){
+            turnSpeed = Math.abs(turnSpeed) * 2;
+            Range.clip(turnSpeed, 0, 0.3);
+        }
+
+        if(target > getGyro()) {
+            setLeftRightPower(Math.abs(turnSpeed), -Math.abs(turnSpeed));
+        }else if(target < getGyro()) {
+            setLeftRightPower(-Math.abs(turnSpeed), Math.abs(turnSpeed));
+        }
+
+        waitForTick.function(50);
     }
+
+    public boolean TurnAreWeThereYet(int target){
+
+        if(Math.abs(target) - Math.abs(getGyro()) < 1){
+            return false;
+        }else {
+            turnTimerLogic = true;
+            return true;
+        }
+    }
+
 }
+

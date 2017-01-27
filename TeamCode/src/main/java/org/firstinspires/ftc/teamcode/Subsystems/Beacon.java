@@ -33,10 +33,10 @@ public class Beacon {
 
     //Controller for all bumper actions that are synchronised
     public void BumperSynchronised(boolean updown){
-        if(updown == true){
+        if(updown){
             LeftBumper.setPosition(1.0);
             RightBumper.setPosition(0.4);
-        }else if(updown == false){
+        }else {
             LeftBumper.setPosition(0.3);
             RightBumper.setPosition(0.9);
         }
@@ -54,22 +54,18 @@ public class Beacon {
 
     //Get Color of the left side of the beacon (Returns true if it is == to the color red)
     public boolean getColor(){
-        if (Color.red() > Color.blue()){
-            return true;
-        }else {
-            return false;
-        }
+        return Color.red() > Color.blue();
     }
 
     public void HitButton(boolean color){//Here the robot decides which beacon button to press.
-        if(color == true){//Go for red
+        if(color){//Go for red
             if (getColor()){
                 BumperBeacon(true);
             }else {
                 BumperBeacon(false);
             }
         }else {//Go for blue
-            if (getColor() == false){
+            if (!getColor()){
                 BumperBeacon(true);
             }else {
                 BumperBeacon(false);
