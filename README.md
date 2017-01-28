@@ -13,7 +13,9 @@ To read the documentation for this version of the SDK, go to ftctechnh.
   Subsystems are consolidated into one central class per subsystem, all of which implement the Subsystem abstract class.
   
 - Vision.Processing
+
   OpModes for testing the phone's camera
 
 - TeleopNew
+
   OpMode for Teleoperated Period
