@@ -24,19 +24,15 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         int randomnumberthatweneedforsomething = 1;
 
         //Init the robot
-        Flywheel_Intake.init(hardwareMap);
-        Drivetrain.init(hardwareMap);
+        telemetry.addData("Beacon", "");
+        telemetry.update();
         Beacon.init(hardwareMap);
-
-        Drivetrain.resetEncoders();
-
-
-        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-        */
-
+        telemetry.addData("Flywheel", "");
+        telemetry.update();
+        Flywheel_Intake.init(hardwareMap);
+        telemetry.addData("Drivetrain", "");
+        telemetry.update();
+        Drivetrain.init(hardwareMap);
 
         while (!gamepad1.a) {
             if (gamepad1.dpad_up) {
@@ -55,13 +51,16 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
+            }else {
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
-            telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             telemetry.update();
         }
+
         //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
+        telemetry.update();
 
         waitForStart();
 
@@ -86,7 +85,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             //Drive Straight For 35 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
-                Drivetrain.DriveForwardtoDistance(0.6, 35);
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+                updateData();
             }
 
             Drivetrain.STOP();
@@ -104,7 +104,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             //Park
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
-                Drivetrain.DriveForwardtoDistance(0.6, 35);
+                Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
             Drivetrain.STOP();
@@ -363,7 +363,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 sleep(1000);
 
                 while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(10)){
-                    Drivetrain.DriveForwardtoDistance(0.4, 10);
+                    Drivetrain.setLeftRightPower(-0.4, -0.4);
                 }
                 Drivetrain.STOP();
 

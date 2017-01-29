@@ -2,17 +2,15 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.teamcode.R;
-import org.firstinspires.ftc.teamcode.Subsystems.waitForTick;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 
 /**
  * Created by Joshua H on 1/24/2017.
@@ -29,6 +27,7 @@ public class Drivebase{
     public UltrasonicSensor ultrasonic;
 
     public VoltageSensor voltage;
+    public DeviceInterfaceModule CDI;
 
     public waitForTick waitForTick = new waitForTick();
 
@@ -61,6 +60,7 @@ public class Drivebase{
         FrontODS = drivetrain.opticalDistanceSensor.get("OD2");
         gyro = (ModernRoboticsI2cGyro)drivetrain.get("gyro");
         ultrasonic = drivetrain.ultrasonicSensor.get("ultra");
+        CDI = drivetrain.deviceInterfaceModule.get("CDI");
 
         //Tweaks to the hardware
         LDrive1.setDirection(DcMotor.Direction.REVERSE);
@@ -181,11 +181,7 @@ public class Drivebase{
 
     //Return the value of true if white line is detected
     public boolean getBackODS_Detect_White_Line(){
-        if(getBackODS() > WhiteLineValue){
-            return true;
-        }else {
-            return false;
-        }
+        return (getBackODS() > WhiteLineValue);
     }
 
     //Get raw value of front ods
@@ -195,28 +191,11 @@ public class Drivebase{
 
     //Return the value of true if white line is detected
     public boolean getFrontODS_Detect_White_Line(){
-        if(getFrontODS() > WhiteLineValue){
-            return true;
-        }else {
-            return false;
-        }
-    }
-
-    //Drive Straight Forward for a distance in inches
-    public void DriveForwardtoDistance(double speed, double inches){
-        Range.clip(speed, -1, 1);
-
-        if(Math.abs(getLeftEncoderinInches()) > Math.abs(inches) && Math.abs(getRightEncoderinInches()) > Math.abs(inches)){
-            STOP();
-            resetEncoders();
-        }else {
-            setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
-        }
-
+        return (getFrontODS() > WhiteLineValue);
     }
 
     public boolean InchesAreWeThereYet(double inches){
-        return !(Math.abs(getRightEncoderinInches()) < Math.abs(inches));
+        return !(Math.abs(getRightEncoderinInches()) > Math.abs(inches));
     }
 
     //Drive Straight Backward for a distance in inches
@@ -258,7 +237,6 @@ public class Drivebase{
     }
 
     public void turnAbsolute(int target, double turnSpeed) {
-
         if(target < getGyro()) {
             setLeftRightPower(Math.abs(turnSpeed), -Math.abs(turnSpeed));
         }else if(target > getGyro()) {
@@ -271,13 +249,7 @@ public class Drivebase{
     }
 
     public boolean TurnAreWeThereYet(int target){
-
-        if(Math.abs(target) - Math.abs(getGyro()) < 1){
-            return false;
-        }else {
-            turnTimerLogic = true;
-            return true;
-        }
+        return !((Math.abs(getGyro()) - Math.abs(target)) < 1);
     }
 
 }

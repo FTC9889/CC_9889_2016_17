@@ -20,7 +20,7 @@ public class TeleopNew extends LinearOpMode {
     boolean SmartShot = false;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException{
 
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
@@ -69,7 +69,7 @@ public class TeleopNew extends LinearOpMode {
             Drivetrain.setLeftRightPower(leftspeed, rightspeed);
 
             //Lower the max speed of the robot
-            if (gamepad1.left_trigger > 0.3){
+            if (gamepad1.left_trigger > 0.01){
                 div = 4;
             }else {
                 div = 1;
@@ -78,7 +78,7 @@ public class TeleopNew extends LinearOpMode {
             //Beacon pressing
             Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
 
-            if(gamepad2.left_trigger > 0.3){
+            if(gamepad2.left_trigger > 0.01){
                 if (SmartShot) {
                     shot.reset();
                     SmartShot = false;
@@ -99,7 +99,7 @@ public class TeleopNew extends LinearOpMode {
                 Flywheel_Intake.setFlywheel(gamepad2.a);
 
                 //Intake ctrl
-                if(Math.abs(gamepad2.right_trigger) > 0.3){
+                if(Math.abs(gamepad2.right_trigger) > 0.01){
                     Flywheel_Intake.setIntakeMode(2);
                 }else if(gamepad2.left_bumper) {
                     Flywheel_Intake.setIntakeMode(3);

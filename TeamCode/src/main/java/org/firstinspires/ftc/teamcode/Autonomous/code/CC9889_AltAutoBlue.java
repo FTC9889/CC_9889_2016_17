@@ -18,24 +18,19 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
     boolean breakout = false;
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() throws InterruptedException{
 
         int randomnumberthatweneedforsomething = 1;
 
-        //Init the robot
-        Flywheel_Intake.init(hardwareMap);
-        Drivetrain.init(hardwareMap);
+        telemetry.addData("Beacon", "");
+        telemetry.update();
         Beacon.init(hardwareMap);
-
-        Drivetrain.resetEncoders();
-
-
-        /*while (!isStopRequested() && robot.gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-        */
-
+        telemetry.addData("Flywheel", "");
+        telemetry.update();
+        Flywheel_Intake.init(hardwareMap);
+        telemetry.addData("Drivetrain", "");
+        telemetry.update();
+        Drivetrain.init(hardwareMap);
 
         while (!breakout) {
             if (gamepad1.dpad_up) {
@@ -87,7 +82,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             //Drive Straight For 35 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
-                Drivetrain.DriveForwardtoDistance(0.6, 35);
+                Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
             Drivetrain.STOP();
@@ -105,7 +100,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             //Park
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
-                Drivetrain.DriveForwardtoDistance(0.6, 35);
+                Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
             Drivetrain.STOP();
@@ -113,7 +108,9 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         }else {///////////////////////Base One Beacon///////////////////////
 
             //Drive Straight For 22 inches
-            Drivetrain.DriveForwardtoDistance(0.6, 22);
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(22)){
+                Drivetrain.setLeftRightPower(-0.3, -0.3);
+            }
 
             Flywheel_Intake.setFlywheel(true);
 
@@ -356,7 +353,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 sleep(1000);
 
                 while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(10)){
-                    Drivetrain.DriveForwardtoDistance(0.4, 10);
+                    Drivetrain.setLeftRightPower(-0.4, -0.4);
                 }
                 Drivetrain.STOP();
 

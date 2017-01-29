@@ -27,9 +27,10 @@ public class Beacon {
 
         //Color Sensor
         Color = hardwareMap.colorSensor.get("colorsensor");
+        Color.enableLed(false);
 
         //Servo Movement
-       // BumperSynchronised(true);
+        BumperSynchronised(true);
     }
 
     //Controller for all bumper actions that are synchronised
