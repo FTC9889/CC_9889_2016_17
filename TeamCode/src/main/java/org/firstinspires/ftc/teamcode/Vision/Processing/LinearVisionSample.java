@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Vision.Processing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.Hardware9889;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,9 +29,6 @@ import org.opencv.core.Size;
 @Autonomous(name= "Linear Vision Sample", group= "Vision")
 @Disabled
 public class LinearVisionSample extends LinearVisionOpMode {
-
-    //OpMode Members
-    Hardware9889 robot          = new Hardware9889();
 
     //Frame counter
     int frameCount = 0;
@@ -116,7 +112,6 @@ public class LinearVisionSample extends LinearVisionOpMode {
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.K6500_DAYLIGHT);
         cameraControl.setAutoExposureCompensation();
 
-        robot.init(hardwareMap);
 
         //Wait for the match to begin
         waitForStart();
@@ -151,8 +146,6 @@ public class LinearVisionSample extends LinearVisionOpMode {
                 //For this demo, let's just add to a frame counter
                 frameCount++;
             }
-
-            robot.waitForTick(50);
         }
     }
 }

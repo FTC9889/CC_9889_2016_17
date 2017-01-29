@@ -25,7 +25,6 @@ public class Basic_Linear_OpMode extends LinearOpMode{
         Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
         Beacon.init(hardwareMap);
-        waitForTick.init(hardwareMap);
 
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();

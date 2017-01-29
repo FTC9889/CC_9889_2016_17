@@ -9,11 +9,13 @@ import org.firstinspires.ftc.teamcode.Subsystems.*;
 public class TeleopNew extends LinearOpMode {
 
     /* Declare OpMode members. */
-    Flywheel Flywheel_Intake          = new Flywheel();
-    Drivebase Drivetrain              = new Drivebase();
-    Beacon Beacon                     = new Beacon();
-    waitForTick waitForTick           = new waitForTick();
-    ElapsedTime runtime = new ElapsedTime();
+    private Flywheel Flywheel_Intake          = new Flywheel();
+    private Drivebase Drivetrain              = new Drivebase();
+    private Beacon Beacon                     = new Beacon();
+    private waitForTick waitForTick           = new waitForTick();
+
+    private ElapsedTime runtime               = new ElapsedTime();
+    private ElapsedTime shot                   =new ElapsedTime();
 
     boolean SmartShot = false;
 
@@ -23,26 +25,26 @@ public class TeleopNew extends LinearOpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        Flywheel_Intake.init(hardwareMap);
-        sleep(1000);
-        Drivetrain.init(hardwareMap);
-        sleep(1000);
+        telemetry.addData("Beacon", "");
+        telemetry.update();
         Beacon.init(hardwareMap);
-        sleep(1000);
-        waitForTick.init(hardwareMap);
+        telemetry.addData("Flywheel", "");
+        telemetry.update();
+        Flywheel_Intake.init(hardwareMap);
+        telemetry.addData("Drivetrain", "");
+        telemetry.update();
+        Drivetrain.init(hardwareMap);
 
-        double leftspeed, rightspeed, xvalue, yvalue;
-        int div = 1;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Robot", " Running");    //
         telemetry.update();
 
-        //Servo Movement
-        Beacon.BumperSynchronised(true);
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+        double leftspeed, rightspeed, xvalue, yvalue;
+        int div = 1;
 
         //Reset the time to allow for timer to stop automatically
         runtime.reset();
@@ -73,24 +75,25 @@ public class TeleopNew extends LinearOpMode {
                 div = 1;
             }
 
-
-
             //Beacon pressing
-            if(Drivetrain.getUltrasonic() < 35 && !gamepad1.right_bumper){
-                Beacon.BumperSynchronised(false);
-            }else {
-                Beacon.BumperSynchronised(true);
-            }
+            Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
 
-
-            if(gamepad2.y){//Auto Shoot
-                Flywheel_Intake.AutoShoot(true);
-                SmartShot = false;
-            }else {//Manual Control
-                if (!SmartShot){
-                    Flywheel_Intake.AutoShoot(false);
-                    SmartShot = true;
+            if(gamepad2.left_trigger > 0.3){
+                if (SmartShot) {
+                    shot.reset();
+                    SmartShot = false;
                 }
+
+                if(shot.milliseconds() > 700){
+                    Flywheel_Intake.AutoShoot(true, true);
+                    if(shot.milliseconds() > 1400){
+                        SmartShot = true;
+                    }
+                }
+                Flywheel_Intake.AutoShoot(true, false);
+
+            }else {
+                SmartShot = true;
 
                 //Flywheel
                 Flywheel_Intake.setFlywheel(gamepad2.a);
@@ -98,16 +101,12 @@ public class TeleopNew extends LinearOpMode {
                 //Intake ctrl
                 if(Math.abs(gamepad2.right_trigger) > 0.3){
                     Flywheel_Intake.setIntakeMode(2);
-                }else if(Math.abs(gamepad2.left_trigger) > 0.3){
+                }else if(gamepad2.left_bumper) {
                     Flywheel_Intake.setIntakeMode(3);
-                }else if(gamepad2.right_bumper){
-                    Flywheel_Intake.setIntakeMode(1);
                 }else {
                     Flywheel_Intake.setIntakeMode(4);
                 }
             }
-
-
 
             updateData();
 

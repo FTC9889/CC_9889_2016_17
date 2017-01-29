@@ -20,8 +20,6 @@ public class Beacon {
 
     }
 
-    HardwareMap beacon  = null;
-
     public void init(HardwareMap hardwareMap){
         //Servos
         RightBumper = hardwareMap.servo.get("RBump");
@@ -29,6 +27,9 @@ public class Beacon {
 
         //Color Sensor
         Color = hardwareMap.colorSensor.get("colorsensor");
+
+        //Servo Movement
+       // BumperSynchronised(true);
     }
 
     //Controller for all bumper actions that are synchronised

@@ -21,17 +21,16 @@ import org.firstinspires.ftc.teamcode.Subsystems.waitForTick;
 public class Drivebase{
 
     //Drivetrain Motors
-    DcMotor RDrive1, RDrive2, LDrive1, LDrive2;
+    public DcMotor RDrive1, RDrive2, LDrive1, LDrive2;
 
     //Sensors
-    OpticalDistanceSensor BackODS, FrontODS;
-    ModernRoboticsI2cGyro gyro;
-    UltrasonicSensor ultrasonic;
+    public OpticalDistanceSensor BackODS, FrontODS;
+    public ModernRoboticsI2cGyro gyro;
+    public UltrasonicSensor ultrasonic;
 
-    VoltageSensor voltage;
+    public VoltageSensor voltage;
 
-    HardwareMap drivetrain = null;
-    waitForTick waitForTick = new waitForTick();
+    public waitForTick waitForTick = new waitForTick();
 
     private ElapsedTime period  = new ElapsedTime();
     private ElapsedTime turnTimer = new ElapsedTime();
@@ -47,14 +46,11 @@ public class Drivebase{
     //Value of white line
     private final double WhiteLineValue = 1.4;
 
-    private ElapsedTime sleep = new ElapsedTime();//Used to wait when using the STOP function
-
     public Drivebase(){
 
     }
 
     public void init(HardwareMap drivetrain){
-        waitForTick.init(drivetrain);
 
         //Drive Motors and Sensors
         LDrive1 = drivetrain.dcMotor.get("LDrive1");
@@ -76,7 +72,6 @@ public class Drivebase{
         RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        STOP();
         resetEncoders();
         resetGyro();
     }
@@ -126,13 +121,6 @@ public class Drivebase{
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        sleep.reset();
-
-        while (sleep.milliseconds() < 50){//Used to make sure the robot is stopped
-            setLeftRightPower(0.0,0.0);
-            waitForTick.function(50);
-        }
-
         RDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         RDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         LDrive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -142,11 +130,6 @@ public class Drivebase{
     //Reset Gyro Sensor
     public void resetGyro(){
         gyro.resetZAxisIntegrator();
-    }
-
-    //Is Gyro Calibrating?
-    public boolean GyroisCalibrating(){
-        return gyro.isCalibrating();
     }
 
     //Reset the drivetrain encoders
@@ -219,32 +202,11 @@ public class Drivebase{
         }
     }
 
-    //Drive for time
-    public void DriveforTime(double left, double right, int TimeinMiliseconds){
-        Range.clip(left, -1, 1);
-        Range.clip(right, -1, 1);
-
-        setLeftRightPower(left, right);
-    }
-
-    public boolean TimeAreWeThereYet(int TimeinMilliseconds){
-        if(period.milliseconds() > TimeinMilliseconds){
-            timer.reset();
-            return false;
-        }else {
-            if (timerlogic){
-                timer.reset();
-            }
-            return true;
-        }
-    }
-
-
     //Drive Straight Forward for a distance in inches
     public void DriveForwardtoDistance(double speed, double inches){
         Range.clip(speed, -1, 1);
 
-        if(getLeftEncoderinInches() > -Math.abs(inches) && getRightEncoderinInches() > -Math.abs(inches)){
+        if(Math.abs(getLeftEncoderinInches()) > Math.abs(inches) && Math.abs(getRightEncoderinInches()) > Math.abs(inches)){
             STOP();
             resetEncoders();
         }else {
@@ -254,17 +216,13 @@ public class Drivebase{
     }
 
     public boolean InchesAreWeThereYet(double inches){
-        if(Math.abs(getRightEncoderinInches()) > Math.abs(inches)){
-            return true;
-        }else {
-            return false;
-        }
+        return !(Math.abs(getRightEncoderinInches()) < Math.abs(inches));
     }
 
     //Drive Straight Backward for a distance in inches
     public void DriveBackwardstoDistance(double speed, double inches){
         Range.clip(speed, -1, 1);
-        while (getLeftEncoderinInches() < Math.abs(inches) && getRightEncoderinInches() < Math.abs(inches)){
+        while (getLeftEncoderinInches() > Math.abs(inches) && getRightEncoderinInches() > Math.abs(inches)){
             setLeftRightPower(Math.abs(speed), Math.abs(speed));
             waitForTick.function(50);
         }
@@ -299,21 +257,14 @@ public class Drivebase{
         waitForTick.function(50);
     }
 
-    public void turnAbsolute(int target, int target_Time, double turnSpeed) {
-        if(turnTimerLogic){
-            turnTimer.reset();
-            turnTimerLogic = false;
-        }
+    public void turnAbsolute(int target, double turnSpeed) {
 
-        if(target_Time > turnTimer.milliseconds()){
-            turnSpeed = Math.abs(turnSpeed) * 2;
-            Range.clip(turnSpeed, 0, 0.3);
-        }
-
-        if(target > getGyro()) {
+        if(target < getGyro()) {
             setLeftRightPower(Math.abs(turnSpeed), -Math.abs(turnSpeed));
-        }else if(target < getGyro()) {
+        }else if(target > getGyro()) {
             setLeftRightPower(-Math.abs(turnSpeed), Math.abs(turnSpeed));
+        }else if(target == getGyro()){
+            setLeftRightPower(0.0, 0.0);
         }
 
         waitForTick.function(50);

@@ -9,14 +9,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class waitForTick {
 
-    HardwareMap waitForTick = null;
     private ElapsedTime period  = new ElapsedTime();
 
     public waitForTick(){
 
     }
 
-    public void init(HardwareMap hardwareMap){
+    public void init(){
 
     }
 

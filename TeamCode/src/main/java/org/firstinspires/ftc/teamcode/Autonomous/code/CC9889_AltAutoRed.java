@@ -17,7 +17,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
     Drivebase Drivetrain              = new Drivebase();
     Beacon Beacon                     = new Beacon();
     waitForTick waitForTick           = new waitForTick();
-    boolean breakout = false;
 
     @Override
     public void runOpMode(){
@@ -28,7 +27,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         Flywheel_Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
         Beacon.init(hardwareMap);
-        waitForTick.init(hardwareMap);
 
         Drivetrain.resetEncoders();
 
@@ -40,7 +38,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         */
 
 
-        while (!breakout) {
+        while (!gamepad1.a) {
             if (gamepad1.dpad_up) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
@@ -57,8 +55,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
-            }else if (gamepad1.a){
-                breakout = true;
             }
             telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             telemetry.update();
@@ -117,17 +113,23 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         }else {///////////////////////Base One Beacon///////////////////////
 
             //Drive Straight For 22 inches
-            Drivetrain.DriveForwardtoDistance(0.6, 22);
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(22)){
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+                updateData();
+            }
+
+            Drivetrain.STOP();
 
             Flywheel_Intake.setFlywheel(true);
 
             //Turn to the goal
             while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(-6)){
-                Drivetrain.turnAbsolute(-6, 500,  0.2);
+                Drivetrain.turnAbsolute(-6, 0.2);
+                updateData();
             }
 
             while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(-15)){
-                Drivetrain.turnAbsolute(-15, 1500, 0.1);
+                Drivetrain.turnAbsolute(-15, 0.1);
             }
 
             Drivetrain.STOP();
@@ -153,7 +155,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             }
 
             while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(30)){
-                Drivetrain.turnAbsolute(30, 2000, 0.2);
+                Drivetrain.turnAbsolute(30, 0.2);
             }
 
             Drivetrain.STOP();
@@ -208,9 +210,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             Beacon.BumperSynchronised(false);
 
             //Drive to the beacon
-            while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(600)){
-                Drivetrain.DriveforTime(-0.1, -0.1, 600);
-            }
+            Drivetrain.setLeftRightPower(-0.1, -0.1);
+            sleep(600);
 
             Beacon.HitButton(false);
 
@@ -236,18 +237,17 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 //Turn to the Beacon
 
                 while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(70)){
-                    Drivetrain.turnAbsolute(70, 1000, 0.2);
+                    Drivetrain.turnAbsolute(70, 0.2);
                 }
 
                 while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
-                    Drivetrain.turnAbsolute(6, 1000, 0.1);
+                    Drivetrain.turnAbsolute(6, 0.1);
                 }
 
                 Drivetrain.STOP();
 
-                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
-                    Drivetrain.DriveforTime(-0.7, -0.7, 1000);
-                }
+                Drivetrain.setLeftRightPower(-0.7, -0.7);
+                sleep(1000);
 
                 while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                     Drivetrain.DriveStraighttoWhiteLine(0.4, true);
@@ -275,9 +275,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
                 Beacon.HitButton(true);
 
-                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(500)){
-                    Drivetrain.DriveforTime(-0.1, -0.1, 500);
-                }
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+                sleep(500);
 
                 Drivetrain.resetEncoders();
 
@@ -293,14 +292,13 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
 
                 while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
-                    Drivetrain.turnAbsolute(6, 2000, 0.1);
+                    Drivetrain.turnAbsolute(6, 0.1);
                 }
 
                 Drivetrain.STOP();
 
-                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
-                    Drivetrain.DriveforTime(-0.1, -0.1, 1000);
-                }
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+                sleep(1000);
 
                 while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                     Drivetrain.DriveStraighttoWhiteLine(0.6, true);
@@ -324,9 +322,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
                 Beacon.BumperSynchronised(true);
 
-                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(600)){
-                    Drivetrain.DriveforTime(-0.1, -0.1, 600);
-                }
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+                sleep(600);
 
                 Beacon.HitButton(true);
 
@@ -338,14 +335,13 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 }
 
                 while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(10)){
-                    Drivetrain.turnAbsolute(10, 2000, 0.2);
+                    Drivetrain.turnAbsolute(10, 0.2);
                 }
 
                 Drivetrain.STOP();
 
-                while (opModeIsActive() && Drivetrain.TimeAreWeThereYet(1000)){
-                    Drivetrain.DriveforTime(0.7, 0.7, 1000);
-                }
+                Drivetrain.setLeftRightPower(0.7, 0.7);
+                sleep(1000);
 
                 Drivetrain.STOP();
 
@@ -379,4 +375,19 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         super.stop();
         }
     }
+
+    public void updateData(){
+        telemetry.addData("Right Speed", Drivetrain.getRightPower());
+        telemetry.addData("Left Speed", Drivetrain.getLeftPower());
+        telemetry.addData("Right Encoder", Drivetrain.getRightEncoder());
+        telemetry.addData("Left Encoder", Drivetrain.getLeftEncoder());
+        telemetry.addData("Right Encoder in Inches", Drivetrain.getRightEncoderinInches());
+        telemetry.addData("Left Encoder in Inches", Drivetrain.getLeftEncoderinInches());
+        telemetry.addData("Gyro Z-axis", Drivetrain.getGyro());
+        telemetry.addData("Ultrasonic Sensor Raw Value", Drivetrain.getUltrasonic());
+        telemetry.addData("Back ODS", Drivetrain.getBackODS());
+        telemetry.addData("Front ODS", Drivetrain.getFrontODS());
+        telemetry.update();
+    }
+
 }

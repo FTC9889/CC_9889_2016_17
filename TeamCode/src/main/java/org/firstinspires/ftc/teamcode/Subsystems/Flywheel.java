@@ -29,9 +29,6 @@ public class Flywheel {
 
     private boolean Shoot = false;
 
-    HardwareMap hardware = null;
-    Intake Intake = null;
-
     /* Constructor */
     public Flywheel() {
 
@@ -47,6 +44,7 @@ public class Flywheel {
         //Shooter Motors
         flyWheel = hardware.dcMotor.get("flywheel");
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         setIntakeMode(0);
         setFlywheel(false);
@@ -62,10 +60,10 @@ public class Flywheel {
     }
 
     //Auto Shoot after flywheel is up to speed
-    public void AutoShoot(boolean on){
+    public void AutoShoot(boolean on, boolean fire){
         if(on == true){
             setFlywheel(true);
-            if (AutoShootTime.milliseconds() > 2000){
+            if (fire){
                 setIntakeMode(1);
             }
         }else {
