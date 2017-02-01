@@ -78,7 +78,8 @@ public class TeleopNew extends LinearOpMode {
             //Beacon pressing
             Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
 
-            if(gamepad2.left_trigger > 0.01){
+            //Smart Shot
+            if(gamepad1.a){
                 if (SmartShot) {
                     shot.reset();
                     SmartShot = false;

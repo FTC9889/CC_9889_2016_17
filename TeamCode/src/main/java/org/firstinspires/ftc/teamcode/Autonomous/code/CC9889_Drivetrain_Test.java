@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.*;
  */
 
 @Autonomous(name = "Drivetest",  group = "Test")
+@Disabled
 public class CC9889_Drivetrain_Test extends LinearOpMode{
 
     Flywheel Flywheel_Intake   = new Flywheel();
@@ -44,17 +46,20 @@ public class CC9889_Drivetrain_Test extends LinearOpMode{
         waitForStart();
 
         //Drive Straight For 22 inches
-        while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(22) && !gamepad1.a){
+        while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(22)){
             Drivetrain.setLeftRightPower(-0.1, -0.1);
             updateData();
         }
 
-        while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(0)){
-            Drivetrain.turnAbsolute(0, 0.1);
+        Drivetrain.STOP();
+
+        while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(-15)){
+            Drivetrain.setLeftRightPower(0.1, -0.1);
             updateData();
         }
 
         Drivetrain.STOP();
+        sleep(100000);
 
         telemetry.clearAll();
 

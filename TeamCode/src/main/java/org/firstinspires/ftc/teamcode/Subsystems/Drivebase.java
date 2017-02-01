@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -43,7 +42,7 @@ public class Drivebase{
     public static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
 
     //Value of white line
-    private final double WhiteLineValue = 1.4;
+    private final double WhiteLineValue = 0.6;
 
     public Drivebase(){
 
@@ -249,7 +248,7 @@ public class Drivebase{
     }
 
     public boolean TurnAreWeThereYet(int target){
-        return !((Math.abs(getGyro()) - Math.abs(target)) < 1);
+        return !(getGyro() - target < 0);
     }
 
 }
