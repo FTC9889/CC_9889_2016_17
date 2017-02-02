@@ -13,13 +13,13 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 public class Flywheel {
 
     //Flywheel Motors
-    DcMotor flyWheel;
+    private DcMotor flyWheel;
 
     //Intake Motor
-    DcMotor DC;
+    public DcMotor DC;
 
     //Intake Servo
-    CRServo Servo;
+    public CRServo Servo;
 
 
     //Used for controlling the intake

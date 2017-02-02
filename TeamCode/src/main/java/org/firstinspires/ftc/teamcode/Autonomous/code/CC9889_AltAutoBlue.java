@@ -37,20 +37,17 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Drivetrain.init(hardwareMap);
 
         while (!breakout) {
+            telemetry.clearAll();
             if (gamepad1.dpad_up) {
-                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
                 telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
             } else if(gamepad1.dpad_right){
-                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 2;
                 telemetry.addData("Autonomous 2", "= 2 Beacon");
             }else if (gamepad1.dpad_down) {
-                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 3;
                 telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
             }else if(gamepad1.dpad_left) {
-                telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
             }else if (gamepad1.a){
@@ -60,6 +57,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             telemetry.update();
         }
         //Add telemetry
+        telemetry.addData("Please Select an ", "Autonomous Mode");
+        telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
+        telemetry.update();
+
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         telemetry.update();
@@ -74,6 +75,12 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();
 
+        waitForStart();
+
+        Drivetrain.resetEncoders();
+        Drivetrain.resetGyro();
+
+        telemetry.addData("Runnig Auton", " ");
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
 
             //Wait for partner to hit beacon
@@ -99,6 +106,13 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 Flywheel_Intake.setIntakeMode(1);
                 sleep(2000);
                 Flywheel_Intake.setIntakeMode(0);
+                Flywheel_Intake.setFlywheel(false);
+                sleep(100);
+                Flywheel_Intake.Servo.setPower(-1.0);
+                Flywheel_Intake.DC.setPower(0.5);
+                sleep(5000);
+                Flywheel_Intake.Servo.setPower(0.0);
+                Flywheel_Intake.DC.setPower(0.0);
                 Flywheel_Intake.setFlywheel(false);
             }
 

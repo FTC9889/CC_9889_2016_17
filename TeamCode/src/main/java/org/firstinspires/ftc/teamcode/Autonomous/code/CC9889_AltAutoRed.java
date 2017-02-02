@@ -35,32 +35,35 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         Drivetrain.init(hardwareMap);
 
         while (!gamepad1.a) {
-            if (gamepad1.dpad_up) {
                 telemetry.clearAll();
-                randomnumberthatweneedforsomething = 1;
-                telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
-            } else if(gamepad1.dpad_right){
-                telemetry.clearAll();
-                randomnumberthatweneedforsomething = 2;
-                telemetry.addData("Autonomous 2", "= 2 Beacon");
-            }else if (gamepad1.dpad_down) {
-                telemetry.clearAll();
-                randomnumberthatweneedforsomething = 3;
-                telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
-            }else if(gamepad1.dpad_left) {
-                telemetry.clearAll();
-                randomnumberthatweneedforsomething = 4;
-                telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
-            }else {
-                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
-            }
+                if (gamepad1.dpad_up) {
+                    randomnumberthatweneedforsomething = 1;
+                    telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
+                } else if (gamepad1.dpad_right) {
+                    randomnumberthatweneedforsomething = 2;
+                    telemetry.addData("Autonomous 2", "= 2 Beacon");
+                } else if (gamepad1.dpad_down) {
+                    randomnumberthatweneedforsomething = 3;
+                    telemetry.addData("Autonomous 3", "= 1  Beacon and Ramp");
+                } else if (gamepad1.dpad_left) {
+                    randomnumberthatweneedforsomething = 4;
+                    telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
+                } else {
+                    telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
+                }
+
+                telemetry.update();
+
+            //Add telemetry
+
+            telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
+            //telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
             telemetry.update();
         }
-
-        //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         telemetry.update();
+
 
         waitForStart();
 
@@ -73,8 +76,14 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         Drivetrain.resetGyro();
         sleep(100);
 
-        if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
 
+        waitForStart();
+        Drivetrain.resetEncoders();
+        Drivetrain.resetGyro();
+
+        telemetry.addData("Runnig Auton", " ");
+
+        if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
             //Wait for partner to hit beacon
             sleep(20000);
 
@@ -387,6 +396,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         telemetry.addData("Ultrasonic Sensor Raw Value", Drivetrain.getUltrasonic());
         telemetry.addData("Back ODS", Drivetrain.getBackODS());
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
+
         telemetry.update();
     }
 
