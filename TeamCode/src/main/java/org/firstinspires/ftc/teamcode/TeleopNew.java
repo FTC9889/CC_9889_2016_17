@@ -96,8 +96,11 @@ public class TeleopNew extends LinearOpMode {
                     rightspeed = yvalue + xvalue;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                     Drivetrain.setLeftRightPower(leftspeed, rightspeed);
 =======
+=======
+>>>>>>> parent of 9a433d9... Updated Autons
             if(gamepad2.left_trigger > 0.01){
                 if (SmartShot) {
                     shot.reset();

@@ -70,11 +70,14 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();
         sleep(100);
+<<<<<<< HEAD
 
         waitForStart();
 
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();
+=======
+>>>>>>> parent of 9a433d9... Updated Autons
 
         telemetry.addData("Runnig Auton", " ");
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
