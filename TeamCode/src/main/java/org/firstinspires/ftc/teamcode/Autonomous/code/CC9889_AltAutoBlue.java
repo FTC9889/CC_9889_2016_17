@@ -71,11 +71,14 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Drivetrain.resetGyro();
         sleep(100);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         waitForStart();
 
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();
+=======
+>>>>>>> parent of 9a433d9... Updated Autons
 =======
 >>>>>>> parent of 9a433d9... Updated Autons
 

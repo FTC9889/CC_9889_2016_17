@@ -82,6 +82,7 @@ public class TeleopNew extends LinearOpMode {
             } else if (gamepad2.dpad_right) {
                 leftspeed = 0.2;
                 rightspeed = -0.2;
+<<<<<<< HEAD
             } else {
                 xvalue = -gamepad1.right_stick_x / div;
                 yvalue = gamepad1.left_stick_y / div;
@@ -100,6 +101,28 @@ public class TeleopNew extends LinearOpMode {
                     Drivetrain.setLeftRightPower(leftspeed, rightspeed);
 =======
 =======
+>>>>>>> parent of 9a433d9... Updated Autons
+=======
+            }else {
+                xvalue = -gamepad1.right_stick_x/div;
+                yvalue = gamepad1.left_stick_y/div;
+
+                leftspeed =  yvalue - xvalue;
+                rightspeed = yvalue + xvalue;
+            }
+
+            Drivetrain.setLeftRightPower(leftspeed, rightspeed);
+
+            //Lower the max speed of the robot
+            if (gamepad1.left_trigger > 0.01){
+                div = 4;
+            }else {
+                div = 1;
+            }
+
+            //Beacon pressing
+            Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
+
 >>>>>>> parent of 9a433d9... Updated Autons
             if(gamepad2.left_trigger > 0.01){
                 if (SmartShot) {
