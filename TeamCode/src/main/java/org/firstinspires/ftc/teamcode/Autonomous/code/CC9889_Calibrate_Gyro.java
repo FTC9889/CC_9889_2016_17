@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.code;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.waitForTick;
  */
 
 @Autonomous(name="Calibrate Gyro", group="Calibrate")
+@Disabled
 public class CC9889_Calibrate_Gyro extends LinearOpMode {
 
 

@@ -11,15 +11,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Beacon {
 
     //Beacon-pushing Servos
-    Servo RightBumper, LeftBumper;
+    private Servo RightBumper, LeftBumper;
 
     //MR Color Sensor
-    ColorSensor Color;
+    private ColorSensor Color;
 
     public Beacon(){
 
     }
 
+    //Hardware Map
     public void init(HardwareMap hardwareMap){
         //Servos
         RightBumper = hardwareMap.servo.get("RBump");
@@ -59,6 +60,7 @@ public class Beacon {
         return Color.red() > Color.blue();
     }
 
+    //Based on
     public void HitButton(boolean color){//Here the robot decides which beacon button to press.
         if(color){//Go for red
             if (getColor()){
@@ -72,6 +74,6 @@ public class Beacon {
             }else {
                 BumperBeacon(false);
             }
-        }}
-
+        }
+    }
 }

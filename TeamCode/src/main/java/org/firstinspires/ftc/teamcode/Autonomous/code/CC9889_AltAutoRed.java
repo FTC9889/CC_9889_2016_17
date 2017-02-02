@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Autonomous.code;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 /**
@@ -10,20 +12,22 @@ import org.firstinspires.ftc.teamcode.Subsystems.*;
  */
 
 @Autonomous(name="Red", group="Red")
-
 public class CC9889_AltAutoRed extends LinearOpMode{
 
-    Flywheel Flywheel_Intake                 = new Flywheel();
-    Drivebase Drivetrain              = new Drivebase();
-    Beacon Beacon                     = new Beacon();
-    waitForTick waitForTick           = new waitForTick();
+    private Flywheel Flywheel_Intake          = new Flywheel();
+    private Drivebase Drivetrain              = new Drivebase();
+    private Beacon Beacon                     = new Beacon();
+    private waitForTick waitForTick           = new waitForTick();
+
+    private ElapsedTime emergencystop = new ElapsedTime();
+
+    private boolean emergency = true;
+    private boolean breakout = false;
+
+    private int randomnumberthatweneedforsomething = 1;
 
     @Override
     public void runOpMode(){
-
-        int randomnumberthatweneedforsomething = 1;
-
-        //Init the robot
         telemetry.addData("Beacon", "");
         telemetry.update();
         Beacon.init(hardwareMap);
@@ -34,38 +38,44 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         telemetry.update();
         Drivetrain.init(hardwareMap);
 
-        while (!gamepad1.a) {
+        Drivetrain.CalibrateGyro();
+
+        while (!breakout) {
+            if (gamepad1.dpad_up) {
                 telemetry.clearAll();
-                if (gamepad1.dpad_up) {
-                    randomnumberthatweneedforsomething = 1;
-                    telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
-                } else if (gamepad1.dpad_right) {
-                    randomnumberthatweneedforsomething = 2;
-                    telemetry.addData("Autonomous 2", "= 2 Beacon");
-                } else if (gamepad1.dpad_down) {
-                    randomnumberthatweneedforsomething = 3;
-                    telemetry.addData("Autonomous 3", "= 1  Beacon and Ramp");
-                } else if (gamepad1.dpad_left) {
-                    randomnumberthatweneedforsomething = 4;
-                    telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
-                } else {
-                    telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
-                }
-
-                telemetry.update();
-
-            //Add telemetry
-
+                randomnumberthatweneedforsomething = 1;
+                telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
+            } else if(gamepad1.dpad_right){
+                telemetry.clearAll();
+                randomnumberthatweneedforsomething = 2;
+                telemetry.addData("Autonomous 2", "= 2 Beacon");
+            }else if (gamepad1.dpad_down) {
+                telemetry.clearAll();
+                randomnumberthatweneedforsomething = 3;
+                telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
+            }else if(gamepad1.dpad_left) {
+                telemetry.clearAll();
+                randomnumberthatweneedforsomething = 4;
+                telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
+            }else if (gamepad1.a){
+                breakout = true;
+            }
             telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
-            //telemetry.addData(">", "Gyro Calibrated. ¯\\_(ツ)_/¯");
             telemetry.update();
         }
+        //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         telemetry.update();
 
-
         waitForStart();
+
+        // make sure the gyro is calibrated.
+        while (!opModeIsActive() && Drivetrain.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
+
 
         telemetry.clearAll();
         telemetry.addData("Running Auton", " ");
@@ -74,16 +84,9 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         //Reset all the things
         Drivetrain.resetEncoders();
         Drivetrain.resetGyro();
-        sleep(100);
-
-
-        waitForStart();
-        Drivetrain.resetEncoders();
-        Drivetrain.resetGyro();
-
-        telemetry.addData("Runnig Auton", " ");
 
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
+
             //Wait for partner to hit beacon
             sleep(20000);
 
@@ -94,8 +97,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             //Drive Straight For 35 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
-                Drivetrain.setLeftRightPower(-0.1, -0.1);
-                updateData();
+                Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
             Drivetrain.STOP();
@@ -117,7 +119,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             }
 
             Drivetrain.STOP();
-
 
         }else {///////////////////////Base One Beacon///////////////////////
 
@@ -300,57 +301,14 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
 
-                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
-                    Drivetrain.turnAbsolute(6, 0.1);
+                while (opModeIsActive() && Drivetrain.getGyro() < 0){
+                    Drivetrain.setLeftRightPower(-0.1, 0.1);
+                    updateData();
                 }
-
                 Drivetrain.STOP();
 
-                Drivetrain.setLeftRightPower(-0.1, -0.1);
-                sleep(1000);
-
-                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                    Drivetrain.DriveStraighttoWhiteLine(0.6, true);
-                }
-
-                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                    Drivetrain.DriveStraighttoWhiteLine(0.1, false);
-                }
-
-                Drivetrain.STOP();
-
-                while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
-                    Drivetrain.CenterOnWhiteLine(0.1, true);
-                }
-
-                while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
-                    Drivetrain.CenterOnWhiteLine(0.1, false);
-                }
-
-                Drivetrain.STOP();
-
-                Beacon.BumperSynchronised(true);
-
-                Drivetrain.setLeftRightPower(-0.1, -0.1);
-                sleep(600);
-
-                Beacon.HitButton(true);
-
-                Drivetrain.STOP();
-                Drivetrain.resetEncoders();
-
-                while(opModeIsActive() && Drivetrain.InchesAreWeThereYet(3)){
-                    Drivetrain.DriveBackwardstoDistance(0.2, 3);
-                }
-
-                while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(10)){
-                    Drivetrain.turnAbsolute(10, 0.2);
-                }
-
-                Drivetrain.STOP();
-
-                Drivetrain.setLeftRightPower(0.7, 0.7);
-                sleep(1000);
+                Drivetrain.setLeftRightPower(0.3, 0.3);
+                sleep(1500);
 
                 Drivetrain.STOP();
 
@@ -385,7 +343,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         }
     }
 
-    public void updateData(){
+    private void updateData(){
         telemetry.addData("Right Speed", Drivetrain.getRightPower());
         telemetry.addData("Left Speed", Drivetrain.getLeftPower());
         telemetry.addData("Right Encoder", Drivetrain.getRightEncoder());
@@ -396,7 +354,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         telemetry.addData("Ultrasonic Sensor Raw Value", Drivetrain.getUltrasonic());
         telemetry.addData("Back ODS", Drivetrain.getBackODS());
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
-
         telemetry.update();
     }
 

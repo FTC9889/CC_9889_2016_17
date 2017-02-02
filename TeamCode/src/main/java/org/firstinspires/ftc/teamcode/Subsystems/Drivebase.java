@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -19,17 +18,17 @@ import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 public class Drivebase{
 
     //Drivetrain Motors
-    public DcMotor RDrive1, RDrive2, LDrive1, LDrive2;
+    private DcMotor RDrive1, RDrive2, LDrive1, LDrive2;
 
     //Sensors
-    public OpticalDistanceSensor BackODS, FrontODS;
+    private OpticalDistanceSensor BackODS, FrontODS;
     public ModernRoboticsI2cGyro gyro;
     public UltrasonicSensor ultrasonic;
 
     public VoltageSensor voltage;
-    public DeviceInterfaceModule CDI;
+    private DeviceInterfaceModule CDI;
 
-    public waitForTick waitForTick = new waitForTick();
+    private waitForTick waitForTick = new waitForTick();
 
     private ElapsedTime period  = new ElapsedTime();
     private ElapsedTime turnTimer = new ElapsedTime();
@@ -38,12 +37,12 @@ public class Drivebase{
     private boolean timerlogic = true;
 
     //DcMotor Encoders
-    static final float EncoderCounts=1120;
-    static final float WheelDiameter=4;
-    public static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
+    private static final float EncoderCounts=1120;
+    private static final float WheelDiameter=4;
+    private static final double CountsPerInch=EncoderCounts/(WheelDiameter*3.1415926535897932384626433832795);
 
     //Value of white line
-    private final double WhiteLineValue = 1.4;
+    private final double WhiteLineValue = 0.6;
 
     public Drivebase(){
 
@@ -130,6 +129,11 @@ public class Drivebase{
     //Reset Gyro Sensor
     public void resetGyro(){
         gyro.resetZAxisIntegrator();
+    }
+
+    //Calibrate Gyro
+    public void CalibrateGyro(){
+        gyro.calibrate();
     }
 
     //Reset the drivetrain encoders
@@ -249,7 +253,7 @@ public class Drivebase{
     }
 
     public boolean TurnAreWeThereYet(int target){
-        return !((Math.abs(getGyro()) - Math.abs(target)) < 1);
+        return !(getGyro() - target < 0);
     }
 
 }
