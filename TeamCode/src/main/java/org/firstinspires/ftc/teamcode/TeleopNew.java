@@ -95,7 +95,15 @@ public class TeleopNew extends LinearOpMode {
                     leftspeed = yvalue - xvalue;
                     rightspeed = yvalue + xvalue;
 
+<<<<<<< HEAD
                     Drivetrain.setLeftRightPower(leftspeed, rightspeed);
+=======
+            if(gamepad2.left_trigger > 0.01){
+                if (SmartShot) {
+                    shot.reset();
+                    SmartShot = false;
+                }
+>>>>>>> parent of 9a433d9... Updated Autons
 
                     //Lower the max speed of the robot
                     if (gamepad1.left_trigger > 0.01) {
