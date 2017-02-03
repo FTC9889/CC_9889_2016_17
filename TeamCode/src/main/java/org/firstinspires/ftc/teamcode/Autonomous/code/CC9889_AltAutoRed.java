@@ -122,121 +122,134 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
         }else {///////////////////////Base One Beacon///////////////////////
 
-            //Drive Straight For 22 inches
-            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(22)){
-                Drivetrain.setLeftRightPower(-0.1, -0.1);
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(15)){
+                Drivetrain.setLeftRightPower(-0.3, -0.3);
                 updateData();
             }
 
-            Drivetrain.STOP();
-
-            Flywheel_Intake.setFlywheel(true);
+            if(opModeIsActive()){
+                Flywheel_Intake.AutoShoot(true, false);
+            }
 
             //Turn to the goal
-            while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(-6)){
-                Drivetrain.turnAbsolute(-6, 0.2);
+            while (opModeIsActive() && Drivetrain.getGyro() > -3){
+                Drivetrain.setLeftRightPower(0.2, -0.2);
                 updateData();
             }
-
-            while(opModeIsActive() && Drivetrain.TurnAreWeThereYet(-15)){
-                Drivetrain.turnAbsolute(-15, 0.1);
+            while (opModeIsActive() && Drivetrain.getGyro() > -14){
+                Drivetrain.setLeftRightPower(0.1, -0.1);
+                updateData();
             }
 
             Drivetrain.STOP();
-
-            /*while (opModeIsActive() && robot.getGyro() > -6){
-                robot.Drivetrain(0.2, -0.2);
-                updateData();
-                robot.waitForTick(25);
-            }
-            while (opModeIsActive() && robot.getGyro() > -15){
-                robot.Drivetrain(0.1, -0.1);
-                updateData();
-                robot.waitForTick(25);
-            }*/
 
             //Shoot particles
             if(opModeIsActive()){
-                sleep(500);
-                Flywheel_Intake.setIntakeMode(1);
-                sleep(2000);
+                sleep(400);
+                Flywheel_Intake.AutoShoot(true, true);
+                sleep(300);
+                Flywheel_Intake.AutoShoot(true, false);
+                sleep(700);
+                Flywheel_Intake.AutoShoot(true, true);
+                sleep(1000);
+                Flywheel_Intake.AutoShoot(false, false);
                 Flywheel_Intake.setIntakeMode(0);
-                Flywheel_Intake.setFlywheel(false);
             }
 
-            while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(30)){
-                Drivetrain.turnAbsolute(30, 0.2);
+            //Turn to beacon
+            while (opModeIsActive() && Drivetrain.getGyro() < 35){
+                Drivetrain.setLeftRightPower(-0.5, 0.5);
+                sleep(10);
+                Drivetrain.STOP();
+                updateData();
             }
-
             Drivetrain.STOP();
 
-            /*while (opModeIsActive() && robot.getGyro() < 5)
-                robot.Drivetrain(-0.2, 0.2);
-                updateData();
-                robot.waitForTick(25);
-            }
-            while (opModeIsActive() && robot.getGyro() < 30){
-                robot.Drivetrain(-0.1, 0.1);
-                updateData();
-                robot.waitForTick(25);
-            }*/
-
-            //Go Straight till line
+            //Drive forward until White line is detected
             while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                Drivetrain.DriveStraighttoWhiteLine(0.7, true);
+                Drivetrain.DriveStraighttoWhiteLine(0.3, true);
+                if(Drivetrain.getUltrasonic() < 30){
+                    if (emergency = true){
+                        emergencystop.reset();
+                        emergency = false;
+                    }
+
+                    if(emergencystop.seconds() > 3){
+                        super.stop();
+                    }
+                }else {
+                    emergencystop.reset();
+                }
+                updateData();
             }
 
+            Drivetrain.STOP();
+
+            sleep(100);
+
+            //Drive backward until white line
             while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                Drivetrain.DriveStraighttoWhiteLine(0.1, false);
+                Drivetrain.setLeftRightPower(0.2, 0.2);
+                sleep(40);
+                Drivetrain.STOP();
+            }
+
+
+            //Turn to face beacon directly
+            while (opModeIsActive() && Drivetrain.getGyro() < 80){
+                Drivetrain.setLeftRightPower(-0.2, 0.2);
+            }
+            Drivetrain.STOP();
+
+            sleep(100);
+
+            while (opModeIsActive() && Drivetrain.getGyro() > 90){
+                Drivetrain.setLeftRightPower(0.2, -0.2);
+                sleep(10);
+                Drivetrain.STOP();
+            }
+            Drivetrain.STOP();
+
+
+
+
+            while (opModeIsActive() && Drivetrain.getUltrasonic() < 23){
+                Drivetrain.setLeftRightPower(0.2, 0.2);
             }
 
             Drivetrain.STOP();
 
-
-            while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
-                Drivetrain.CenterOnWhiteLine(0.1, true);
-            }
-
-            while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
-                Drivetrain.setLeftRightPower(0.1,-0.1);
-                waitForTick.function(50);
-            }
-
-            Drivetrain.STOP();
-
-            /*
-            while (opModeIsActive() && robot.getFrontODS() < 1.0){
-                robot.Drivetrain(-0.1, 0.1);
-                updateData();
-                robot.waitForTick(50);
-            }
-            while (opModeIsActive() && robot.getFrontODS() > 1.0){
-                robot.Drivetrain(0.1, -0.1);
-                updateData();
-                robot.waitForTick(50);
-            }
-            */
-
+            //Lower Beacon pressers
             Beacon.BumperSynchronised(false);
 
-            //Drive to the beacon
-            Drivetrain.setLeftRightPower(-0.1, -0.1);
-            sleep(600);
 
-            Beacon.HitButton(false);
+            while (opModeIsActive() && Drivetrain.getUltrasonic() > 18){
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+            }
 
-            sleep(700);
+            Drivetrain.STOP();
+
+            //Detect the color and raise the appropriate presser
+            Beacon.HitButton(true);
+
+            sleep(500);
+
+            Drivetrain.setLeftRightPower(-0.2, -0.2);
+
+            sleep(500);
 
             Drivetrain.resetEncoders();
 
+            //Back away from beacon
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
-                Drivetrain.DriveBackwardstoDistance(0.4, 5);
-                waitForTick.function(50);
+                Drivetrain.setLeftRightPower(0.2, 0.2);
             }
 
             Drivetrain.STOP();
 
+            //Lift Beacon pressers
             Beacon.BumperSynchronised(true);
+
 
             ////////////////////////////////////////////////////////
             /////       Auton Picker                        ////////
@@ -244,65 +257,85 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             if (randomnumberthatweneedforsomething == 2){
                 //2 BEACON AUTONOMOUS
+
                 //Turn to the Beacon
-
-                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(70)){
-                    Drivetrain.turnAbsolute(70, 0.2);
+                while (opModeIsActive() && Drivetrain.getGyro() > 0){
+                    Drivetrain.setLeftRightPower(-0.3, 0.3);
+                    sleep(40);
+                    Drivetrain.STOP();
                 }
 
-                while (opModeIsActive() && Drivetrain.TurnAreWeThereYet(6)){
-                    Drivetrain.turnAbsolute(6, 0.1);
-                }
-
-                Drivetrain.STOP();
-
-                Drivetrain.setLeftRightPower(-0.7, -0.7);
+                Drivetrain.setLeftRightPower(-0.5, -0.5);
                 sleep(1000);
 
                 while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                    Drivetrain.DriveStraighttoWhiteLine(0.4, true);
-                }
-                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
-                    Drivetrain.DriveStraighttoWhiteLine(0.1, false);
+                    Drivetrain.DriveStraighttoWhiteLine(0.3, true);
+                    if(Drivetrain.getUltrasonic() < 10){
+                        if (emergency = true){
+                            emergencystop.reset();
+                            emergency = false;
+                        }
+
+                        if(emergencystop.seconds() > 3){
+                            super.stop();
+                        }
+                    }else {
+                        emergencystop.reset();
+                    }
+                    updateData();
                 }
 
                 Drivetrain.STOP();
 
-                while (opModeIsActive() && !Drivetrain.getFrontODS_Detect_White_Line()){
-                    Drivetrain.CenterOnWhiteLine(0.2, true);
-                }
-                while (opModeIsActive() && Drivetrain.getFrontODS_Detect_White_Line()){
-                    Drivetrain.CenterOnWhiteLine(0.2, false);
+                sleep(100);
+
+                while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
+                    Drivetrain.setLeftRightPower(0.2, 0.2);
+                    sleep(40);
+                    Drivetrain.STOP();
                 }
 
+                while (opModeIsActive() && Drivetrain.getGyro() < 75){
+                    Drivetrain.setLeftRightPower(-0.2, 0.2);
+                }
+                Drivetrain.STOP();
+
+                while (opModeIsActive() && Drivetrain.getGyro() < 90){
+                    Drivetrain.setLeftRightPower(0.1, -0.1);
+                    sleep(10);
+                    Drivetrain.STOP();
+                }
                 Drivetrain.STOP();
 
                 Beacon.BumperSynchronised(false);
 
+                //Drive to the beacon
                 while (opModeIsActive() && Drivetrain.getUltrasonic() > 20){
-                    Drivetrain.DriveToUltrasonicDistance(0.1, 20);
+                    Drivetrain.setLeftRightPower(-0.1, -0.1);
                 }
 
-                Beacon.HitButton(true);
+                Beacon.HitButton(false);
 
-                Drivetrain.setLeftRightPower(-0.1, -0.1);
-                sleep(500);
+                sleep(700);
 
                 Drivetrain.resetEncoders();
 
-
-                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(8)){
-                    Drivetrain.DriveBackwardstoDistance(0.1, 8);
+                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
+                    Drivetrain.setLeftRightPower(0.2, 0.2);
                 }
 
                 Drivetrain.STOP();
 
+                Beacon.BumperSynchronised(true);
+
+
                 super.stop();
+
 
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
 
-                while (opModeIsActive() && Drivetrain.getGyro() < 0){
-                    Drivetrain.setLeftRightPower(-0.1, 0.1);
+                while (opModeIsActive() && Drivetrain.getGyro() > 10){
+                    Drivetrain.setLeftRightPower(0.2, 0.0);
                     updateData();
                 }
                 Drivetrain.STOP();

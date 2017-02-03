@@ -69,7 +69,7 @@ public class TeleopNew extends LinearOpMode {
             Drivetrain.setLeftRightPower(leftspeed, rightspeed);
 
             //Lower the max speed of the robot
-            if (gamepad1.left_trigger > 0.01){
+            if (gamepad1.left_trigger > 0.1){
                 div = 4;
             }else {
                 div = 1;
@@ -79,7 +79,7 @@ public class TeleopNew extends LinearOpMode {
             Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
 
             //Smart Shot
-            if(gamepad1.a){
+            if(gamepad1.right_trigger > 0.1){
                 if (SmartShot) {
                     shot.reset();
                     SmartShot = false;
