@@ -15,10 +15,6 @@ public class waitForTick {
 
     }
 
-    public void init(){
-
-    }
-
     //Built-in function by FIRST. Put in all loops
     public void function(long periodMs) {
         long  remaining = periodMs - (long)period.milliseconds();

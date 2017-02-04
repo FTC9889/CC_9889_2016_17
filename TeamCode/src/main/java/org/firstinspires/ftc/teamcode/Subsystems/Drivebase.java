@@ -30,12 +30,6 @@ public class Drivebase{
 
     private waitForTick waitForTick = new waitForTick();
 
-    private ElapsedTime period  = new ElapsedTime();
-    private ElapsedTime turnTimer = new ElapsedTime();
-    private ElapsedTime timer   = new ElapsedTime();
-    private boolean turnTimerLogic = true;
-    private boolean timerlogic = true;
-
     //DcMotor Encoders
     private static final float EncoderCounts=1120;
     private static final float WheelDiameter=4;
@@ -48,6 +42,7 @@ public class Drivebase{
 
     }
 
+    //Hardware Map
     public void init(HardwareMap drivetrain){
 
         //Drive Motors and Sensors
@@ -75,6 +70,7 @@ public class Drivebase{
         resetGyro();
     }
 
+    //Set Left and Right Powers on Drivetrain
     public void setLeftRightPower(double left, double right){
         LDrive1.setPower(left);
         LDrive2.setPower(left);
@@ -102,6 +98,20 @@ public class Drivebase{
         return getRightEncoder()/CountsPerInch;
     }
 
+    //Reset the drivetrain encoders
+    public void resetEncoders(){
+        STOP();
+        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     //Return the power applied to the left side of the drivetrain
     public double getLeftPower(){
         return (LDrive1.getPower()+LDrive2.getPower())/2;
@@ -126,6 +136,11 @@ public class Drivebase{
         LDrive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
+    //Get the Z-axis value of the gyro
+    public int getGyro(){
+        return gyro.getIntegratedZValue();
+    }
+
     //Reset Gyro Sensor
     public void resetGyro(){
         gyro.resetZAxisIntegrator();
@@ -134,43 +149,6 @@ public class Drivebase{
     //Calibrate Gyro
     public void CalibrateGyro(){
         gyro.calibrate();
-    }
-
-    //Reset the drivetrain encoders
-    public void resetEncoders(){
-        STOP();
-        RDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        RDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LDrive1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    //Drive Striaght till white line FIX SAFETY
-    public void DriveStraighttoWhiteLine(double speed, boolean forward){
-        if(forward){
-            if (!getBackODS_Detect_White_Line()){
-                setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
-            }else {
-                STOP();
-            }
-        }else {
-            if(!getBackODS_Detect_White_Line()){
-                setLeftRightPower(Math.abs(speed), Math.abs(speed));
-            }else {
-                STOP();
-            }
-        }
-        waitForTick.function(50);
-    }
-
-    //Get the Z-axis value of the gyro
-    public int getGyro(){
-        return gyro.getIntegratedZValue();
     }
 
     //Get the distance between the Lego Ultrasonic Sensor and an object
@@ -193,11 +171,25 @@ public class Drivebase{
         return FrontODS.getRawLightDetected();
     }
 
-    //Return the value of true if white line is detected
-    public boolean getFrontODS_Detect_White_Line(){
-        return (getFrontODS() > WhiteLineValue);
+    //Drive Striaght till white line
+    public void DriveStraighttoWhiteLine(double speed, boolean forward){
+        if(forward){
+            if (!getBackODS_Detect_White_Line()){
+                setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
+            }else {
+                STOP();
+            }
+        }else {
+            if(!getBackODS_Detect_White_Line()){
+                setLeftRightPower(Math.abs(speed), Math.abs(speed));
+            }else {
+                STOP();
+            }
+        }
+        waitForTick.function(50);
     }
 
+    //
     public boolean InchesAreWeThereYet(double inches){
         return !(Math.abs(getRightEncoderinInches()) > Math.abs(inches));
     }
@@ -214,44 +206,7 @@ public class Drivebase{
         resetEncoders();
     }
 
-    //Drive Straight till Ultrasonic sensor value
-    public void DriveToUltrasonicDistance(double speed, int distance){
-        if(getUltrasonic() > distance){
-            setLeftRightPower(-Math.abs(speed), -Math.abs(speed));
-        }else {
-            setLeftRightPower(Math.abs(speed), Math.abs(speed));
-        }
-    }
-
-    public void CenterOnWhiteLine(double speed, boolean red){
-        if(!getFrontODS_Detect_White_Line()){
-            if(red){
-                setLeftRightPower(Math.abs(speed), -Math.abs(speed));
-            }else {
-                setLeftRightPower(-Math.abs(speed), Math.abs(speed));
-            }
-        }else {
-            if(red){
-                setLeftRightPower(-Math.abs(speed), Math.abs(speed));
-            }else {
-                setLeftRightPower(Math.abs(speed), -Math.abs(speed));
-            }
-        }
-        waitForTick.function(50);
-    }
-
-    public void turnAbsolute(int target, double turnSpeed) {
-        if(target < getGyro()) {
-            setLeftRightPower(Math.abs(turnSpeed), -Math.abs(turnSpeed));
-        }else if(target > getGyro()) {
-            setLeftRightPower(-Math.abs(turnSpeed), Math.abs(turnSpeed));
-        }else if(target == getGyro()){
-            setLeftRightPower(0.0, 0.0);
-        }
-
-        waitForTick.function(50);
-    }
-
+    //Returns false when the robot has reached it's target angle (so it can break out of a loop without any changes
     public boolean TurnAreWeThereYet(int target){
         return !(getGyro() - target < 0);
     }

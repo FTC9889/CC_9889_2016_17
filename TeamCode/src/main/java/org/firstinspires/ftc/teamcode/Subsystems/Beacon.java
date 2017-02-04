@@ -40,17 +40,18 @@ public class Beacon {
             LeftBumper.setPosition(1.0);
             RightBumper.setPosition(0.4);
         }else {
-            LeftBumper.setPosition(0.3);
+            LeftBumper.setPosition(0.35);
             RightBumper.setPosition(0.9);
         }
     }
 
-    //Function for Hitting the proper color in autonomous
     //Bumper Lift left or right (value of true will lift right servo)
     public void BumperBeacon(boolean right){
         if (right){
             RightBumper.setPosition(0.4);
+            LeftBumper.setPosition(0.2);
         }else {
+            RightBumper.setPosition(1.0);
             LeftBumper.setPosition(1.0);
         }
     }
@@ -60,15 +61,15 @@ public class Beacon {
         return Color.red() > Color.blue();
     }
 
-    //Based on
+    //Based on boolean argument to determine, used to hit the proper side of hte beacon in autonomous
     public void HitButton(boolean color){//Here the robot decides which beacon button to press.
-        if(color){//Go for red
+        if(color){//Go for blue
             if (getColor()){
                 BumperBeacon(true);
             }else {
                 BumperBeacon(false);
             }
-        }else {//Go for blue
+        }else {//Go for red
             if (!getColor()){
                 BumperBeacon(true);
             }else {

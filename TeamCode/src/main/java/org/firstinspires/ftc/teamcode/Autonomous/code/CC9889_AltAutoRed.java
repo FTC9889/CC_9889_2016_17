@@ -22,47 +22,59 @@ public class CC9889_AltAutoRed extends LinearOpMode{
     private ElapsedTime emergencystop = new ElapsedTime();
 
     private boolean emergency = true;
-    private boolean breakout = false;
 
     private int randomnumberthatweneedforsomething = 1;
 
     @Override
     public void runOpMode(){
-        telemetry.addData("Beacon", "");
-        telemetry.update();
+        //////////////////////////////////////////////////////////////////
+        //   Note:                                                      //
+        //      To see the methods called please refer below.           //
+        //==============================================================//
+        //    ____________________________________________________      //
+        //   | Name                ==      Class                  |     //
+        //   |--------------------------------------------------- |     //
+        //   | Beacon              ==      Subsystem.Beacon       |     //
+        //   | Flywheel_Intake     ==      Subsystems.Flywheel    |     //
+        //   | Drivetrain          ==      Subsystems.Drivebas    |     //
+        //   | waitForTick         ==      Subsystems.waitForTick |     //
+        //   ------------------------------------------------------     //
+        //////////////////////////////////////////////////////////////////
+
+        //Init hardware
         Beacon.init(hardwareMap);
-        telemetry.addData("Flywheel", "");
-        telemetry.update();
         Flywheel_Intake.init(hardwareMap);
-        telemetry.addData("Drivetrain", "");
-        telemetry.update();
         Drivetrain.init(hardwareMap);
 
+        //Calibrate Gyro
         Drivetrain.CalibrateGyro();
 
-        while (!breakout) {
+        //Program Chooser
+        while (!gamepad1.a) {
             if (gamepad1.dpad_up) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
                 telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             } else if(gamepad1.dpad_right){
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 2;
                 telemetry.addData("Autonomous 2", "= 2 Beacon");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }else if (gamepad1.dpad_down) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 3;
                 telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }else if(gamepad1.dpad_left) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
-            }else if (gamepad1.a){
-                breakout = true;
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
-            telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             telemetry.update();
         }
+
         //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
@@ -70,13 +82,14 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
         waitForStart();
 
-        // make sure the gyro is calibrated.
+        //Make sure the gyro is calibrated.
         while (!opModeIsActive() && Drivetrain.gyro.isCalibrating())  {
             sleep(50);
             idle();
         }
 
 
+        //Show that we are running Autonomous
         telemetry.clearAll();
         telemetry.addData("Running Auton", " ");
         telemetry.update();
@@ -90,6 +103,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             //Wait for partner to hit beacon
             sleep(20000);
 
+            //Check if OpMode is still running
             if (opModeIsActive()){
                 //Start Flywheel
                 Flywheel_Intake.setFlywheel(true);
@@ -99,9 +113,9 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
                 Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
-
             Drivetrain.STOP();
 
+            //Wait for robot to settle
             sleep(500);
 
             //Shoot particles
@@ -117,16 +131,17 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
                 Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
-
             Drivetrain.STOP();
 
         }else {///////////////////////Base One Beacon///////////////////////
 
+            //Drive Straight For 15 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(15)){
                 Drivetrain.setLeftRightPower(-0.3, -0.3);
                 updateData();
             }
 
+            //Turn on Flywheel
             if(opModeIsActive()){
                 Flywheel_Intake.AutoShoot(true, false);
             }
@@ -140,7 +155,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 Drivetrain.setLeftRightPower(0.1, -0.1);
                 updateData();
             }
-
             Drivetrain.STOP();
 
             //Shoot particles
@@ -168,7 +182,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             //Drive forward until White line is detected
             while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                 Drivetrain.DriveStraighttoWhiteLine(0.3, true);
-                if(Drivetrain.getUltrasonic() < 30){
+                if(Drivetrain.getUltrasonic() < 30){ //Emergency Stop
                     if (emergency = true){
                         emergencystop.reset();
                         emergency = false;
@@ -182,7 +196,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 }
                 updateData();
             }
-
             Drivetrain.STOP();
 
             sleep(100);
@@ -193,7 +206,6 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 sleep(40);
                 Drivetrain.STOP();
             }
-
 
             //Turn to face beacon directly
             while (opModeIsActive() && Drivetrain.getGyro() < 80){
@@ -210,10 +222,8 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             }
             Drivetrain.STOP();
 
-
-
-
-            while (opModeIsActive() && Drivetrain.getUltrasonic() < 23){
+            //Back away from beacon if to close
+            while (opModeIsActive() && Drivetrain.getUltrasonic() < 20){
                 Drivetrain.setLeftRightPower(0.2, 0.2);
             }
 
@@ -222,45 +232,42 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             //Lower Beacon pressers
             Beacon.BumperSynchronised(false);
 
-
+            //Drive until really close to beacon
             while (opModeIsActive() && Drivetrain.getUltrasonic() > 18){
                 Drivetrain.setLeftRightPower(-0.1, -0.1);
             }
-
             Drivetrain.STOP();
 
             //Detect the color and raise the appropriate presser
-            Beacon.HitButton(true);
+            Beacon.HitButton(false);
 
             sleep(500);
 
+            //Press button
             Drivetrain.setLeftRightPower(-0.2, -0.2);
-
             sleep(500);
-
             Drivetrain.resetEncoders();
 
             //Back away from beacon
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
                 Drivetrain.setLeftRightPower(0.2, 0.2);
             }
-
             Drivetrain.STOP();
 
             //Lift Beacon pressers
             Beacon.BumperSynchronised(true);
 
 
-            ////////////////////////////////////////////////////////
-            /////       Auton Picker                        ////////
-            ////////////////////////////////////////////////////////
-
+            ///////////////////////////////////////////////////////////////////////////////////
+            //  Auton Picker                                                                 //
+            //  Note: See CC9889_AltAutoBlue for beautifully commented code for this section //
+            ///////////////////////////////////////////////////////////////////////////////////
             if (randomnumberthatweneedforsomething == 2){
                 //2 BEACON AUTONOMOUS
 
                 //Turn to the Beacon
-                while (opModeIsActive() && Drivetrain.getGyro() > 0){
-                    Drivetrain.setLeftRightPower(-0.3, 0.3);
+                while (opModeIsActive() && Drivetrain.getGyro() > 4){
+                    Drivetrain.setLeftRightPower(0.3, -0.3);
                     sleep(40);
                     Drivetrain.STOP();
                 }
@@ -310,24 +317,55 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 Beacon.BumperSynchronised(false);
 
                 //Drive to the beacon
-                while (opModeIsActive() && Drivetrain.getUltrasonic() > 20){
+                while (opModeIsActive() && Drivetrain.getUltrasonic() > 30){
                     Drivetrain.setLeftRightPower(-0.1, -0.1);
-                }
-
-                Beacon.HitButton(false);
-
-                sleep(700);
-
-                Drivetrain.resetEncoders();
-
-                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
-                    Drivetrain.setLeftRightPower(0.2, 0.2);
                 }
 
                 Drivetrain.STOP();
 
+                if(Drivetrain.getGyro() > 90 && opModeIsActive()){
+                    while (opModeIsActive() && Drivetrain.getGyro() > 90){
+                        Drivetrain.setLeftRightPower(0.2, -0.2);
+                        sleep(20);
+                        Drivetrain.STOP();
+                        updateData();
+                    }
+                }else if(Drivetrain.getGyro() < 90 && opModeIsActive()){
+                    while (opModeIsActive() && Drivetrain.getGyro() < 90){
+                        Drivetrain.setLeftRightPower(-0.2, 0.2);
+                        sleep(20);
+                        Drivetrain.STOP();
+                        updateData();
+                    }
+                }
+
+                while (opModeIsActive() && Drivetrain.getUltrasonic() > 18){
+                    Drivetrain.setLeftRightPower(-0.1, -0.1);
+                }
+
+                Drivetrain.STOP();
+
+                telemetry.addData("Color", Beacon.getColor());
+                telemetry.update();
+
+                //Detect the color and raise the appropriate presser
+                Beacon.HitButton(false);
+
+                sleep(500);
+
+                Drivetrain.setLeftRightPower(-0.2, -0.2);
+
+                sleep(500);
+
+                Drivetrain.resetEncoders();
+
+                sleep(500);
+
                 Beacon.BumperSynchronised(true);
 
+                Drivetrain.setLeftRightPower(1.0, 0.4);
+                sleep(2000);
+                Drivetrain.setLeftRightPower(0.0, 0.0);
 
                 super.stop();
 
@@ -341,7 +379,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 Drivetrain.STOP();
 
                 Drivetrain.setLeftRightPower(0.3, 0.3);
-                sleep(1500);
+                sleep(1000);
 
                 Drivetrain.STOP();
 
@@ -352,18 +390,21 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
                 //Drive Backward
                 while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(30)){
-                    Drivetrain.DriveBackwardstoDistance(0.3, 30);
+                    Drivetrain.setLeftRightPower(0.3, 0.3);
                 }
                 Drivetrain.STOP();
 
-                Drivetrain.setLeftRightPower(0.4, -0.4);
-                sleep(1000);
+                while (opModeIsActive() && Drivetrain.getGyro() > -50){
+                    Drivetrain.setLeftRightPower(0.4, -0.3);
+                    updateData();
+                }
+
                 Drivetrain.STOP();
+
                 Drivetrain.resetEncoders();
-                sleep(1000);
 
                 while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(10)){
-                    Drivetrain.setLeftRightPower(-0.4, -0.4);
+                    Drivetrain.setLeftRightPower(-0.2, -0.2);
                 }
                 Drivetrain.STOP();
 

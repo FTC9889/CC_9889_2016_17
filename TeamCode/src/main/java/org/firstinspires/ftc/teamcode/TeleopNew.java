@@ -5,6 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Subsystems.*;
 
+/**
+ * Created by Jin on 12/17/2017.
+ */
+
 @TeleOp(name="Teleop", group="Teleop")
 public class TeleopNew extends LinearOpMode {
 
@@ -22,17 +26,24 @@ public class TeleopNew extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
 
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-        telemetry.addData("Beacon", "");
-        telemetry.update();
+        //////////////////////////////////////////////////////////////////
+        //   Note:                                                      //
+        //      To see the methods called please refer below.           //
+        //==============================================================//
+        //    ____________________________________________________      //
+        //   | Name                ==      Class                  |     //
+        //   |--------------------------------------------------- |     //
+        //   | Beacon              ==      Subsystem.Beacon       |     //
+        //   | Flywheel_Intake     ==      Subsystems.Flywheel    |     //
+        //   | Drivetrain          ==      Subsystems.Drivebas    |     //
+        //   | waitForTick         ==      Subsystems.waitForTick |     //
+        //   ------------------------------------------------------     //
+        //////////////////////////////////////////////////////////////////
+
+        // Init Hardwawre
+        // note: waitForTick does not have a hardware map
         Beacon.init(hardwareMap);
-        telemetry.addData("Flywheel", "");
-        telemetry.update();
         Flywheel_Intake.init(hardwareMap);
-        telemetry.addData("Drivetrain", "");
-        telemetry.update();
         Drivetrain.init(hardwareMap);
 
 

@@ -13,30 +13,21 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 public class Flywheel {
 
     //Flywheel Motors
-    DcMotor flyWheel;
+    private DcMotor flyWheel;
 
     //Intake Motor
-    DcMotor DC;
+    private DcMotor DC;
 
     //Intake Servo
-    CRServo Servo;
+    private CRServo Servo;
 
-
-    //Used for controlling the intake
-    private int IntakeVariable = 0;
-
-    ElapsedTime AutoShootTime = new ElapsedTime();
-
-    private boolean Shoot = false;
-
-    /* Constructor */
+    //Constructor
     public Flywheel() {
 
     }
 
-    /* Initialize standard Hardware interfaces */
+    //Initialize standard Hardware interfaces
     public void init(HardwareMap hardware) {
-
         //Intake
         DC = hardware.dcMotor.get("IntakeMotor");
         Servo = hardware.crservo.get("Intake");
@@ -69,7 +60,6 @@ public class Flywheel {
         }else {
             setFlywheel(false);
             setIntakeMode(4);
-            AutoShootTime.reset();
         }
     }
 

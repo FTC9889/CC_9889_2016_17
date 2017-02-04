@@ -7,37 +7,49 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Subsystems.*;
 
 /**
- * Created by Jin on 9/30/2016. #ObieDidHarambe
+ * Created by Jin on 9/30/2016.
  */
 
 @Autonomous(name="Blue", group="Blue")
 public class CC9889_AltAutoBlue extends LinearOpMode {
 
+    //Classes
     private Flywheel Flywheel_Intake          = new Flywheel();
     private Drivebase Drivetrain              = new Drivebase();
     private Beacon Beacon                     = new Beacon();
     private waitForTick waitForTick           = new waitForTick();
 
+    //If we drive in to a wall it will automatically stop the robot to prevent damage to the robot or field
     private ElapsedTime emergencystop         = new ElapsedTime();
-
     private boolean emergency = true;
-    private boolean breakout = false;
 
+    //randomnumberthatweneedforsomething is for the program chooser
     private int randomnumberthatweneedforsomething = 1;
 
     @Override
     public void runOpMode() throws InterruptedException{
-        //Init Hardwawre
-        telemetry.addData("Beacon", "");
-        telemetry.update();
+
+        //////////////////////////////////////////////////////////////////
+        //   Note:                                                      //
+        //      To see the methods called please refer below.           //
+        //==============================================================//
+        //    ____________________________________________________      //
+        //   | Name                ==      Class                  |     //
+        //   |--------------------------------------------------- |     //
+        //   | Beacon              ==      Subsystem.Beacon       |     //
+        //   | Flywheel_Intake     ==      Subsystems.Flywheel    |     //
+        //   | Drivetrain          ==      Subsystems.Drivebas    |     //
+        //   | waitForTick         ==      Subsystems.waitForTick |     //
+        //   ------------------------------------------------------     //
+        //////////////////////////////////////////////////////////////////
+
+        // Init Hardwawre
+        // note: waitForTick does not have a hardware map
         Beacon.init(hardwareMap);
-        telemetry.addData("Flywheel", "");
-        telemetry.update();
         Flywheel_Intake.init(hardwareMap);
-        telemetry.addData("Drivetrain", "");
-        telemetry.update();
         Drivetrain.init(hardwareMap);
 
+        //Calibrate Gyro
         Drivetrain.CalibrateGyro();
 
         //Program Chooser
@@ -46,20 +58,23 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 1;
                 telemetry.addData("Autonomous 1", "= Shoot and Park on Center");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             } else if(gamepad1.dpad_right){
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 2;
                 telemetry.addData("Autonomous 2", "= 2 Beacon");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }else if (gamepad1.dpad_down) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 3;
                 telemetry.addData("Autonomous 3","= 1  Beacon and Ramp");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }else if(gamepad1.dpad_left) {
                 telemetry.clearAll();
                 randomnumberthatweneedforsomething = 4;
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
+                telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
-            telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             telemetry.update();
         }
 
@@ -76,6 +91,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             idle();
         }
 
+        //Show that we are running Autonomous
         telemetry.clearAll();
         telemetry.addData("Running Auton", " ");
         telemetry.update();
@@ -86,17 +102,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         if (randomnumberthatweneedforsomething == 1){//Shoot and Park on Center Auton
 
-            ////////////////////////////////////////////////////////////////////
-            ///                                                              ///
-            ///     Brother, this is all one program                         ///
-            ///     One program can do a lot                                 ///
-            ///     This program holds several tasks that the robot can do   ///
-            ///                                                              ///
-            ////////////////////////////////////////////////////////////////////
-
-            //Wait for partner to hit beacon
+            //Wait for partner to move out of the way
             sleep(20000);
 
+            //Check if OpMode is still running
             if (opModeIsActive()){
                 //Start Flywheel
                 Flywheel_Intake.setFlywheel(true);
@@ -109,6 +118,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             Drivetrain.STOP();
 
+            //Wait for robot to settle
             sleep(500);
 
             //Shoot particles
@@ -128,13 +138,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             Drivetrain.STOP();
 
         }else {///////////////////////Base One Beacon///////////////////////
-            ////////////////////////////////////////////////////////////////////
-            ///                                                              ///
-            ///                                                              ///
-            ///                                                              ///
-            ///                                                              ///
-            ///                                                              ///
-            ////////////////////////////////////////////////////////////////////
 
             //Drive Straight For 15 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(15)){
@@ -142,6 +145,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 updateData();
             }
 
+            //Turn on Flywheel
             if(opModeIsActive()){
                 Flywheel_Intake.AutoShoot(true, false);
             }
@@ -171,6 +175,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 Flywheel_Intake.setIntakeMode(0);
             }
 
+            //Turn to face first beacon
             while (opModeIsActive() && Drivetrain.getGyro() > -45){
                 Drivetrain.setLeftRightPower(0.5, -0.5);
                 sleep(10);
@@ -179,10 +184,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
             Drivetrain.STOP();
 
-            //Go Straight till line
+            //Drive Straight till white line
             while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                 Drivetrain.DriveStraighttoWhiteLine(0.3, true);
-                if(Drivetrain.getUltrasonic() < 10){
+                if(Drivetrain.getUltrasonic() < 20){
                     if (emergency = true){
                         emergencystop.reset();
                         emergency = false;
@@ -201,6 +206,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             sleep(100);
 
+            //Back up slowly to line
             while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                 Drivetrain.setLeftRightPower(0.2, 0.2);
                 sleep(40);
@@ -208,7 +214,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
 
 
-
+            //Turn to goal
             while (opModeIsActive() && Drivetrain.getGyro() > -80){
                 Drivetrain.setLeftRightPower(0.2, -0.2);
             }
@@ -223,25 +229,43 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
             Drivetrain.STOP();
 
-            Beacon.BumperSynchronised(false);
 
-            //Drive to the beacon
-            while (opModeIsActive() && Drivetrain.getUltrasonic() > 20){
-                Drivetrain.setLeftRightPower(-0.3, -0.3);
+            //Back up if to close to goal
+            while (opModeIsActive() && Drivetrain.getUltrasonic() < 20){
+                Drivetrain.setLeftRightPower(0.2, 0.2);
             }
 
+            Drivetrain.STOP();
+
+            //Lower Beacon pressers
+            Beacon.BumperSynchronised(false);
+
+
+            //Drive until really close to beacon
+            while (opModeIsActive() && Drivetrain.getUltrasonic() > 18){
+                Drivetrain.setLeftRightPower(-0.1, -0.1);
+            }
+
+            Drivetrain.STOP();
+
+            //Detect the color and raise the appropriate presser
             Beacon.HitButton(true);
 
-            sleep(700);
+            sleep(500);
 
+            //Press beacon
+            Drivetrain.setLeftRightPower(-0.2, -0.2);
+            sleep(500);
             Drivetrain.resetEncoders();
 
+            //Back away from goal
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
                 Drivetrain.setLeftRightPower(0.2, 0.2);
             }
 
             Drivetrain.STOP();
 
+            //Raise Beacon pressers
             Beacon.BumperSynchronised(true);
 
             ////////////////////////////////////////////////////////
@@ -257,7 +281,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                     Drivetrain.STOP();
                 }
 
-                //Go Straight till line
+                //Go Straight for time to get away from first line, then start looking for second line
                 Drivetrain.setLeftRightPower(-0.5, -0.5);
                 sleep(1000);
 
@@ -282,24 +306,27 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
                 sleep(100);
 
+                //Back up slowly to line
                 while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                     Drivetrain.setLeftRightPower(0.2, 0.2);
                     sleep(40);
                     Drivetrain.STOP();
                 }
 
+                //Turn to face goal
                 while (opModeIsActive() && Drivetrain.getGyro() > -75){
-                    Drivetrain.setLeftRightPower(0.2, -0.2);
+                    Drivetrain.setLeftRightPower(0.4, -0.4);
                 }
                 Drivetrain.STOP();
 
                 while (opModeIsActive() && Drivetrain.getGyro() < -90){
-                    Drivetrain.setLeftRightPower(-0.1, 0.1);
+                    Drivetrain.setLeftRightPower(-0.2, 0.2);
                     sleep(10);
                     Drivetrain.STOP();
                 }
                 Drivetrain.STOP();
 
+                //Lower Beacon pressers
                 Beacon.BumperSynchronised(false);
 
                 //Drive to the beacon
@@ -307,37 +334,41 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                     Drivetrain.setLeftRightPower(-0.1, -0.1);
                 }
 
+                //Detect the color and raise the appropriate presser
                 Beacon.HitButton(true);
 
                 sleep(700);
 
+                //Stop and reset Encoders
                 Drivetrain.resetEncoders();
 
-                while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(5)){
-                    Drivetrain.setLeftRightPower(0.2, 0.2);
-                }
+                sleep(500);
 
-                Drivetrain.STOP();
+                //Curve to park on center vortex
+                Drivetrain.setLeftRightPower(0.4, 1.0);
+                sleep(2000);
+                Drivetrain.setLeftRightPower(0.0, 0.0);
 
+                //Raise Beacon pressers
                 Beacon.BumperSynchronised(true);
-
 
                 super.stop();
 
             }else if (randomnumberthatweneedforsomething == 3){//Park on Ramp
+
+                //Turn to face the ramp
                 while (opModeIsActive() && Drivetrain.getGyro() < 0){
                     Drivetrain.setLeftRightPower(-0.1, 0.1);
                     updateData();
                 }
                 Drivetrain.STOP();
 
+                //Backup on to the ramp and stop
                 Drivetrain.setLeftRightPower(0.3, 0.3);
                 sleep(1500);
-
                 Drivetrain.STOP();
 
             }else if (randomnumberthatweneedforsomething == 4){//Cap Ball Park
-
                 Drivetrain.STOP();
                 Drivetrain.resetEncoders();
 
@@ -367,6 +398,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         super.stop();
     }
 
+    //Method for adding telemetry on the DS screen
     private void updateData(){
         telemetry.addData("Right Speed", Drivetrain.getRightPower());
         telemetry.addData("Left Speed", Drivetrain.getLeftPower());
