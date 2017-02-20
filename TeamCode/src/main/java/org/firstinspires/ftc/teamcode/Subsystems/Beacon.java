@@ -37,11 +37,11 @@ public class Beacon {
     //Controller for all bumper actions that are synchronised
     public void BumperSynchronised(boolean updown){
         if(updown){
-            LeftBumper.setPosition(1.0);
             RightBumper.setPosition(0.4);
+            LeftBumper.setPosition(1.0);
         }else {
-            LeftBumper.setPosition(0.35);
-            RightBumper.setPosition(0.9);
+            RightBumper.setPosition(1.0);
+            LeftBumper.setPosition(0.25);
         }
     }
 

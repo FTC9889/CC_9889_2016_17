@@ -17,6 +17,7 @@ public class TeleopNew extends LinearOpMode {
     private Drivebase Drivetrain              = new Drivebase();
     private Beacon Beacon                     = new Beacon();
     private waitForTick waitForTick           = new waitForTick();
+    private LED_Control led_control           = new LED_Control();
 
     private ElapsedTime runtime               = new ElapsedTime();
     private ElapsedTime shot                   =new ElapsedTime();
@@ -45,11 +46,17 @@ public class TeleopNew extends LinearOpMode {
         Beacon.init(hardwareMap);
         Flywheel_Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
+        led_control.init(hardwareMap);
 
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Robot", " Running");    //
         telemetry.update();
+
+        while (isStopRequested()){
+            led_control.setLedMode(2);
+            sleep(50);
+        }
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -62,6 +69,7 @@ public class TeleopNew extends LinearOpMode {
 
         //Run until the timer reaches 120 seconds or the STOP button is pressed
         while (opModeIsActive() && runtime.seconds() < 120) {
+
             //Turning control for Driver 2, so he can adjust the shot on the fly. Disables Driver 1's control
             if(gamepad2.dpad_left){
                 leftspeed = -0.2;
@@ -101,8 +109,11 @@ public class TeleopNew extends LinearOpMode {
                     if(shot.milliseconds() > 1400){
                         SmartShot = true;
                     }
+                    led_control.setLedMode(1);
+                }else {
+                    led_control.setLedMode(0);
+                    Flywheel_Intake.AutoShoot(true, false);
                 }
-                Flywheel_Intake.AutoShoot(true, false);
 
             }else {
                 SmartShot = true;
@@ -118,6 +129,8 @@ public class TeleopNew extends LinearOpMode {
                 }else {
                     Flywheel_Intake.setIntakeMode(4);
                 }
+
+                led_control.setLedMode(1);
             }
 
             updateData();

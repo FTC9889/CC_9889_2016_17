@@ -25,7 +25,6 @@ public class Drivebase{
     public ModernRoboticsI2cGyro gyro;
     public UltrasonicSensor ultrasonic;
 
-    public VoltageSensor voltage;
     private DeviceInterfaceModule CDI;
 
     private waitForTick waitForTick = new waitForTick();
