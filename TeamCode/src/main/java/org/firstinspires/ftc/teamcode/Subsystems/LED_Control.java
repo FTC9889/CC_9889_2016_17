@@ -16,7 +16,6 @@ public class LED_Control {
     private VoltageSensor voltage;
 
     private int counter = 0;
-    private double brightness = 0.0;
 
 
     public LED_Control(){
@@ -29,33 +28,14 @@ public class LED_Control {
         lights.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void setLedMode(int mode){
-        if(voltage.getVoltage()<12){
+    public void setLedMode(boolean on){
+        if(voltage.getVoltage()<12.5){
             lights.setPower(0.0);
         }else {
-            if(mode == 0){
+            if(on){
+                lights.setPower(0.3);
+            }else{
                 lights.setPower(0.0);
-            }else if(mode == 1){
-                lights.setPower(0.5);
-            }else if(mode == 2){//Fade mode
-                counter = counter + 1;
-
-                if(counter<2000){
-                    lights.setPower(0.2);
-                }else if(counter<4000){
-                    lights.setPower(0.4);
-                }else if(counter<6000){
-                    lights.setPower(0.6);
-                }else if(counter<8000){
-                    lights.setPower(1.0);
-                }else if(counter<12000){
-                    lights.setPower(0.6);
-                }else if(counter<14000){
-                    lights.setPower(0.4);
-                }else if(counter<16000) {
-                    lights.setPower(0.2);
-                    counter = 0;
-                }
             }
         }
     }

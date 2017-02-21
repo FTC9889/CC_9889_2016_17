@@ -25,6 +25,10 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
     private int randomnumberthatweneedforsomething = 1;
 
+    private ElapsedTime runtime               =new ElapsedTime();
+    private int pollRed = 0;
+    private int pollBlue = 0;
+
     @Override
     public void runOpMode(){
         //////////////////////////////////////////////////////////////////
@@ -79,6 +83,11 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         telemetry.update();
+
+        while (opModeIsActive()){
+            telemetry.addData("True if red", getColor());
+            telemetry.update();
+        }
 
         waitForStart();
 
@@ -135,15 +144,15 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
         }else {///////////////////////Base One Beacon///////////////////////
 
+            //Turn on Flywheel
+            if(opModeIsActive()){
+                Flywheel_Intake.AutoShoot(true, false);
+            }
+
             //Drive Straight For 15 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(15)){
                 Drivetrain.setLeftRightPower(-0.3, -0.3);
                 updateData();
-            }
-
-            //Turn on Flywheel
-            if(opModeIsActive()){
-                Flywheel_Intake.AutoShoot(true, false);
             }
 
             //Turn to the goal
@@ -159,13 +168,12 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
             //Shoot particles
             if(opModeIsActive()){
-                sleep(400);
+                sleep(200);
                 Flywheel_Intake.AutoShoot(true, true);
-                sleep(300);
+                sleep(500);
                 Flywheel_Intake.AutoShoot(true, false);
-                sleep(700);
                 Flywheel_Intake.AutoShoot(true, true);
-                sleep(1000);
+                sleep(1300);
                 Flywheel_Intake.AutoShoot(false, false);
                 Flywheel_Intake.setIntakeMode(0);
             }
@@ -239,7 +247,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
             Drivetrain.STOP();
 
             //Detect the color and raise the appropriate presser
-            Beacon.HitButton(false);
+            Beacon.HitButton(false, !getColor());
 
             sleep(500);
 
@@ -349,7 +357,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 telemetry.update();
 
                 //Detect the color and raise the appropriate presser
-                Beacon.HitButton(false);
+                Beacon.HitButton(false, !getColor());
 
                 sleep(500);
 
@@ -429,6 +437,19 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         telemetry.addData("Back ODS", Drivetrain.getBackODS());
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
         telemetry.update();
+    }
+
+    private boolean getColor(){
+        runtime.reset();
+        while (runtime.milliseconds()<50){
+            if(Beacon.Color.red() > Beacon.Color.blue()){
+                pollRed = pollRed +1;
+            }else {
+                pollBlue = pollBlue + 1;
+            }
+        }
+
+        return pollRed > pollBlue;
     }
 
 }

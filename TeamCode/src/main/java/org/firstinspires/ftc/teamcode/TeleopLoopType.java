@@ -1,32 +1,45 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.Subsystems.*;
+
+import org.firstinspires.ftc.teamcode.Subsystems.Beacon;
+import org.firstinspires.ftc.teamcode.Subsystems.Drivebase;
+import org.firstinspires.ftc.teamcode.Subsystems.Flywheel;
+import org.firstinspires.ftc.teamcode.Subsystems.LED_Control;
+import org.firstinspires.ftc.teamcode.Subsystems.waitForTick;
 
 /**
- * Created by Jin on 12/17/2017.
+ * Created by Joshua H on 2/20/2017.
  */
 
-@TeleOp(name="Teleop", group="Teleop")
-public class TeleopNew extends LinearOpMode {
+@TeleOp(name="TeleopTest", group="Teleop")
+@Disabled
+public class TeleopLoopType extends OpMode {
 
     /* Declare OpMode members. */
     private Flywheel Flywheel_Intake          = new Flywheel();
     private Drivebase Drivetrain              = new Drivebase();
-    private Beacon Beacon                     = new Beacon();
-    private waitForTick waitForTick           = new waitForTick();
+    private org.firstinspires.ftc.teamcode.Subsystems.Beacon Beacon                     = new Beacon();
+    private org.firstinspires.ftc.teamcode.Subsystems.waitForTick waitForTick           = new waitForTick();
     private LED_Control led_control           = new LED_Control();
 
     private ElapsedTime runtime               = new ElapsedTime();
-    private ElapsedTime shot                   =new ElapsedTime();
+    private ElapsedTime shot                  =new ElapsedTime();
+
 
     boolean SmartShot = false;
+    int RPM = 0;
+    int POS = 0;
+
+
+    double leftspeed, rightspeed, xvalue, yvalue;
+    int div = 1;
 
     @Override
-    public void runOpMode() throws InterruptedException{
-
+    public void init(){
         //////////////////////////////////////////////////////////////////
         //   Note:                                                      //
         //      To see the methods called please refer below.           //
@@ -53,30 +66,46 @@ public class TeleopNew extends LinearOpMode {
         telemetry.addData("Robot", " Running");    //
         telemetry.update();
 
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
+        Drivetrain.STOP();
+    }
 
-        double leftspeed, rightspeed, xvalue, yvalue;
-        int div = 1;
-
+    @Override
+    public void start(){
         //Reset the time to allow for timer to stop automatically
         runtime.reset();
+    }
 
-        //Run until the timer reaches 120 seconds or the STOP button is pressed
-        while (opModeIsActive() && runtime.seconds() < 120) {
+    @Override
+    public void loop(){
+        if(runtime.seconds()<120){
+            xvalue = -gamepad1.right_stick_x/div;
+            yvalue = gamepad1.left_stick_y/div;
+
+            leftspeed =  yvalue - xvalue;
+            rightspeed = yvalue + xvalue;
+
+            Drivetrain.setLeftRightPower(leftspeed, rightspeed);
+
+            //Lower the max speed of the robot
+            if (gamepad1.left_trigger > 0.2){
+                div = 4;
+            }else {
+                div = 1;
+            }
+
+            //Beacon pressing
+            Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
+
             //Smart Shot
-            if(gamepad1.right_trigger > 0.1){
-
-                Beacon.BumperSynchronised(false);
-
+            if(gamepad1.right_trigger > 0.2){
                 if (SmartShot) {
                     shot.reset();
                     SmartShot = false;
                 }
 
-                if(shot.milliseconds() > 1000){
+                if(shot.milliseconds() > 700){
                     Flywheel_Intake.AutoShoot(true, true);
-                    if(shot.milliseconds() > 2000){
+                    if(shot.milliseconds() > 1400){
                         SmartShot = true;
                     }
                     led_control.setLedMode(true);
@@ -100,40 +129,22 @@ public class TeleopNew extends LinearOpMode {
                     Flywheel_Intake.setIntakeMode(4);
                 }
 
-                led_control.setLedMode(false);
-
-                //Beacon pressing
-                Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
-            }
-
-            //Turning control for Driver 2, so he can adjust the shot on the fly. Disables Driver 1's control
-
-            xvalue = -gamepad1.right_stick_x/div;
-            yvalue = gamepad1.left_stick_y/div;
-
-            leftspeed =  yvalue - xvalue;
-            rightspeed = yvalue + xvalue;
-
-            Drivetrain.setLeftRightPower(leftspeed, rightspeed);
-
-            //Lower the max speed of the robot
-            if (gamepad1.left_trigger > 0.1){
-                div = 4;
-            }else {
-                div = 1;
+                led_control.setLedMode(true);
             }
 
             updateData();
-
-            // Pause for metronome tick.  40 mS each cycle = update 25 times a second.
-            waitForTick.function(40);
+        }else {
+            super.stop();
         }
 
-        Flywheel_Intake.setFlywheel(false);
-        Flywheel_Intake.setIntakeMode(0);
+        // Pause for metronome tick.  40 mS each cycle = update 25 times a second.
+        waitForTick.function(40);
+    }
+
+    @Override
+    public void stop(){
         Drivetrain.STOP();
-        led_control.setLedMode(false);
-        super.stop();
+        Beacon.BumperSynchronised(false);
     }
 
     public void updateData(){
@@ -150,4 +161,6 @@ public class TeleopNew extends LinearOpMode {
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
         telemetry.update();
     }
+
 }
+

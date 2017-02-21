@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * Created by Joshua H on 1/24/2017.
@@ -14,7 +15,7 @@ public class Beacon {
     private Servo RightBumper, LeftBumper;
 
     //MR Color Sensor
-    private ColorSensor Color;
+    public ColorSensor Color;
 
     public Beacon(){
 
@@ -41,7 +42,7 @@ public class Beacon {
             LeftBumper.setPosition(1.0);
         }else {
             RightBumper.setPosition(1.0);
-            LeftBumper.setPosition(0.25);
+            LeftBumper.setPosition(0.3);
         }
     }
 
@@ -49,7 +50,7 @@ public class Beacon {
     public void BumperBeacon(boolean right){
         if (right){
             RightBumper.setPosition(0.4);
-            LeftBumper.setPosition(0.2);
+            LeftBumper.setPosition(0.3);
         }else {
             RightBumper.setPosition(1.0);
             LeftBumper.setPosition(1.0);
@@ -62,15 +63,15 @@ public class Beacon {
     }
 
     //Based on boolean argument to determine, used to hit the proper side of hte beacon in autonomous
-    public void HitButton(boolean color){//Here the robot decides which beacon button to press.
+    public void HitButton(boolean color, boolean input){//Here the robot decides which beacon button to press.
         if(color){//Go for blue
-            if (getColor()){
+            if (input){
                 BumperBeacon(true);
             }else {
                 BumperBeacon(false);
             }
         }else {//Go for red
-            if (!getColor()){
+            if (!input){
                 BumperBeacon(true);
             }else {
                 BumperBeacon(false);

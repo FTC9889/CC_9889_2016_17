@@ -43,8 +43,8 @@ public class Flywheel {
 
     //Used to control all of the flywheel's actions
     public void setFlywheel(boolean on){
-        if (on == true){
-            flyWheel.setPower(-0.5);
+        if (on){
+            flyWheel.setPower(-0.2);
         }else {
             flyWheel.setPower(0.0);
         }
@@ -56,6 +56,8 @@ public class Flywheel {
             setFlywheel(true);
             if (fire){
                 setIntakeMode(1);
+            }else {
+                setIntakeMode(4);
             }
         }else {
             setFlywheel(false);
@@ -70,7 +72,7 @@ public class Flywheel {
             DC.setPower(0.0);
         }else if(mode == 1){//Mode 1 == Shoot
             Servo.setPower(-1.0);
-            DC.setPower(0.5);
+            DC.setPower(1.0);
         }else if(mode == 2){//Mode 2 == Intake
             Servo.setPower(1.0);
             DC.setPower(1.0);
@@ -82,5 +84,4 @@ public class Flywheel {
             DC.setPower(0.0);
         }
     }
-
 }
