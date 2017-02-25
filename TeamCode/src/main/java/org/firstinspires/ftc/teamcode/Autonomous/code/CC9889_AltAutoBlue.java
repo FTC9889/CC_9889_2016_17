@@ -18,11 +18,6 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
     private Drivebase Drivetrain              = new Drivebase();
     private Beacon Beacon                     = new Beacon();
     private waitForTick waitForTick           = new waitForTick();
-    private LED_Control led_control           = new LED_Control();
-
-    private ElapsedTime runtime               =new ElapsedTime();
-    private int pollRed = 0;
-    private int pollBlue = 0;
 
     //If we drive in to a wall it will automatically stop the robot to prevent damage to the robot or field
     private ElapsedTime emergencystop         = new ElapsedTime();
@@ -53,13 +48,9 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Beacon.init(hardwareMap);
         Flywheel_Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
-        led_control.init(hardwareMap);
 
         //Calibrate Gyro
         Drivetrain.CalibrateGyro();
-
-        telemetry.addData("Select Autonomous", "");
-        telemetry.update();
 
         //Program Chooser
         while (!gamepad1.a) {
@@ -84,15 +75,8 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
                 telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
-            if(!Drivetrain.gyro.isCalibrating()){
-                telemetry.addData("Gyro Calibrated", "");
-            }else {
-                telemetry.addData("Calibrating Gyro", "");
-            }
             telemetry.update();
         }
-
-        led_control.setLedMode(true);
 
         //Add telemetry
         telemetry.clearAll();
@@ -101,7 +85,11 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         waitForStart();
 
-        led_control.setLedMode(false);
+        //Make sure the gyro is calibrated.
+        while (!opModeIsActive() && Drivetrain.gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
 
         //Show that we are running Autonomous
         telemetry.clearAll();
@@ -124,21 +112,10 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
 
             //Drive Straight For 35 inches
-            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(25)){
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
                 Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
-            Drivetrain.STOP();
-
-            while (opModeIsActive() && Drivetrain.getGyro() > -0){
-                Drivetrain.setLeftRightPower(0.1, -0.1);
-            }
-            Drivetrain.STOP();
-
-            while (opModeIsActive() && Drivetrain.getGyro() < -0){
-                Drivetrain.setLeftRightPower(-0.1, 0.1);
-
-            }
             Drivetrain.STOP();
 
             //Wait for robot to settle
@@ -154,7 +131,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             }
 
             //Park
-            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(40)){
+            while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(35)){
                 Drivetrain.setLeftRightPower(-0.6, -0.6);
             }
 
@@ -162,15 +139,15 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
         }else {///////////////////////Base One Beacon///////////////////////
 
-            //Turn on Flywheel
-            if(opModeIsActive()){
-                Flywheel_Intake.AutoShoot(true, false);
-            }
-
             //Drive Straight For 15 inches
             while (opModeIsActive() && Drivetrain.InchesAreWeThereYet(15)){
                 Drivetrain.setLeftRightPower(-0.3, -0.3);
                 updateData();
+            }
+
+            //Turn on Flywheel
+            if(opModeIsActive()){
+                Flywheel_Intake.AutoShoot(true, false);
             }
 
             //Turn to the goal
@@ -187,12 +164,13 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
             //Shoot particles
             if(opModeIsActive()){
-                sleep(200);
+                sleep(400);
                 Flywheel_Intake.AutoShoot(true, true);
-                sleep(500);
+                sleep(300);
                 Flywheel_Intake.AutoShoot(true, false);
+                sleep(700);
                 Flywheel_Intake.AutoShoot(true, true);
-                sleep(1300);
+                sleep(1000);
                 Flywheel_Intake.AutoShoot(false, false);
                 Flywheel_Intake.setIntakeMode(0);
             }
@@ -271,7 +249,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
             Drivetrain.STOP();
 
             //Detect the color and raise the appropriate presser
-            Beacon.HitButton(true, getColor());
+            Beacon.HitButton(true);
 
             sleep(500);
 
@@ -357,7 +335,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 }
 
                 //Detect the color and raise the appropriate presser
-                Beacon.HitButton(true, getColor());
+                Beacon.HitButton(true);
 
                 sleep(700);
 
@@ -433,21 +411,5 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         telemetry.addData("Back ODS", Drivetrain.getBackODS());
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
         telemetry.update();
-    }
-
-    private boolean getColor(){
-        pollRed = 0;
-        pollBlue = 0;
-
-        runtime.reset();
-        while (runtime.milliseconds()<50){
-            if(Beacon.Color.red() > Beacon.Color.blue()){
-                pollRed = pollRed +1;
-            }else {
-                pollBlue = pollBlue + 1;
-            }
-        }
-
-        return pollRed > pollBlue;
     }
 }
