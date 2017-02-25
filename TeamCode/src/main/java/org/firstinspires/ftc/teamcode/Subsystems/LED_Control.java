@@ -13,7 +13,6 @@ public class LED_Control {
 
     //Name
     private DcMotor lights;
-    private VoltageSensor voltage;
 
     private int counter = 0;
 
@@ -24,19 +23,16 @@ public class LED_Control {
 
     public void init(HardwareMap hardwareMap){
         lights = hardwareMap.dcMotor.get("leds");
-        voltage = hardwareMap.voltageSensor.get("Motor Controller 1");
+
         lights.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        setLedMode(false);
     }
 
     public void setLedMode(boolean on){
-        if(voltage.getVoltage()<12.5){
+        if(on){
+            lights.setPower(0.3);
+        }else{
             lights.setPower(0.0);
-        }else {
-            if(on){
-                lights.setPower(0.3);
-            }else{
-                lights.setPower(0.0);
-            }
         }
     }
 }

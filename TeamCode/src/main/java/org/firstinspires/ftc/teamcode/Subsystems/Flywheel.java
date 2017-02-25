@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
@@ -13,13 +14,12 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 public class Flywheel {
 
     //Flywheel Motors
-    private DcMotor flyWheel;
-
-    //Intake Motor
-    private DcMotor DC;
+    private DcMotor flyWheel, DC;
 
     //Intake Servo
     private CRServo Servo;
+
+    private VoltageSensor voltage;
 
     //Constructor
     public Flywheel() {
@@ -32,6 +32,8 @@ public class Flywheel {
         DC = hardware.dcMotor.get("IntakeMotor");
         Servo = hardware.crservo.get("Intake");
 
+        voltage = hardware.voltageSensor.get("Motor Controller 1");
+
         //Shooter Motors
         flyWheel = hardware.dcMotor.get("flywheel");
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -43,6 +45,26 @@ public class Flywheel {
 
     //Used to control all of the flywheel's actions
     public void setFlywheel(boolean on){
+        if(on){
+            if(voltage.getVoltage()<10.0){
+                flyWheel.setPower(-0.3);
+            }else if(voltage.getVoltage()<12.0){
+                flyWheel.setPower(-0.2);
+            }else if(voltage.getVoltage()<12.4){
+
+            }else if(voltage.getVoltage()<12.8){
+
+            }else if(voltage.getVoltage()<13.2){
+
+            }else if(voltage.getVoltage()<13.6){
+
+            }else if(voltage.getVoltage()<14.0){
+
+            }else if(voltage.getVoltage()>14.4){
+
+            }
+        }
+
         if (on){
             flyWheel.setPower(-0.2);
         }else {

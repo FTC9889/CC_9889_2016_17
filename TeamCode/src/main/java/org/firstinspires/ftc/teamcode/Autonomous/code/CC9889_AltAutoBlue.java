@@ -18,6 +18,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
     private Drivebase Drivetrain              = new Drivebase();
     private Beacon Beacon                     = new Beacon();
     private waitForTick waitForTick           = new waitForTick();
+    private LED_Control led_control           = new LED_Control();
 
     private ElapsedTime runtime               =new ElapsedTime();
     private int pollRed = 0;
@@ -52,9 +53,13 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
         Beacon.init(hardwareMap);
         Flywheel_Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
+        led_control.init(hardwareMap);
 
         //Calibrate Gyro
         Drivetrain.CalibrateGyro();
+
+        telemetry.addData("Select Autonomous", "");
+        telemetry.update();
 
         //Program Chooser
         while (!gamepad1.a) {
@@ -79,20 +84,24 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
                 telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
+            if(!Drivetrain.gyro.isCalibrating()){
+                telemetry.addData("Gyro Calibrated", "");
+            }else {
+                telemetry.addData("Calibrating Gyro", "");
+            }
             telemetry.update();
         }
+
+        led_control.setLedMode(true);
 
         //Add telemetry
         telemetry.clearAll();
         telemetry.addData("Auton", " Selected");
         telemetry.update();
 
-        while (!opModeIsActive()){
-            telemetry.addData("True if red", getColor());
-            telemetry.update();
-        }
-
         waitForStart();
+
+        led_control.setLedMode(false);
 
         //Show that we are running Autonomous
         telemetry.clearAll();
@@ -428,7 +437,7 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
     private boolean getColor(){
         pollRed = 0;
-        pollBlue = 0; //HI THIS IS SHERLOCK
+        pollBlue = 0;
 
         runtime.reset();
         while (runtime.milliseconds()<50){

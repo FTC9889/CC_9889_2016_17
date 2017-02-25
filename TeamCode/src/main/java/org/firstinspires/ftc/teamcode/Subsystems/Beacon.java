@@ -27,6 +27,8 @@ public class Beacon {
         RightBumper = hardwareMap.servo.get("RBump");
         LeftBumper = hardwareMap.servo.get("LBump");
 
+        LeftBumper.setDirection(Servo.Direction.REVERSE);
+
         //Color Sensor
         Color = hardwareMap.colorSensor.get("colorsensor");
         Color.enableLed(false);
@@ -39,10 +41,10 @@ public class Beacon {
     public void BumperSynchronised(boolean updown){
         if(updown){
             RightBumper.setPosition(0.4);
-            LeftBumper.setPosition(1.0);
+            LeftBumper.setPosition(0.4); //1.0
         }else {
             RightBumper.setPosition(1.0);
-            LeftBumper.setPosition(0.3);
+            LeftBumper.setPosition(0.95);//0.3
         }
     }
 
@@ -50,10 +52,10 @@ public class Beacon {
     public void BumperBeacon(boolean right){
         if (right){
             RightBumper.setPosition(0.4);
-            LeftBumper.setPosition(0.3);
+            LeftBumper.setPosition(1.0); //0.3
         }else {
             RightBumper.setPosition(1.0);
-            LeftBumper.setPosition(1.0);
+            LeftBumper.setPosition(0.4); //1.0
         }
     }
 

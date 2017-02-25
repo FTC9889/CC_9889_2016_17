@@ -20,7 +20,14 @@ public class TeleopNew extends LinearOpMode {
     private LED_Control led_control           = new LED_Control();
 
     private ElapsedTime runtime               = new ElapsedTime();
-    private ElapsedTime shot                   =new ElapsedTime();
+    private ElapsedTime shot                  =new ElapsedTime();
+
+    private ElapsedTime color                 =new ElapsedTime();
+    private int pollRed = 0;
+    private int pollBlue = 0;
+
+    private ElapsedTime beacontimer           =new ElapsedTime();
+    private boolean deploy=false;
 
     boolean SmartShot = false;
 
@@ -67,7 +74,8 @@ public class TeleopNew extends LinearOpMode {
             //Smart Shot
             if(gamepad1.right_trigger > 0.1){
 
-                Beacon.BumperSynchronised(false);
+                //Prevent Particles from getting stuck in between bumpers
+                Beacon.BumperSynchronised(true);
 
                 if (SmartShot) {
                     shot.reset();
@@ -103,7 +111,15 @@ public class TeleopNew extends LinearOpMode {
                 led_control.setLedMode(false);
 
                 //Beacon pressing
-                Beacon.BumperSynchronised(!(Drivetrain.getUltrasonic() < 35 || gamepad1.right_bumper));
+                if(Drivetrain.getUltrasonic()<35){
+                    if(beacontimer.milliseconds() > 20){
+                        deploy = true;
+                    }
+                }else {
+                    deploy = false;
+                    beacontimer.reset();
+                }
+                Beacon.BumperSynchronised(!(deploy || gamepad1.right_bumper));
             }
 
             //Turning control for Driver 2, so he can adjust the shot on the fly. Disables Driver 1's control
@@ -145,9 +161,26 @@ public class TeleopNew extends LinearOpMode {
         telemetry.addData("Right Encoder in Inches", Drivetrain.getRightEncoderinInches());
         telemetry.addData("Left Encoder in Inches", Drivetrain.getLeftEncoderinInches());
         telemetry.addData("Gyro Z-axis", Drivetrain.getGyro());
+        telemetry.addData("True if red", getColor());
         telemetry.addData("Ultrasonic Sensor Raw Value", Drivetrain.getUltrasonic());
         telemetry.addData("Back ODS", Drivetrain.getBackODS());
         telemetry.addData("Front ODS", Drivetrain.getFrontODS());
         telemetry.update();
+    }
+    private boolean getColor(){
+        pollRed = 0;
+        pollBlue = 0;
+
+        if(color.milliseconds()>30){
+            if(Beacon.Color.red() > Beacon.Color.blue()){
+                pollRed = pollRed +1;
+            }else {
+                pollBlue = pollBlue + 1;
+            }
+        }else {
+            color.reset();
+        }
+
+        return pollRed > pollBlue;
     }
 }

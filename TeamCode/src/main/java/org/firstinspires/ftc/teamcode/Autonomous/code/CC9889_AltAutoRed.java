@@ -18,6 +18,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
     private Drivebase Drivetrain              = new Drivebase();
     private Beacon Beacon                     = new Beacon();
     private waitForTick waitForTick           = new waitForTick();
+    private LED_Control led_control           = new LED_Control();
 
     private ElapsedTime emergencystop = new ElapsedTime();
 
@@ -49,9 +50,13 @@ public class CC9889_AltAutoRed extends LinearOpMode{
         Beacon.init(hardwareMap);
         Flywheel_Intake.init(hardwareMap);
         Drivetrain.init(hardwareMap);
+        led_control.init(hardwareMap);
 
         //Calibrate Gyro
         Drivetrain.CalibrateGyro();
+
+        telemetry.addData("Select Autonomous", "");
+        telemetry.update();
 
         //Program Chooser
         while (!gamepad1.a) {
@@ -76,8 +81,15 @@ public class CC9889_AltAutoRed extends LinearOpMode{
                 telemetry.addData("Autonomous 4", "= 1 Beacon and Hit Cap Ball");
                 telemetry.addData("Please Select an Autonomous Mode", " then press the A button");
             }
+            if(!Drivetrain.gyro.isCalibrating()){
+                telemetry.addData("Gyro Calibrated", "");
+            }else {
+                telemetry.addData("Calibrating Gyro", "");
+            }
             telemetry.update();
         }
+
+        led_control.setLedMode(true);
 
         //Add telemetry
         telemetry.clearAll();
@@ -91,12 +103,7 @@ public class CC9889_AltAutoRed extends LinearOpMode{
 
         waitForStart();
 
-        //Make sure the gyro is calibrated.
-        while (!opModeIsActive() && Drivetrain.gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-
+        led_control.setLedMode(false);
 
         //Show that we are running Autonomous
         telemetry.clearAll();
