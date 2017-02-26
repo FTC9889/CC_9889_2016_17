@@ -283,11 +283,11 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
 
                 //Go Straight for time to get away from first line, then start looking for second line
                 Drivetrain.setLeftRightPower(-0.5, -0.5);
-                sleep(1000);
-
+                sleep(500);
+//Drive Straight till white line
                 while (opModeIsActive() && !Drivetrain.getBackODS_Detect_White_Line()){
                     Drivetrain.DriveStraighttoWhiteLine(0.3, true);
-                    if(Drivetrain.getUltrasonic() < 10){
+                    if(Drivetrain.getUltrasonic() < 20){
                         if (emergency = true){
                             emergencystop.reset();
                             emergency = false;
@@ -313,11 +313,14 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                     Drivetrain.STOP();
                 }
 
-                //Turn to face goal
-                while (opModeIsActive() && Drivetrain.getGyro() > -75){
-                    Drivetrain.setLeftRightPower(0.4, -0.4);
+
+                //Turn to goal
+                while (opModeIsActive() && Drivetrain.getGyro() > -80){
+                    Drivetrain.setLeftRightPower(0.2, -0.2);
                 }
                 Drivetrain.STOP();
+
+                sleep(100);
 
                 while (opModeIsActive() && Drivetrain.getGyro() < -90){
                     Drivetrain.setLeftRightPower(-0.2, 0.2);
@@ -326,26 +329,40 @@ public class CC9889_AltAutoBlue extends LinearOpMode {
                 }
                 Drivetrain.STOP();
 
+
+                //Back up if to close to goal
+                while (opModeIsActive() && Drivetrain.getUltrasonic() < 20){
+                    Drivetrain.setLeftRightPower(0.2, 0.2);
+                }
+
+                Drivetrain.STOP();
+
                 //Lower Beacon pressers
                 Beacon.BumperSynchronised(false);
 
-                //Drive to the beacon
-                while (opModeIsActive() && Drivetrain.getUltrasonic() > 20){
+
+                //Drive until really close to beacon
+                while (opModeIsActive() && Drivetrain.getUltrasonic() > 18){
                     Drivetrain.setLeftRightPower(-0.1, -0.1);
                 }
+
+                Drivetrain.STOP();
 
                 //Detect the color and raise the appropriate presser
                 Beacon.HitButton(true);
 
-                sleep(700);
-
-                //Stop and reset Encoders
-                Drivetrain.resetEncoders();
-
                 sleep(500);
 
+                //Press beacon
+                Drivetrain.setLeftRightPower(-0.2, -0.2);
+                sleep(500);
+                Drivetrain.resetEncoders();
+
+                //Raise Beacon pressers
+                Beacon.BumperSynchronised(true);
+
                 //Curve to park on center vortex
-                Drivetrain.setLeftRightPower(0.4, 1.0);
+                Drivetrain.setLeftRightPower(0.3, 1.0);
                 sleep(2000);
                 Drivetrain.setLeftRightPower(0.0, 0.0);
 

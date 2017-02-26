@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.waitForTick;
  * Created by Joshua H on 2/21/2017.
  */
 @TeleOp(name="Teleop%", group="Teleop")
+@Disabled
 public class TestHardware extends LinearOpMode {
     /* Declare OpMode members. */
     private Flywheel Flywheel_Intake          = new Flywheel();

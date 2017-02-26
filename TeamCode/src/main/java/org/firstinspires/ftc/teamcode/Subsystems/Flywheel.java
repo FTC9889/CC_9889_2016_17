@@ -46,7 +46,7 @@ public class Flywheel {
     //Used to control all of the flywheel's actions
     public void setFlywheel(boolean on){
         if (on){
-            flyWheel.setPower(-0.8);
+            flyWheel.setPower(-0.3);
         }else {
             flyWheel.setPower(0.0);
         }
