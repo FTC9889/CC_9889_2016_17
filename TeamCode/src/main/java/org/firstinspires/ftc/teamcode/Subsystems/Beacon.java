@@ -40,10 +40,10 @@ public class Beacon {
     public void BumperSynchronised(boolean updown){
         if(updown){
             RightBumper.setPosition(0.4);
-            LeftBumper.setPosition(1.0);
+            LeftBumper.setPosition(0.4);
         }else {
             RightBumper.setPosition(1.0);
-            LeftBumper.setPosition(0.25);
+            LeftBumper.setPosition(1.0);
         }
     }
 
@@ -51,10 +51,10 @@ public class Beacon {
     public void BumperBeacon(boolean right){
         if (right){
             RightBumper.setPosition(0.4);
-            LeftBumper.setPosition(0.2);
+            LeftBumper.setPosition(0.95);
         }else {
             RightBumper.setPosition(1.0);
-            LeftBumper.setPosition(1.0);
+            LeftBumper.setPosition(0.4);
         }
     }
 

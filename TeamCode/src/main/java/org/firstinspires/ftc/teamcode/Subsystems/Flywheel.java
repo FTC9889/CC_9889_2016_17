@@ -45,28 +45,8 @@ public class Flywheel {
 
     //Used to control all of the flywheel's actions
     public void setFlywheel(boolean on){
-        if(on){
-            if(voltage.getVoltage()<10.0){
-                flyWheel.setPower(-0.3);
-            }else if(voltage.getVoltage()<12.0){
-                flyWheel.setPower(-0.2);
-            }else if(voltage.getVoltage()<12.4){
-
-            }else if(voltage.getVoltage()<12.8){
-
-            }else if(voltage.getVoltage()<13.2){
-
-            }else if(voltage.getVoltage()<13.6){
-
-            }else if(voltage.getVoltage()<14.0){
-
-            }else if(voltage.getVoltage()>14.4){
-
-            }
-        }
-
         if (on){
-            flyWheel.setPower(-0.2);
+            flyWheel.setPower(-0.8);
         }else {
             flyWheel.setPower(0.0);
         }
