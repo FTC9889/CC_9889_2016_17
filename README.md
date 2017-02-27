@@ -21,3 +21,6 @@ To read the documentation for this version of the SDK, go to ftctechnh.
   OpMode for Teleoperated Period
   
 ##Awards
+- Control Award Winner at Qualifying event
+- Control Award Finalist at League Tournament
+- Control Award Finalist at State Championship
