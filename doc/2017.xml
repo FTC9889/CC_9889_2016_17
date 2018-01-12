@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <MotorController name="Left Drivetrain" serialNumber="AL00V17O">
+        <Motor name="LDrive1" port="1" />
+        <Motor name="LDrive2" port="2" />
+    </MotorController>
+    <LegacyModuleController name="Legacy Module" serialNumber="AL00XSS2">
+        <UltrasonicSensor name="ultra" port="5" />
+    </LegacyModuleController>
+    <MotorController name="Motor Controller 1" serialNumber="AH00QIL5">
+        <Motor name="leds" port="1" />
+    </MotorController>
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VEXV">
+        <Gyro name="gyro" port="0" />
+    </DeviceInterfaceModule>
+    <DeviceInterfaceModule name="CDI" serialNumber="AI02RLWU">
+        <ColorSensor name="colorsensor" port="0" />
+        <OpticalDistanceSensor name="OD1" port="0" />
+        <OpticalDistanceSensor name="OD2" port="1" />
+    </DeviceInterfaceModule>
+    <ServoController name="Servo controller" serialNumber="AL00XLRU">
+        <ContinuousRotationServo name="Intake" port="1" />
+        <Servo name="RBump" port="2" />
+        <Servo name="LBump" port="3" />
+    </ServoController>
+    <MotorController name="Right Drivetrain" serialNumber="AL00VGLD">
+        <Motor name="RDrive1" port="1" />
+        <Motor name="RDrive2" port="2" />
+    </MotorController>
+    <MotorController name="Motor Controller 6" serialNumber="AL00VI0U">
+        <Motor name="IntakeMotor" port="1" />
+        <Motor name="flywheel" port="2" />
+    </MotorController>
+</Robot>
